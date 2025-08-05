@@ -43,7 +43,7 @@ public class SceneConfigEditor : Editor
             }
 
             string searchPattern = sceneType.ToString();
-            var matchingScene = allScenePaths.FirstOrDefault(p => 
+            var matchingScene = allScenePaths.FirstOrDefault(p =>
                 System.IO.Path.GetFileNameWithoutExtension(p).Contains(searchPattern));
 
             if (matchingScene != null)
@@ -52,7 +52,6 @@ public class SceneConfigEditor : Editor
                 {
                     sceneType = sceneType,
                     sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(matchingScene),
-                    sceneName = System.IO.Path.GetFileNameWithoutExtension(matchingScene)
                 });
             }
             else
@@ -61,7 +60,6 @@ public class SceneConfigEditor : Editor
                 {
                     sceneType = sceneType,
                     sceneAsset = null,
-                    sceneName = ""
                 });
             }
         }
@@ -75,7 +73,6 @@ public class SceneConfigEditor : Editor
             var element = mappingsProp.GetArrayElementAtIndex(i);
             element.FindPropertyRelative("sceneType").enumValueIndex = (int)newMappings[i].sceneType;
             element.FindPropertyRelative("sceneAsset").objectReferenceValue = newMappings[i].sceneAsset;
-            element.FindPropertyRelative("sceneName").stringValue = newMappings[i].sceneName;
         }
 
         UpdateBuildSettings(config);
@@ -84,7 +81,7 @@ public class SceneConfigEditor : Editor
     private void UpdateBuildSettings(SceneConfig config)
     {
         var buildScenes = new List<EditorBuildSettingsScene>();
-        
+
         foreach (var mapping in config.sceneMappings)
         {
             if (mapping.sceneAsset != null)

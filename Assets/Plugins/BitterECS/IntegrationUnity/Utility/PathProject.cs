@@ -16,7 +16,6 @@ namespace BitterECS.Utility
         public const string ENTITIES = DATA + "Entities/";
         public const string PREFABS = "Prefabs/";
         public const string SETTING = "Settings/";
-        public const string SETTING_NETWORK = SETTING + "Network/";
         public const string VIEWS = PREFABS + "Views/";
     }
 }

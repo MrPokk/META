@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7289176993749878810}
   - component: {fileID: 3093073615850268305}
   m_Layer: 0
-  m_Name: '[EntryPointGLOBAL]'
+  m_Name: '[EntryPointGlobal]'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

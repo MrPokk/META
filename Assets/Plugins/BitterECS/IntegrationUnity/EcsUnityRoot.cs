@@ -2,14 +2,14 @@ using UnityEngine;
 
 namespace BitterECS.Core.Integration
 {
-    public abstract class EcsUnityRoot : MonoBehaviour, IEcsIntegrationRoot
+    public class EcsUnityRoot : MonoBehaviour, IEcsIntegrationRoot
     {
         public static EcsWorld EcsWorld { get; private set; }
         public static EcsSystems EcsSystems { get; private set; }
 
         public Priority PrioritySystem => Priority.FIRST_TASK;
 
-        protected abstract void Bootstrap();
+        protected virtual void Bootstrap() { }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Integration()

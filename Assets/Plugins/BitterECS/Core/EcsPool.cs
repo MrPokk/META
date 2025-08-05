@@ -5,21 +5,17 @@ namespace BitterECS.Core
 {
     public sealed class EcsPool<T> : IDisposable where T : struct
     {
-        private const int InitialCapacity = 64;
-        private const int GrowthFactor = 2;
-
         private T[] _components;
         private int[] _entityToDataIndex;
         private int[] _dataIndexToEntity;
         private int _count;
-
-        private Stack<int> _freeIndices = new(InitialCapacity);
+        private Stack<int> _freeIndices = new(EcsConfig.InitialPoolCapacity);
 
         public EcsPool()
         {
-            _components = new T[InitialCapacity];
-            _entityToDataIndex = new int[InitialCapacity];
-            _dataIndexToEntity = new int[InitialCapacity];
+            _components = new T[EcsConfig.InitialPoolCapacity];
+            _entityToDataIndex = new int[EcsConfig.InitialPoolCapacity];
+            _dataIndexToEntity = new int[EcsConfig.InitialPoolCapacity];
             Array.Fill(_entityToDataIndex, -1);
         }
 
@@ -27,7 +23,7 @@ namespace BitterECS.Core
         {
             if (entityId >= _entityToDataIndex.Length)
             {
-                Array.Resize(ref _entityToDataIndex, Math.Max(entityId + 1, _entityToDataIndex.Length * GrowthFactor));
+                Array.Resize(ref _entityToDataIndex, Math.Max(entityId + 1, _entityToDataIndex.Length *  EcsConfig.PoolGrowthFactor));
             }
 
             if (_entityToDataIndex[entityId] != -1)
@@ -56,8 +52,7 @@ namespace BitterECS.Core
 
         private void GrowArrays()
         {
-            int newCapacity = _components.Length * GrowthFactor;
-
+            int newCapacity = _components.Length * EcsConfig.PoolGrowthFactor;
             Array.Resize(ref _components, newCapacity);
             Array.Resize(ref _dataIndexToEntity, newCapacity);
         }
@@ -71,6 +66,8 @@ namespace BitterECS.Core
 
             return ref _components[_entityToDataIndex[entityId]];
         }
+
+        public bool Has(int entityId) => entityId < _entityToDataIndex.Length && _entityToDataIndex[entityId] != -1;
 
         public void Remove(int entityId)
         {
@@ -92,15 +89,6 @@ namespace BitterECS.Core
 
             _count--;
             _freeIndices.Push(dataIndex);
-        }
-
-        public void Dispose()
-        {
-            _components = null;
-            _entityToDataIndex = null;
-            _dataIndexToEntity = null;
-            _freeIndices = null;
-            GC.SuppressFinalize(this);
         }
 
         public Enumerator GetEnumerator() => new Enumerator(this);
@@ -129,6 +117,16 @@ namespace BitterECS.Core
                 }
                 return false;
             }
+        }
+
+        public void Dispose()
+        {
+            _components = null;
+            _entityToDataIndex = null;
+            _dataIndexToEntity = null;
+            _freeIndices?.Clear();
+            _freeIndices = null;
+            GC.SuppressFinalize(this);
         }
     }
 }

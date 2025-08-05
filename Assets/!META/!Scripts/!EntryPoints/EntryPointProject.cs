@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using BitterECS.Core.Integration;
 using kcp2k;
 using Mirror;
 using Mirror.SimpleWeb;
@@ -23,9 +23,19 @@ public class EntryPointProject : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.RegisterInstance(SetupNetworkManager());
+        builder.RegisterInstance(SetupEcs());
 
-        SetupClient(builder);
         SetupServer(builder);
+        SetupClient(builder);
+    }
+
+    private EcsUnityRoot SetupEcs()
+    {
+        var ecsManager = new GameObject("[EcsEntryPoint]",
+            typeof(EcsUnityRoot)).GetComponent<EcsUnityRoot>();
+
+        DontDestroyOnLoad(ecsManager.gameObject);
+        return ecsManager;
     }
 
     private NetworkManager SetupNetworkManager()
@@ -49,10 +59,9 @@ public class EntryPointProject : LifetimeScope
 
     private void SetupServer(IContainerBuilder builder)
     {
-#if DEDICATED_SERVER
+#if DEDICATED_SERVER || UNITY_EDITOR
         builder.RegisterInstance(_networkServerConfig);
         builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
 #endif
     }
-
 }

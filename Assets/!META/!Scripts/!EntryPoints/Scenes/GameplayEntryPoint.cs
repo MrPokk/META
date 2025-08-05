@@ -1,11 +1,16 @@
-using UnityEngine;
-using VContainer;
+using BitterECS.Core;
+using BitterECS.Core.Integration;
 using VContainer.Unity;
 
 public class GameplayEntryPoint : LifetimeScope
 {
-    override protected void Configure(IContainerBuilder builder)
-    { 
+    private void Start()
+    {
+        var playerPresenter = EcsWorld.Get<PlayerPresenter>();
+        playerPresenter.AddEntity<PlayerEntity>()
+         .WithLink(EcsUnityViewDatabase.GetInstance<PlayerView>()).Create();
 
+
+         
     }
 }

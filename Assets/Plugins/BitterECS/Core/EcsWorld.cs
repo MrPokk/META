@@ -6,12 +6,7 @@ namespace BitterECS.Core
 {
     public sealed class EcsWorld : IInitialize, IDisposable
     {
-        private readonly static Dictionary<Type, EcsPresenter> s_ecsPresenters;
-
-        static EcsWorld()
-        {
-            s_ecsPresenters = new Dictionary<Type, EcsPresenter>();
-        }
+        private readonly static Dictionary<Type, EcsPresenter> s_ecsPresenters = new(EcsConfig.InitialPresentersCapacity);
 
         public void Init()
         {
@@ -54,13 +49,12 @@ namespace BitterECS.Core
 
         public void Dispose()
         {
-            foreach (var presenter in s_ecsPresenters)
+            foreach (var presenter in s_ecsPresenters.Values)
             {
-                var disposable = presenter.Value as IDisposable;
-                disposable.Dispose();
+                presenter.Dispose();
             }
-
             s_ecsPresenters.Clear();
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -12,16 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19a22e5f52e5886e494e0c546faac06a, type: 3}
   m_Name: SceneConfig
   m_EditorClassIdentifier: 
-  _sceneMappings:
+  sceneMappings:
   - sceneType: 0
     sceneAsset: {fileID: 102900000, guid: 249fa19b49d162062a717edc68caa349, type: 3}
-    sceneName: EntryPointScene
   - sceneType: 1
-    sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
-    sceneName: Gameplayer
-  - sceneType: 2
     sceneAsset: {fileID: 102900000, guid: 035c9f9a551c3565fa07a2f05a6cac62, type: 3}
-    sceneName: Menu
+  - sceneType: 2
+    sceneAsset: {fileID: 102900000, guid: b31e3603089f73c70adf15e580577498, type: 3}
   - sceneType: 3
-    sceneAsset: {fileID: 0}
-    sceneName: 
+    sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
+  - sceneType: 4
+    sceneAsset: {fileID: 102900000, guid: 27f7dd2ed9b74fbdfa4cd4865e8f8e22, type: 3}

@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using VContainer;
@@ -5,7 +6,6 @@ using VContainer.Unity;
 
 public class EntryPointClient : IStartable
 {
-
     private readonly NetworkClientConfig _clientConfig;
     private readonly NetworkManager _networkManager;
 
@@ -23,10 +23,15 @@ public class EntryPointClient : IStartable
 #else
         _networkManager.networkAddress = _clientConfig.serverIP;
 #endif
-
         _networkManager.StartClient();
+        
         Debug.Log("[Network] Client started!");
 
-        await SceneLoader.LoadSceneAsync(SceneTypes.Menu);
+        await SetupScene();
+    }
+
+    private async Task SetupScene()
+    {
+        await SceneLoader.LoadSceneAsync(SceneTypes.TestGame);
     }
 }

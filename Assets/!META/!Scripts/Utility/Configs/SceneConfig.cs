@@ -11,7 +11,7 @@ public class SceneConfig : ScriptableObject
 #if UNITY_EDITOR
         public UnityEditor.SceneAsset sceneAsset;
 #endif
-        public string sceneName;
+        public string sceneName => sceneAsset != null ? sceneAsset.name : sceneName;
     }
 
     public SceneMapping[] sceneMappings;

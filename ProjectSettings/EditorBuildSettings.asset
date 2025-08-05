@@ -9,11 +9,17 @@ EditorBuildSettings:
     path: Assets/!META/Scenes/EntryPointScene.unity
     guid: 249fa19b49d162062a717edc68caa349
   - enabled: 1
+    path: Assets/!META/Scenes/Menu.unity
+    guid: 035c9f9a551c3565fa07a2f05a6cac62
+  - enabled: 1
+    path: Assets/!META/Scenes/TestGame.unity
+    guid: b31e3603089f73c70adf15e580577498
+  - enabled: 1
     path: Assets/!META/Scenes/LocalGame.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/!META/Scenes/Menu.unity
-    guid: 035c9f9a551c3565fa07a2f05a6cac62
+    path: Assets/!META/Scenes/OnlineGame.unity
+    guid: 27f7dd2ed9b74fbdfa4cd4865e8f8e22
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
