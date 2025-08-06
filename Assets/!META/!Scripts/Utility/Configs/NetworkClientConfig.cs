@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NetworkClientConfig", menuName = "Network/Client Config")]
@@ -8,7 +7,7 @@ public class NetworkClientConfig : ScriptableObject
     public string serverIP = "127.0.0.1";
     public ushort kcpPort = 7777;
 
-    [Header("Connection Settings - WebSocket")] 
+    [Header("Connection Settings - WebSocket")]
     public string webSocketServerIP = "localhost";
     public ushort webSocketPort = 8888;
     public bool webSocketSecure = false;
@@ -33,4 +32,4 @@ public class NetworkClientConfig : ScriptableObject
         }
     }
 }
-#endif
+

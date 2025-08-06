@@ -9,9 +9,24 @@ public class SceneConfig : ScriptableObject
     {
         public SceneTypes sceneType;
 #if UNITY_EDITOR
-        public UnityEditor.SceneAsset sceneAsset;
+        [SerializeField] public UnityEditor.SceneAsset sceneAsset;
 #endif
-        public string sceneName => sceneAsset != null ? sceneAsset.name : sceneName;
+        [SerializeField] private string _sceneName;
+
+        public string SceneName
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (sceneAsset != null) return sceneAsset.name;
+#endif
+                return _sceneName;
+            }
+        }
+
+#if UNITY_EDITOR
+        public UnityEditor.SceneAsset SceneAsset => sceneAsset;
+#endif
     }
 
     public SceneMapping[] sceneMappings;
@@ -21,7 +36,7 @@ public class SceneConfig : ScriptableObject
         foreach (var mapping in sceneMappings)
         {
             if (mapping.sceneType == sceneType)
-                return mapping.sceneName;
+                return mapping.SceneName;
         }
         Debug.LogError($"Scene name for type {sceneType} not found!");
         return null;

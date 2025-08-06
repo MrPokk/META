@@ -15,11 +15,16 @@ MonoBehaviour:
   sceneMappings:
   - sceneType: 0
     sceneAsset: {fileID: 102900000, guid: 249fa19b49d162062a717edc68caa349, type: 3}
+    _sceneName: EntryPointScene
   - sceneType: 1
     sceneAsset: {fileID: 102900000, guid: 035c9f9a551c3565fa07a2f05a6cac62, type: 3}
+    _sceneName: Menu
   - sceneType: 2
     sceneAsset: {fileID: 102900000, guid: b31e3603089f73c70adf15e580577498, type: 3}
+    _sceneName: TestGame
   - sceneType: 3
     sceneAsset: {fileID: 102900000, guid: 99c9720ab356a0642a771bea13969a05, type: 3}
+    _sceneName: LocalGame
   - sceneType: 4
     sceneAsset: {fileID: 102900000, guid: 27f7dd2ed9b74fbdfa4cd4865e8f8e22, type: 3}
+    _sceneName: OnlineGame

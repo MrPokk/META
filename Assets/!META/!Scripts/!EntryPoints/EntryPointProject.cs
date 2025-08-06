@@ -29,10 +29,10 @@ public class EntryPointProject : LifetimeScope
         SetupClient(builder);
     }
 
-    private EcsUnityRoot SetupEcs()
+    private EcsNetworkUnity SetupEcs()
     {
         var ecsManager = new GameObject("[EcsEntryPoint]",
-            typeof(EcsUnityRoot)).GetComponent<EcsUnityRoot>();
+            typeof(EcsNetworkUnity)).GetComponent<EcsNetworkUnity>();
 
         DontDestroyOnLoad(ecsManager.gameObject);
         return ecsManager;
@@ -43,7 +43,8 @@ public class EntryPointProject : LifetimeScope
         var networkManager = new GameObject("[NetworkManager]",
             typeof(KcpTransport),
             typeof(SimpleWebTransport),
-            typeof(NetworkManager)).GetComponent<NetworkManager>();
+            typeof(NetworkManager),
+            typeof(NetworkManagerHUD)).GetComponent<NetworkManager>();
         DontDestroyOnLoad(networkManager.gameObject);
         return networkManager;
     }

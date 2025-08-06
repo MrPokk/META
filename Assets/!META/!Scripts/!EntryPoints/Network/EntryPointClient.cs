@@ -1,10 +1,11 @@
-using System.Threading.Tasks;
+using System;
+using BitterECS.Core;
 using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
-public class EntryPointClient : IStartable
+public class EntryPointClient : IStartable, IDisposable
 {
     private readonly NetworkClientConfig _clientConfig;
     private readonly NetworkManager _networkManager;
@@ -16,7 +17,7 @@ public class EntryPointClient : IStartable
         _networkManager = networkManager;
     }
 
-    public async void Start()
+    public void Start()
     {
 #if UNITY_WEBGL
         _networkManager.networkAddress = _clientConfig.webSocketServerUrl;
@@ -24,14 +25,46 @@ public class EntryPointClient : IStartable
         _networkManager.networkAddress = _clientConfig.serverIP;
 #endif
         _networkManager.StartClient();
-        
-        Debug.Log("[Network] Client started!");
-
-        await SetupScene();
+        OnSubscribeClient();
+    }
+    
+    private void OnClientConnected()
+    {
+        Debug.Log("[Network] Client connected successfully!");
+        EcsSystems.Run<IClientConnected>(system => system.Connect());
     }
 
-    private async Task SetupScene()
+    private void OnClientDisconnected()
     {
-        await SceneLoader.LoadSceneAsync(SceneTypes.TestGame);
+        Debug.LogError("[Network] Connection failed or disconnected!");
+        EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
+    }
+
+    private void OnClientError(TransportError error, string arg2)
+    {
+        Debug.LogError("[Network] Connection failed or disconnected!");
+        EcsSystems.Run<IClientError>(system => system.OnError());
+    }
+
+    private void OnSubscribeClient()
+    {
+        NetworkClient.OnConnectedEvent += OnClientConnected;
+        NetworkClient.OnErrorEvent += OnClientError;
+        NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
+    }
+
+    private void OnUnsubscribeClient()
+    {
+        NetworkClient.OnConnectedEvent -= OnClientConnected;
+        NetworkClient.OnErrorEvent -= OnClientError;
+        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+    }
+
+    public void Dispose()
+    {
+        if (NetworkClient.active)
+        {
+            OnUnsubscribeClient();
+        }
     }
 }

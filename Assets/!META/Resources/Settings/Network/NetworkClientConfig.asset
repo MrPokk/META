@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a8694cf61da2c382a81e5f2029a42fe, type: 3}
   m_Name: NetworkClientConfig
   m_EditorClassIdentifier: 
-  kcpServerIP: 127.0.0.1
-  kcpPort: 7777
+  serverIP: localhost
+  kcpPort: 5050
   webSocketServerIP: localhost
   webSocketPort: 8888
   webSocketSecure: 0

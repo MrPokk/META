@@ -6,7 +6,7 @@ namespace BitterECS.Core
 {
     public sealed class EcsSystems : IInitialize, IDisposable
     {
-        private readonly List<IEcsSystem> _systems = new(EcsConfig.InitialSystemsCapacity);
+        private static readonly List<IEcsSystem> s_systems = new(EcsConfig.InitialSystemsCapacity);
         private static readonly Dictionary<Type, IEcsSystem[]> s_cachedInstanceSystems = new(EcsConfig.InitialSystemsCapacity);
 
         public void Init()
@@ -14,7 +14,7 @@ namespace BitterECS.Core
             LoadAllSystems();
         }
 
-        public void Run<T>(Action<T> action) where T : class, IEcsSystem
+        public static void Run<T>(Action<T> action) where T : class, IEcsSystem
         {
             var systems = GetSystems<T>();
             foreach (var system in systems)
@@ -23,7 +23,7 @@ namespace BitterECS.Core
             }
         }
 
-        public IReadOnlyCollection<T> GetSystems<T>() where T : class, IEcsSystem
+        public static IReadOnlyCollection<T> GetSystems<T>() where T : class, IEcsSystem
         {
             var type = typeof(T);
 
@@ -32,9 +32,9 @@ namespace BitterECS.Core
                 return (T[])cached;
             }
 
-            var result = new List<T>(_systems.Count);
+            var result = new List<T>(s_systems.Count);
 
-            foreach (var system in _systems)
+            foreach (var system in s_systems)
             {
                 if (system is T typedSystem)
                 {
@@ -51,6 +51,8 @@ namespace BitterECS.Core
 
         private void LoadAllSystems()
         {
+            s_systems.Clear();
+
             var systemTypes = ReflectionUtility.FindAllAssignments<IEcsSystem>();
             foreach (var type in systemTypes)
             {
@@ -62,26 +64,25 @@ namespace BitterECS.Core
 #endif
                 if (Activator.CreateInstance(type) is IEcsSystem system)
                 {
-                    _systems.Add(system);
+                    s_systems.Add(system);
                 }
             }
 
-            _systems.Sort((left, right) => (int)left.PrioritySystem - (int)right.PrioritySystem);
-
+            s_systems.Sort((left, right) => (int)left.PrioritySystem - (int)right.PrioritySystem);
             s_cachedInstanceSystems.Clear();
         }
 
 
         public void Dispose()
         {
-            foreach (var system in _systems)
+            foreach (var system in s_systems)
             {
                 if (system is IDisposable disposableSystem)
                 {
                     disposableSystem.Dispose();
                 }
             }
-            _systems.Clear();
+            s_systems.Clear();
             s_cachedInstanceSystems.Clear();
             GC.SuppressFinalize(this);
         }

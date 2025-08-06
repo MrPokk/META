@@ -1,4 +1,4 @@
-struct NetworkSyncComponent
+public struct NetworkSyncComponent
 {
     
 }

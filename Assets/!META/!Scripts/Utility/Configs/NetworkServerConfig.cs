@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using kcp2k;
 using Mirror;
 using Mirror.SimpleWeb;
@@ -77,4 +76,4 @@ public class NetworkServerConfig : ScriptableObject
         }
     }
 }
-#endif
+

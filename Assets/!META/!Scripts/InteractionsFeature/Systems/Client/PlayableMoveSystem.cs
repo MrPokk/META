@@ -20,7 +20,7 @@ public class MoveSystem : IEcsRunSystem
             if (entity.Get<ViewComponent>().current is EcsUnityView unityView)
             {
                 var directionMovement = new Vector3(direction.x, 0, direction.y);
-                unityView.transform.Translate(directionMovement * speed * Time.deltaTime);
+                unityView?.transform.Translate(directionMovement * speed * Time.deltaTime);
             }
         }
     }
