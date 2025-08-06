@@ -1,4 +1,5 @@
 using BitterECS.Core;
+using Mirror;
 
 public class SetupSceneSystem : IClientConnected, IClientDisconnected
 {

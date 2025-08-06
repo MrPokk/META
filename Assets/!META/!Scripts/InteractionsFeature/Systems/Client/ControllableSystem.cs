@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using BitterECS.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
 
 public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 {

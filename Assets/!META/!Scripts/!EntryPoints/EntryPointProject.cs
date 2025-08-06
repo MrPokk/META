@@ -1,4 +1,3 @@
-using BitterECS.Core.Integration;
 using kcp2k;
 using Mirror;
 using Mirror.SimpleWeb;
@@ -22,18 +21,43 @@ public class EntryPointProject : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterInstance(SetupNetworkManager());
-        builder.RegisterInstance(SetupEcs());
-
-        SetupServer(builder);
-        SetupClient(builder);
+        RegisterCoreComponents(builder);
+        RegisterNetworkDependencies(builder);
     }
 
-    private EcsNetworkUnity SetupEcs()
+    private void RegisterCoreComponents(IContainerBuilder builder)
     {
-        var ecsManager = new GameObject("[EcsEntryPoint]",
-            typeof(EcsNetworkUnity)).GetComponent<EcsNetworkUnity>();
+        var networkManager = SetupNetworkManager();
+        builder.RegisterComponent(networkManager)
+               .As<NetworkManager>()
+               .AsImplementedInterfaces();
 
+        var ecsManager = SetupEcsManager();
+        builder.RegisterComponent(ecsManager)
+               .As<EcsNetworkUnity>()
+               .AsImplementedInterfaces();
+
+        builder.RegisterInstance(_sceneConfig);
+    }
+
+    private void RegisterNetworkDependencies(IContainerBuilder builder)
+    {
+#if DEDICATED_SERVER || UNITY_EDITOR
+        builder.RegisterInstance(_networkServerConfig);
+        builder.RegisterEntryPoint<EntryPointServer>()
+               .AsSelf();
+#if !DEDICATED_SERVER || UNITY_EDITOR
+        builder.RegisterInstance(_networkClientConfig);
+        builder.RegisterEntryPoint<EntryPointClient>()
+               .AsSelf();
+#endif 
+#endif
+    }
+
+    private EcsNetworkUnity SetupEcsManager()
+    {
+        var ecsManager = new GameObject("[EcsEntryPoint]", typeof(EcsNetworkUnity))
+            .GetComponent<EcsNetworkUnity>();
         DontDestroyOnLoad(ecsManager.gameObject);
         return ecsManager;
     }
@@ -41,28 +65,11 @@ public class EntryPointProject : LifetimeScope
     private NetworkManager SetupNetworkManager()
     {
         var networkManager = new GameObject("[NetworkManager]",
-            typeof(KcpTransport),
-            typeof(SimpleWebTransport),
-            typeof(NetworkManager),
-            typeof(NetworkManagerHUD)).GetComponent<NetworkManager>();
+                typeof(KcpTransport),
+                typeof(SimpleWebTransport),
+                typeof(NetworkManager))
+            .GetComponent<NetworkManager>();
         DontDestroyOnLoad(networkManager.gameObject);
         return networkManager;
-    }
-
-    private void SetupClient(IContainerBuilder builder)
-    {
-#if !DEDICATED_SERVER
-        builder.RegisterInstance(_networkClientConfig);
-        builder.RegisterInstance(_sceneConfig);
-        builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
-#endif
-    }
-
-    private void SetupServer(IContainerBuilder builder)
-    {
-#if DEDICATED_SERVER || UNITY_EDITOR
-        builder.RegisterInstance(_networkServerConfig);
-        builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
-#endif
     }
 }

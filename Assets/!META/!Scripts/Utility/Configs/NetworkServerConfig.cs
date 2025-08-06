@@ -8,6 +8,9 @@ public class NetworkServerConfig : ScriptableObject
 {
     [Header("<size=18>Network Settings </size>")]
 
+    [Header("Common Settings")]
+    public string networkAddress = "localhost";
+
     [Header("KCP Server Settings")]
     public ushort kcpPort = 7777;
     public bool kcpNoDelay = true;
@@ -49,6 +52,7 @@ public class NetworkServerConfig : ScriptableObject
 
     public void ConfigureServer(NetworkManager manager)
     {
+        manager.networkAddress = networkAddress;
         manager.authenticator = authenticator;
         manager.playerPrefab = playerPrefab;
         manager.autoCreatePlayer = autoCreatePlayer;
@@ -76,4 +80,3 @@ public class NetworkServerConfig : ScriptableObject
         }
     }
 }
-

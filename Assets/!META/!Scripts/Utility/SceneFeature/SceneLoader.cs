@@ -21,6 +21,14 @@ public static class SceneLoader
         }
 
         var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        if (asyncOp == null)
+        {
+#if UNITY_EDITOR
+            Debug.LogError($"Failed to load scene: {sceneName}"); return;
+#else
+            return;
+#endif
+        }
         asyncOp.allowSceneActivation = true;
 
         while (!asyncOp.isDone)
