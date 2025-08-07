@@ -1,16 +1,16 @@
-using BitterECS.Core;
-using BitterECS.Core.Integration;
+using Mirror;
+using UnityEngine;
 using VContainer.Unity;
 
 public class GameplayEntryPoint : LifetimeScope
 {
-    public Priority PrioritySystem => Priority.Medium;
+    [SerializeField] private NetworkBehaviour playerPrefab;
 
     private void Start()
     {
-        var playerPresenter = EcsWorld.Get<PlayerPresenter>();
-        playerPresenter.AddEntity<PlayerEntity>()
-         .WithLink(EcsUnityViewDatabase.GetInstance<PlayerView>())
-         .WithComponent<NetworkChapterComponent>(new()).Create();
+        var networkManager = NetworkManager.singleton;
+        networkManager.playerPrefab = playerPrefab.gameObject;
+        
+        NetworkClient.Send(new SpawnRequestMessage());
     }
 }

@@ -10,25 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 793ddad4101d497d1947d9270d90d2a3, type: 3}
-  m_Name: NetworkServerConfig
+  m_Name: NetworkConfig
   m_EditorClassIdentifier: 
   networkAddress: 25.39.188.177
   kcpPort: 5050
   kcpNoDelay: 1
   kcpInterval: 10
-  kcpFastResend: 2
-  kcpReceiveWindowSize: 128
-  kcpSendWindowSize: 128
-  kcpMaxRetransmits: 10
   webSocketPort: 5050
   webSocketSecure: 0
   webSocketSslCertJson: 
   webSocketMaxMessageSize: 16384
-  webSocketMaxMessagesPerTick: 1000
   webSocketSendTimeout: 5000
   webSocketReceiveTimeout: 20000
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 0}
+  playerPrefab: {fileID: 1981802161455180820, guid: e69ee19fa388ddbc1aff19928dd0b84c, type: 3}
   autoCreatePlayer: 0
   playerSpawnMethod: 0
   exceptionsDisconnect: 1

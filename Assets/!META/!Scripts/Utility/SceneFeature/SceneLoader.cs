@@ -36,4 +36,31 @@ public static class SceneLoader
             await Task.Yield();
         }
     }
+
+
+    public static async Task LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
+    {
+        var sceneName = s_sceneConfig.GetSceneName(sceneType);
+        if (string.IsNullOrEmpty(sceneName))
+        {
+            Debug.LogError($"Scene name for {sceneType} is not set!");
+            return;
+        }
+
+        var asyncOp = SceneManager.LoadSceneAsync(sceneName, loadSceneParameters);
+        if (asyncOp == null)
+        {
+#if UNITY_EDITOR
+            Debug.LogError($"Failed to load scene: {sceneName}"); return;
+#else
+            return;
+#endif
+        }
+        asyncOp.allowSceneActivation = true;
+
+        while (!asyncOp.isDone)
+        {
+            await Task.Yield();
+        }
+    }
 }

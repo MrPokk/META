@@ -1,4 +1,5 @@
 using BitterECS.Core;
+using Mirror;
 using UnityEngine;
 
 public class PlayableMoveSystem : IClientConnectedRun
@@ -19,11 +20,11 @@ public class PlayableMoveSystem : IClientConnectedRun
             ref var speed = ref entity.Get<MoveComponent>().speed;
             ref var viewComponent = ref entity.Get<ViewComponent>();
 
-            var ecsUnityView = viewComponent.current;
-            if (ecsUnityView is EcsUnityView unityView && unityView != null)
+            var ecsUnityView = (MonoBehaviour)viewComponent.current;
+            if (ecsUnityView != null)
             {
                 var directionMovement = new Vector3(direction.x, 0, direction.y);
-                unityView.transform.Translate(directionMovement * speed * Time.deltaTime);
+                ecsUnityView.transform.Translate(directionMovement * speed * Time.deltaTime);
             }
         }
     }

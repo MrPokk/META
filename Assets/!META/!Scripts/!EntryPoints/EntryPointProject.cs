@@ -7,8 +7,8 @@ using VContainer.Unity;
 
 public class EntryPointProject : LifetimeScope
 {
-    [SerializeField] private NetworkServerConfig _networkServerConfig;
-    [SerializeField] private NetworkClientConfig _networkClientConfig;
+    [Header("<size=16>Configs</size>")]
+    [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
     protected override async void Awake()
@@ -29,7 +29,7 @@ public class EntryPointProject : LifetimeScope
     {
         var networkManager = SetupNetworkManager();
         builder.RegisterComponent(networkManager)
-               .As<NetworkManager>()
+               .As<OverrideNetworkManager>()
                .AsImplementedInterfaces();
 
         var ecsManager = SetupEcsManager();
@@ -37,21 +37,39 @@ public class EntryPointProject : LifetimeScope
                .As<EcsNetworkUnity>()
                .AsImplementedInterfaces();
 
+        var sceneManager = SetupSceneNetworkManager();
+        builder.RegisterComponent(sceneManager)
+               .As<SceneNetworkManager>()
+               .AsImplementedInterfaces();
+
+        builder.RegisterInstance(_networkConfig);
         builder.RegisterInstance(_sceneConfig);
     }
 
     private void RegisterNetworkDependencies(IContainerBuilder builder)
     {
-#if DEDICATED_SERVER || UNITY_EDITOR
-        builder.RegisterInstance(_networkServerConfig);
+#if UNITY_EDITOR
         builder.RegisterEntryPoint<EntryPointServer>()
                .AsSelf();
-#if !DEDICATED_SERVER || UNITY_EDITOR
-        builder.RegisterInstance(_networkClientConfig);
+
         builder.RegisterEntryPoint<EntryPointClient>()
                .AsSelf();
-#endif 
+#elif SERVER
+        builder.RegisterEntryPoint<EntryPointServer>()
+               .AsSelf();
+#elif CLIENT
+        builder.RegisterEntryPoint<EntryPointClient>()
+               .AsSelf();
 #endif
+    }
+
+
+    private SceneNetworkManager SetupSceneNetworkManager()
+    {
+        var sceneManager = new GameObject("[SceneManager]", typeof(SceneNetworkManager))
+            .GetComponent<SceneNetworkManager>();
+        DontDestroyOnLoad(sceneManager.gameObject);
+        return sceneManager;
     }
 
     private EcsNetworkUnity SetupEcsManager()
@@ -62,13 +80,15 @@ public class EntryPointProject : LifetimeScope
         return ecsManager;
     }
 
-    private NetworkManager SetupNetworkManager()
+    private OverrideNetworkManager SetupNetworkManager()
     {
         var networkManager = new GameObject("[NetworkManager]",
                 typeof(KcpTransport),
                 typeof(SimpleWebTransport),
-                typeof(NetworkManager))
-            .GetComponent<NetworkManager>();
+                typeof(SceneInterestManagement),
+                typeof(OverrideNetworkManager))
+            .GetComponent<OverrideNetworkManager>();
+
         DontDestroyOnLoad(networkManager.gameObject);
         return networkManager;
     }

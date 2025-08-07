@@ -8,7 +8,7 @@ namespace BitterECS.Core.Integration
     public class EcsUnityViewDatabase
     {
         private static bool s_isInitialized;
-        private readonly static Dictionary<Type, EcsUnityView> s_viewPrefabs = new();
+        private readonly static Dictionary<Type, ILinkableView> s_viewPrefabs = new();
 
         private static void EnsureInitialized()
         {
@@ -40,8 +40,8 @@ namespace BitterECS.Core.Integration
                     if (!viewPrefab)
                         continue;
 
-                    var ecsView = viewPrefab.GetComponent<EcsUnityView>();
-                    if (!ecsView)
+                    var ecsView = viewPrefab.GetComponent<ILinkableView>();
+                    if (ecsView == null)
                     {
                         Debug.LogError($"EcsView component missing in prefab: {viewPrefab.name}");
                         continue;
@@ -58,28 +58,29 @@ namespace BitterECS.Core.Integration
             }
         }
 
-        public static EcsUnityView GetPrefab(Type viewType)
+        public static ILinkableView GetPrefab(Type viewType)
         {
             EnsureInitialized();
 
             if (!s_viewPrefabs.TryGetValue(viewType, out var prefab))
                 throw new KeyNotFoundException($"ECS View of type {viewType.Name} not found in database");
 
-            if (!prefab)
+            if (prefab == null)
                 throw new ArgumentNullException($"ECS View prefab is null. Check path: Resources/EcsViews");
 
             return prefab;
         }
 
-        public static T GetPrefab<T>() where T : EcsUnityView => (T)GetPrefab(typeof(T));
+        public static T GetPrefab<T>() where T : ILinkableView => (T)GetPrefab(typeof(T));
 
-        public static EcsUnityView GetInstance(Type viewType)
+        public static ILinkableView GetInstance(Type viewType)
         {
             var prefab = GetPrefab(viewType);
-            var newInstance = UnityEngine.Object.Instantiate(prefab);
-            return newInstance;
+            var prefabUnity = prefab as MonoBehaviour;
+            var newInstance = UnityEngine.Object.Instantiate(prefabUnity);
+            return newInstance as ILinkableView;
         }
 
-        public static T GetInstance<T>() where T : EcsUnityView => (T)GetInstance(typeof(T));
+        public static T GetInstance<T>() where T : ILinkableView => (T)GetInstance(typeof(T));
     }
 }

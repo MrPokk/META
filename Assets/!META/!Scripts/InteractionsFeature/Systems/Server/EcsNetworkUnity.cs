@@ -6,10 +6,12 @@ public class EcsNetworkUnity : EcsUnityRoot
     public override void Run()
     {
         base.Run();
-#if DEDICATED_SERVER || UNITY_EDITOR
+#if UNITY_EDITOR
         EcsSystems.Run<IServerConnectedRun>(system => system.Run());
-#endif
-#if  !DEDICATED_SERVER || UNITY_EDITOR
+        EcsSystems.Run<IClientConnectedRun>(system => system.Run());
+#elif SERVER
+        EcsSystems.Run<IServerConnectedRun>(system => system.Run());
+#elif CLIENT
         EcsSystems.Run<IClientConnectedRun>(system => system.Run());
 #endif
     }
@@ -18,10 +20,12 @@ public class EcsNetworkUnity : EcsUnityRoot
     {
         base.FixedRun();
 
-#if DEDICATED_SERVER || UNITY_EDITOR
+#if UNITY_EDITOR
         EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
-#endif
-#if  !DEDICATED_SERVER || UNITY_EDITOR
+        EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
+#elif SERVER
+        EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
+#elif CLIENT
         EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
 #endif
     }

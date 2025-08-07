@@ -7,27 +7,30 @@ using VContainer.Unity;
 
 public class EntryPointClient : IStartable, IDisposable
 {
-    private readonly NetworkClientConfig _clientConfig;
-    private readonly NetworkManager _networkManager;
+    private readonly NetworkConfig _networkConfig;
+    private readonly OverrideNetworkManager _networkManager;
 
+    public Priority PrioritySystem => Priority.FIRST_TASK;
+
+    public EntryPointClient() { }
     [Inject]
-    public EntryPointClient(NetworkClientConfig clientConfig, NetworkManager networkManager)
+    public EntryPointClient(NetworkConfig clientConfig, OverrideNetworkManager networkManager)
     {
-        _clientConfig = clientConfig;
+        _networkConfig = clientConfig;
         _networkManager = networkManager;
     }
 
     public void Start()
     {
-#if UNITY_WEBGL
-        _networkManager.networkAddress = _clientConfig.webSocketServerUrl;
-#else
-        _networkManager.networkAddress = _clientConfig.serverIP;
-#endif
+        _networkConfig.Configure(_networkManager);
+    }    
+
+    public void InitializeClient()
+    {
         _networkManager.StartClient();
         OnSubscribeClient();
     }
-    
+
     private void OnClientConnected()
     {
         Debug.Log("[Network] Client connected successfully!");
@@ -36,7 +39,7 @@ public class EntryPointClient : IStartable, IDisposable
 
     private void OnClientDisconnected()
     {
-        Debug.LogError("[Network] Connection failed or disconnected!");
+        Debug.LogError("<>[Network] Connection failed or disconnected!");
         EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
     }
 
@@ -67,4 +70,5 @@ public class EntryPointClient : IStartable, IDisposable
             OnUnsubscribeClient();
         }
     }
+
 }

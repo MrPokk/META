@@ -1,5 +1,6 @@
 
 using BitterECS.Core;
+using Mirror;
 
 public interface IClientConnected : IEcsSystem
 {
@@ -25,20 +26,24 @@ internal interface IClientConnectedFixedRun : IEcsSystem
 {
     void FixedRun();
 }
+public interface IServerStart : IEcsSystem
+{
+    public void Start();
+}
 
 public interface IServerConnected : IEcsSystem
 {
-    public void Connect();
+    public void Connect(NetworkConnectionToClient client);
 }
 
 public interface IServerDisconnected : IEcsSystem
 {
-    public void Disconnect();
+    public void Disconnect(NetworkConnectionToClient client);
 }
 
 public interface IServerError : IEcsSystem
 {
-    public void OnError();
+    public void OnError(NetworkConnectionToClient client, TransportError error, string arg3);
 }
 
 public interface IServerConnectedRun : IEcsSystem

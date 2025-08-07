@@ -4,7 +4,7 @@ using Mirror.SimpleWeb;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "NetworkServerConfig", menuName = "Network/Server Config")]
-public class NetworkServerConfig : ScriptableObject
+public class NetworkConfig : ScriptableObject
 {
     [Header("<size=18>Network Settings </size>")]
 
@@ -15,17 +15,12 @@ public class NetworkServerConfig : ScriptableObject
     public ushort kcpPort = 7777;
     public bool kcpNoDelay = true;
     public uint kcpInterval = 10;
-    public int kcpFastResend = 2;
-    public int kcpReceiveWindowSize = 128;
-    public int kcpSendWindowSize = 128;
-    public int kcpMaxRetransmits = 10;
 
     [Header("WebSocket Server Settings")]
     public ushort webSocketPort = 8888;
     public bool webSocketSecure = false;
     [TextArea] public string webSocketSslCertJson = "";
     public int webSocketMaxMessageSize = 16384;
-    public int webSocketMaxMessagesPerTick = 1000;
     public int webSocketSendTimeout = 5000;
     public int webSocketReceiveTimeout = 20000;
 
@@ -50,7 +45,7 @@ public class NetworkServerConfig : ScriptableObject
     [Header("Connection Quality")]
     public float evaluationInterval = 1f;
 
-    public void ConfigureServer(NetworkManager manager)
+    public void Configure(NetworkManager manager)
     {
         manager.networkAddress = networkAddress;
         manager.authenticator = authenticator;
@@ -58,7 +53,8 @@ public class NetworkServerConfig : ScriptableObject
         manager.autoCreatePlayer = autoCreatePlayer;
         manager.playerSpawnMethod = playerSpawnMethod;
 
-        NetworkServer.exceptionsDisconnect = exceptionsDisconnect;
+        NetworkServer.exceptionsDisconnect = exceptionsDisconnect;   
+        
 
         // Настройки транспорта KCP
         if (manager.TryGetComponent<KcpTransport>(out var kcp))

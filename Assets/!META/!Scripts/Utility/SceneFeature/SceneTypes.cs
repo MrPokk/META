@@ -1,8 +1,9 @@
 public enum SceneTypes
 {
+    None = -1,
     EntryPoint,
     Menu,
-    TestGame,
-    LocalGame,
-    OnlineGame,
+    StartRoom,
+    Room_1,
+    Room_2,
 }

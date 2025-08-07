@@ -48,6 +48,5 @@ MonoBehaviour:
     TypeName: 
   autoRun: 1
   autoInjectGameObjects: []
-  _networkServerConfig: {fileID: 11400000, guid: dc619894836d161fb8df5f00bbbbbec5, type: 2}
-  _networkClientConfig: {fileID: 11400000, guid: 101597fe9ac88d97f9473787285a2737, type: 2}
+  _networkConfig: {fileID: 11400000, guid: dc619894836d161fb8df5f00bbbbbec5, type: 2}
   _sceneConfig: {fileID: 11400000, guid: 2ed1f4dfb6a86a7c191969288eaca24e, type: 2}

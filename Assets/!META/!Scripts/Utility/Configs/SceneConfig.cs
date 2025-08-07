@@ -1,5 +1,6 @@
-using System;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "SceneConfig", menuName = "Configs/SceneConfig")]
 public class SceneConfig : ScriptableObject
@@ -8,37 +9,36 @@ public class SceneConfig : ScriptableObject
     public struct SceneMapping
     {
         public SceneTypes sceneType;
-#if UNITY_EDITOR
-        [SerializeField] public UnityEditor.SceneAsset sceneAsset;
-#endif
-        [SerializeField] private string _sceneName;
-
-        public string SceneName
-        {
-            get
-            {
-#if UNITY_EDITOR
-                if (sceneAsset != null) return sceneAsset.name;
-#endif
-                return _sceneName;
-            }
-        }
-
-#if UNITY_EDITOR
-        public UnityEditor.SceneAsset SceneAsset => sceneAsset;
-#endif
+        public string sceneName;
+        public bool isLoadServer;
     }
+    [field: SerializeField] public SceneTypes firstSceneToLoadClient { get; private set; }
+    public List<SceneMapping> sceneMappings;
 
-    public SceneMapping[] sceneMappings;
+
+    public string StringFirstSceneToLoadClient() => GetSceneName(firstSceneToLoadClient);
 
     public string GetSceneName(SceneTypes sceneType)
     {
         foreach (var mapping in sceneMappings)
         {
             if (mapping.sceneType == sceneType)
-                return mapping.SceneName;
+                return mapping.sceneName;
         }
         Debug.LogError($"Scene name for type {sceneType} not found!");
         return null;
+    }
+
+    public SceneMapping[] GetServerLoadScenes()
+    {
+        var serverScenes = new List<SceneMapping>();
+        foreach (var mapping in sceneMappings)
+        {
+            if (mapping.isLoadServer)
+            {
+                serverScenes.Add(mapping);
+            }
+        }
+        return serverScenes.ToArray();
     }
 }
