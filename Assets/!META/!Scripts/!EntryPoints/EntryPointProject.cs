@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using kcp2k;
 using Mirror;
 using Mirror.SimpleWeb;
@@ -5,24 +7,35 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 
+#if UNITY_EDITOR
+using Unity.Multiplayer.Playmode;
+#endif
+
 public class EntryPointProject : LifetimeScope
 {
     [Header("<size=16>Configs</size>")]
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
-    protected override async void Awake()
-    {
-        SceneLoader.Initialize(_sceneConfig);
-        await SceneLoader.LoadSceneAsync(SceneTypes.EntryPoint);
-
-        base.Awake();
-    }
-
     protected override void Configure(IContainerBuilder builder)
     {
+        RegisterUtility(builder);
         RegisterCoreComponents(builder);
-        RegisterNetworkDependencies(builder);
+
+#if UNITY_EDITOR
+        if (TryRegisterEditorNetworkDependencies(builder))
+        {
+            Debug.Log("<color=yellow>[Network] Using editor-specific configuration</color>");
+            return;
+        }
+#endif
+        Debug.Log("<color=yellow>[Network] Using build-specific configuration</color>");
+        RegisterBuildNetworkDependencies(builder);
+    }
+
+    private void RegisterUtility(IContainerBuilder builder)
+    {
+        builder.RegisterInstance(SetupSceneLoader());
     }
 
     private void RegisterCoreComponents(IContainerBuilder builder)
@@ -46,23 +59,46 @@ public class EntryPointProject : LifetimeScope
         builder.RegisterInstance(_sceneConfig);
     }
 
-    private void RegisterNetworkDependencies(IContainerBuilder builder)
-    {
 #if UNITY_EDITOR
-        builder.RegisterEntryPoint<EntryPointServer>()
-               .AsSelf();
+    private bool TryRegisterEditorNetworkDependencies(IContainerBuilder builder)
+    {
+        var tags = CurrentPlayer.ReadOnlyTags();
+        if (tags.Contains("Server"))
+        {
+            builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
+            return true;
+        }
+        else if (tags.Contains("Client"))
+        {
+            builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
+            return true;
+        }
 
-        builder.RegisterEntryPoint<EntryPointClient>()
-               .AsSelf();
-#elif SERVER
-        builder.RegisterEntryPoint<EntryPointServer>()
-               .AsSelf();
-#elif CLIENT
-        builder.RegisterEntryPoint<EntryPointClient>()
-               .AsSelf();
+        return false;
+    }
 #endif
+
+    private void RegisterBuildNetworkDependencies(IContainerBuilder builder)
+    {
+        switch (_networkConfig.networkType)
+        {
+            case NetworkType.Server:
+                builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
+                break;
+            case NetworkType.Client:
+                builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
+                break;
+            default:
+                throw new Exception($"Invalid network type: {_networkConfig.networkType}");
+        }
     }
 
+    private SceneLoader SetupSceneLoader()
+    {
+        var sceneLoader = SceneLoader.Initialize(_sceneConfig);
+        SceneLoader.LoadScene(SceneTypes.EntryPoint);
+        return sceneLoader;
+    }
 
     private SceneNetworkManager SetupSceneNetworkManager()
     {

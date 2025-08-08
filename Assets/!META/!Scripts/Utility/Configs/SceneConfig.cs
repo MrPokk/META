@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Mirror;
 
 [CreateAssetMenu(fileName = "SceneConfig", menuName = "Configs/SceneConfig")]
 public class SceneConfig : ScriptableObject
@@ -9,7 +10,7 @@ public class SceneConfig : ScriptableObject
     public struct SceneMapping
     {
         public SceneTypes sceneType;
-        public string sceneName;
+        [Scene] public string sceneName;
         public bool isLoadServer;
     }
     [field: SerializeField] public SceneTypes firstSceneToLoadClient { get; private set; }

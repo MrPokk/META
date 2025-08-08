@@ -8,9 +8,6 @@ public class GameplayEntryPoint : LifetimeScope
 
     private void Start()
     {
-        var networkManager = NetworkManager.singleton;
-        networkManager.playerPrefab = playerPrefab.gameObject;
-        
-        NetworkClient.Send(new SpawnRequestMessage());
+       
     }
 }

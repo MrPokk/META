@@ -8,8 +8,11 @@ public class NetworkConfig : ScriptableObject
 {
     [Header("<size=18>Network Settings </size>")]
 
-    [Header("Common Settings")]
+    [Header("<size=16> Common Settings </size>")]
     public string networkAddress = "localhost";
+    public NetworkType networkType;
+
+    [Header("<size=16>Transport Settings </size>")]
 
     [Header("KCP Server Settings")]
     public ushort kcpPort = 7777;
@@ -24,7 +27,7 @@ public class NetworkConfig : ScriptableObject
     public int webSocketSendTimeout = 5000;
     public int webSocketReceiveTimeout = 20000;
 
-    [Header("<size=18>About Settings </size>")]
+    [Header("<size=16>About Settings </size>")]
 
     [Header("Authentication")]
     public NetworkAuthenticator authenticator;

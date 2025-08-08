@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19a22e5f52e5886e494e0c546faac06a, type: 3}
   m_Name: SceneConfig
   m_EditorClassIdentifier: 
-  <firstSceneToLoadClient>k__BackingField: 0
+  <firstSceneToLoadClient>k__BackingField: 2
   sceneMappings:
   - sceneType: 0
-    sceneName: EntryPointScene
+    sceneName: Assets/!META/Scenes/EntryPointScene.unity
     isLoadServer: 0
   - sceneType: 1
-    sceneName: Menu
-    isLoadServer: 0
-  - sceneType: 2
-    sceneName: TestGame
-    isLoadServer: 0
-  - sceneType: 3
-    sceneName: LocalGame
+    sceneName: Assets/!META/Scenes/OfflineLoaderMenu.unity
     isLoadServer: 0
   - sceneType: 4
-    sceneName: OnlineGame
-    isLoadServer: 0
+    sceneName: Assets/!META/Scenes/Room_2.unity
+    isLoadServer: 1
+  - sceneType: 3
+    sceneName: Assets/!META/Scenes/Room_1.unity
+    isLoadServer: 1
+  - sceneType: 2
+    sceneName: Assets/!META/Scenes/StartRoom.unity
+    isLoadServer: 1

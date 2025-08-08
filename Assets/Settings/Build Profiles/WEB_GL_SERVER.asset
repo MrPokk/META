@@ -23,11 +23,7 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/!META/Scenes/EntryPointScene.unity
   - m_enabled: 1
-    m_path: Assets/!META/Scenes/Menu.unity
-  - m_enabled: 1
-    m_path: Assets/!META/Scenes/LocalGame.unity
-  - m_enabled: 1
-    m_path: Assets/!META/Scenes/OnlineGame.unity
+    m_path: Assets/!META/Scenes/OfflineLoaderMenu.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:

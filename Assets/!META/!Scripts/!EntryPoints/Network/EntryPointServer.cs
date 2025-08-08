@@ -20,11 +20,6 @@ public class EntryPointServer : IStartable, IDisposable
 
     public void Start()
     {
-        InitializeServer();
-    }
-
-    private void InitializeServer()
-    {
         _networkConfig.Configure(_networkManager);
         SetupTransports();
 

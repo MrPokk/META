@@ -23,9 +23,10 @@ public class EntryPointClient : IStartable, IDisposable
     public void Start()
     {
         _networkConfig.Configure(_networkManager);
-    }    
+        SceneLoader.LoadScene(SceneTypes.Menu);
+    }
 
-    public void InitializeClient()
+    public void SetupConnection()
     {
         _networkManager.StartClient();
         OnSubscribeClient();
@@ -39,7 +40,7 @@ public class EntryPointClient : IStartable, IDisposable
 
     private void OnClientDisconnected()
     {
-        Debug.LogError("<>[Network] Connection failed or disconnected!");
+        Debug.LogError("[Network] Connection failed or disconnected!");
         EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
     }
 

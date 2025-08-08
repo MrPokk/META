@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: NetworkConfig
   m_EditorClassIdentifier: 
   networkAddress: 25.39.188.177
+  networkType: 1
   kcpPort: 5050
   kcpNoDelay: 1
   kcpInterval: 10
