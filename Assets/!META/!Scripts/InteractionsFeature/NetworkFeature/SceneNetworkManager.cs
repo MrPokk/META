@@ -2,9 +2,6 @@ using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using VContainer;
 
@@ -35,33 +32,6 @@ public class SceneNetworkManager : NetworkBehaviour, IServerConnected, IServerDi
             {
                 loadSceneMode = LoadSceneMode.Additive,
             });
-        }
-
-        // DisableClientOnlyObjects();
-    }
-
-    [Server]
-    private void DisableClientOnlyObjects()
-    {
-        DestroyObjectsOfType<Volume>();
-        DestroyObjectsOfType<EventSystem>();
-        DestroyObjectsOfType<InputSystemUIInputModule>();
-        DestroyObjectsOfType<Canvas>();
-        DestroyObjectsOfType<Camera>();
-        DestroyObjectsOfType<AudioListener>();
-        DestroyObjectsOfType<Light>();
-    }
-
-    [Server]
-    private void DestroyObjectsOfType<T>() where T : Component
-    {
-        var components = FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var component in components)
-        {
-            if (component != null && component.gameObject != null)
-            {
-                Destroy(component.gameObject);
-            }
         }
     }
 
