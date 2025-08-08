@@ -2,6 +2,12 @@
 using BitterECS.Core;
 using Mirror;
 
+#region Client
+public interface IClientStart : IEcsSystem
+{
+    public void Start();
+}
+
 public interface IClientConnected : IEcsSystem
 {
     public void Connect();
@@ -26,6 +32,11 @@ internal interface IClientConnectedFixedRun : IEcsSystem
 {
     void FixedRun();
 }
+#endregion
+
+
+
+#region Server
 public interface IServerStart : IEcsSystem
 {
     public void Start();
@@ -55,3 +66,4 @@ internal interface IServerConnectedFixedRun : IEcsSystem
 {
     void FixedRun();
 }
+#endregion

@@ -13,119 +13,157 @@ using Unity.Multiplayer.Playmode;
 
 public class EntryPointProject : LifetimeScope
 {
-    [Header("<size=16>Configs</size>")]
+    [Header("Configs")]
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
-        RegisterUtility(builder);
-        RegisterCoreComponents(builder);
+        RegisterSharedDependencies(builder);
 
 #if UNITY_EDITOR
-        if (TryRegisterEditorNetworkDependencies(builder))
-        {
-            Debug.Log("<color=yellow>[Network] Using editor-specific configuration</color>");
-            return;
-        }
+        SetupEditorMode(builder);
+#else
+        SetupBuildMode(builder);
 #endif
-        Debug.Log("<color=yellow>[Network] Using build-specific configuration</color>");
-        RegisterBuildNetworkDependencies(builder);
     }
 
-    private void RegisterUtility(IContainerBuilder builder)
+    #region Registration
+
+    private void RegisterSharedDependencies(IContainerBuilder builder)
     {
-        builder.RegisterInstance(SetupSceneLoader());
+        RegisterConfigs(builder);
+        RegisterSceneLoader(builder);
+        RegisterSceneNetworkProvider(builder);
+        RegisterNetworkManager(builder);
+        RegisterEcsManager(builder);
     }
 
-    private void RegisterCoreComponents(IContainerBuilder builder)
+    private void RegisterConfigs(IContainerBuilder builder)
     {
-        var networkManager = SetupNetworkManager();
-        builder.RegisterComponent(networkManager)
-               .As<OverrideNetworkManager>()
-               .AsImplementedInterfaces();
-
-        var ecsManager = SetupEcsManager();
-        builder.RegisterComponent(ecsManager)
-               .As<EcsNetworkUnity>()
-               .AsImplementedInterfaces();
-
-        var sceneManager = SetupSceneNetworkManager();
-        builder.RegisterComponent(sceneManager)
-               .As<SceneNetworkManager>()
-               .AsImplementedInterfaces();
-
         builder.RegisterInstance(_networkConfig);
         builder.RegisterInstance(_sceneConfig);
     }
 
-#if UNITY_EDITOR
-    private bool TryRegisterEditorNetworkDependencies(IContainerBuilder builder)
+    private void RegisterSceneLoader(IContainerBuilder builder)
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
-        if (tags.Contains("Server"))
-        {
-            builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
-            return true;
-        }
-        else if (tags.Contains("Client"))
-        {
-            builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
-            return true;
-        }
-
-        return false;
-    }
-#endif
-
-    private void RegisterBuildNetworkDependencies(IContainerBuilder builder)
-    {
-        switch (_networkConfig.networkType)
-        {
-            case NetworkType.Server:
-                builder.RegisterEntryPoint<EntryPointServer>().AsSelf();
-                break;
-            case NetworkType.Client:
-                builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
-                break;
-            default:
-                throw new Exception($"Invalid network type: {_networkConfig.networkType}");
-        }
+        var sceneLoader = CreateSceneLoader();
+        builder.RegisterInstance(sceneLoader);
     }
 
-    private SceneLoader SetupSceneLoader()
+    private void RegisterSceneNetworkProvider(IContainerBuilder builder)
     {
-        var sceneLoader = SceneLoader.Initialize(_sceneConfig);
+        builder.Register<SceneNetworkProvider>(Lifetime.Singleton)
+          .As<SceneNetworkProvider>()
+          .AsImplementedInterfaces();
+    }
+
+    private void RegisterNetworkManager(IContainerBuilder builder)
+    {
+        var networkManager = CreateNetworkManager();
+        builder.RegisterComponent(networkManager)
+               .As<OverrideNetworkManager>()
+               .AsImplementedInterfaces();
+    }
+
+    private void RegisterEcsManager(IContainerBuilder builder)
+    {
+        var ecsManager = CreateEcsManager();
+        builder.RegisterComponent(ecsManager)
+               .As<EcsNetworkUnity>()
+               .AsImplementedInterfaces();
+    }
+
+    #endregion
+
+    #region Components
+
+    private SceneLoader CreateSceneLoader()
+    {
+        var loader = SceneLoader.Initialize(_sceneConfig);
         SceneLoader.LoadScene(SceneTypes.EntryPoint);
-        return sceneLoader;
+        return loader;
     }
 
-    private SceneNetworkManager SetupSceneNetworkManager()
+    private EcsNetworkUnity CreateEcsManager()
     {
-        var sceneManager = new GameObject("[SceneManager]", typeof(SceneNetworkManager))
-            .GetComponent<SceneNetworkManager>();
-        DontDestroyOnLoad(sceneManager.gameObject);
-        return sceneManager;
-    }
-
-    private EcsNetworkUnity SetupEcsManager()
-    {
-        var ecsManager = new GameObject("[EcsEntryPoint]", typeof(EcsNetworkUnity))
+        var ecsManager = new GameObject("[EcsManager]", typeof(EcsNetworkUnity))
             .GetComponent<EcsNetworkUnity>();
         DontDestroyOnLoad(ecsManager.gameObject);
         return ecsManager;
     }
 
-    private OverrideNetworkManager SetupNetworkManager()
+    private OverrideNetworkManager CreateNetworkManager()
     {
-        var networkManager = new GameObject("[NetworkManager]",
+        var manager = new GameObject("[NetworkManager]",
                 typeof(KcpTransport),
                 typeof(SimpleWebTransport),
                 typeof(SceneInterestManagement),
                 typeof(OverrideNetworkManager))
             .GetComponent<OverrideNetworkManager>();
 
-        DontDestroyOnLoad(networkManager.gameObject);
-        return networkManager;
+        SetupTransportForPlatform(manager);
+        DontDestroyOnLoad(manager.gameObject);
+        return manager;
     }
+
+    private void SetupTransportForPlatform(NetworkManager manager)
+    {
+        manager.transport = Application.platform == RuntimePlatform.WebGLPlayer
+            ? manager.GetComponent<SimpleWebTransport>()
+            : manager.GetComponent<KcpTransport>();
+    }
+
+    #endregion
+
+    #region Editor
+
+#if UNITY_EDITOR
+    private void SetupEditorMode(IContainerBuilder builder)
+    {
+        var tags = CurrentPlayer.ReadOnlyTags();
+        if (tags.Contains("Server"))
+        {
+            Debug.Log("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
+            builder.RegisterEntryPoint<EntryPointServer>()
+            .As<EntryPointServer>();
+        }
+        else if (tags.Contains("Client"))
+        {
+            Debug.Log("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
+            builder.RegisterEntryPoint<EntryPointClient>()
+            .As<EntryPointClient>();
+        }
+        else
+        {
+            SetupBuildMode(builder);
+        }
+    }
+#endif
+
+    #endregion
+
+    #region Build
+
+    private void SetupBuildMode(IContainerBuilder builder)
+    {
+        Debug.Log("<color=yellow>[Network] Using <color=white>build-specific</color> configuration</color>");
+        switch (_networkConfig.networkType)
+        {
+            case NetworkType.Server:
+                builder.RegisterEntryPoint<EntryPointServer>()
+                .As<EntryPointServer>();
+                break;
+
+            case NetworkType.Client:
+                builder.RegisterEntryPoint<EntryPointClient>()
+                .As<EntryPointClient>();
+                break;
+
+            default:
+                throw new ArgumentException($"Invalid network type: {_networkConfig.networkType}");
+        }
+    }
+
+    #endregion
 }
