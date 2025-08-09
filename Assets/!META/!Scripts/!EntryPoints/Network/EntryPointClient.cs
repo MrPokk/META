@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 using UnityEngine;
@@ -8,22 +9,26 @@ using VContainer.Unity;
 public class EntryPointClient : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
-    private readonly OverrideNetworkManager _networkManager;
-    private readonly SceneNetworkProvider _sceneNetworkProvider;
-
-    public Priority PrioritySystem => Priority.FIRST_TASK;
+    private readonly NetworkObjectPrefabConfig _networkObjectPrefabConfig;
+    private readonly NetworkManager _networkManager;
+    private readonly IEnumerable<IHandlerMessages> _handlerMessages;
 
     [Inject]
-    public EntryPointClient(NetworkConfig clientConfig, OverrideNetworkManager networkManager, SceneNetworkProvider sceneNetworkProvider)
+    public EntryPointClient(
+        NetworkConfig clientConfig,
+        NetworkObjectPrefabConfig networkObjectPrefabConfig,
+        NetworkManager networkManager,
+        IEnumerable<IHandlerMessages> handlerMessages)
     {
         _networkConfig = clientConfig;
+        _networkObjectPrefabConfig = networkObjectPrefabConfig;
         _networkManager = networkManager;
-        _sceneNetworkProvider = sceneNetworkProvider;
+        _handlerMessages = handlerMessages;
     }
 
     public void Start()
     {
-        Debug.Log("[Client] Starting client...");
+        Debug.Log("[Client] Injecting client...");
         _networkConfig.Configure(_networkManager);
         SceneLoader.LoadScene(SceneTypes.Menu);
     }
@@ -31,6 +36,8 @@ public class EntryPointClient : IStartable, IDisposable
     public void SetupConnection()
     {
         _networkManager.StartClient();
+        _networkObjectPrefabConfig.RegisterAllPrefabs();
+        NetworkUtility.SetupHandlers(_handlerMessages);
         OnSubscribeClient();
         OnClientStart();
     }

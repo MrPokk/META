@@ -1,6 +1,10 @@
-public enum SceneTypes
+
+using System;
+
+[Serializable]
+public enum SceneTypes : byte
 {
-    None = -1,
+    None,
     EntryPoint,
     Menu,
     StartRoom,

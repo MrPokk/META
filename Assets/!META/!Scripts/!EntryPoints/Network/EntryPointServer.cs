@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 using UnityEngine;
@@ -8,22 +9,27 @@ using VContainer.Unity;
 public class EntryPointServer : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
-    private readonly OverrideNetworkManager _networkManager;
-    private readonly SceneNetworkProvider _sceneNetworkProvider;
+    private readonly NetworkManager _networkManager;
+    private readonly IEnumerable<IHandlerMessages> _handlerMessages;
+
 
     [Inject]
-    public EntryPointServer(NetworkConfig networkConfig, OverrideNetworkManager networkManager, SceneNetworkProvider sceneNetworkProvider)
+    public EntryPointServer(
+        NetworkConfig networkConfig,
+        NetworkManager networkManager,
+        IEnumerable<IHandlerMessages> handlerMessages)
     {
         _networkConfig = networkConfig;
         _networkManager = networkManager;
-        _sceneNetworkProvider = sceneNetworkProvider;
+        _handlerMessages = handlerMessages;
     }
 
     public void Start()
     {
-        Debug.Log("[Server] Starting server...");
+        Debug.Log("[Server] Injecting server...");
         _networkConfig.Configure(_networkManager);
         _networkManager.StartServer();
+        NetworkUtility.SetupHandlers(_handlerMessages);
         SubscribeServerEvents();
         OnServerStart();
     }

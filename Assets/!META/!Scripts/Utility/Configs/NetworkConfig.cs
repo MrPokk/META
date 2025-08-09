@@ -3,7 +3,7 @@ using Mirror;
 using Mirror.SimpleWeb;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NetworkServerConfig", menuName = "Network/Server Config")]
+[CreateAssetMenu(fileName = "NetworkServerConfig", menuName = "Network/Global Network Config")]
 public class NetworkConfig : ScriptableObject
 {
     [Header("<size=18>Network Settings </size>")]

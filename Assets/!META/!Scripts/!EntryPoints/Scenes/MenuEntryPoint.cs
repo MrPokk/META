@@ -1,12 +1,12 @@
-using Mirror;
 using VContainer;
-using VContainer.Unity;
 
-public class MenuEntryPoint : LifetimeScope
+public class MenuEntryPoint : EntryPointScene
 {
     public void ConnectGame()
-    {
+    {//TODO Перенести в UI Root
         var entryPointClient = Parent.Container.Resolve<EntryPointClient>();
         entryPointClient.SetupConnection();
+
+        SceneNetworkProvider.ClientChangeScene(new SceneChangeRequestMessage(SceneTypes.StartRoom));
     }
 }

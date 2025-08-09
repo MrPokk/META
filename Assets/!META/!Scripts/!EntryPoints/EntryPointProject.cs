@@ -13,8 +13,9 @@ using Unity.Multiplayer.Playmode;
 
 public class EntryPointProject : LifetimeScope
 {
-    [Header("Configs")]
+    [Header("<size=18>Configs</size>")]
     [SerializeField] private NetworkConfig _networkConfig;
+    [SerializeField] private NetworkObjectPrefabConfig _networkObjectPrefabConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
     protected override void Configure(IContainerBuilder builder)
@@ -34,7 +35,7 @@ public class EntryPointProject : LifetimeScope
     {
         RegisterConfigs(builder);
         RegisterSceneLoader(builder);
-        RegisterSceneNetworkProvider(builder);
+        RegisterProvider(builder);
         RegisterNetworkManager(builder);
         RegisterEcsManager(builder);
     }
@@ -42,6 +43,7 @@ public class EntryPointProject : LifetimeScope
     private void RegisterConfigs(IContainerBuilder builder)
     {
         builder.RegisterInstance(_networkConfig);
+        builder.RegisterInstance(_networkObjectPrefabConfig);
         builder.RegisterInstance(_sceneConfig);
     }
 
@@ -49,6 +51,13 @@ public class EntryPointProject : LifetimeScope
     {
         var sceneLoader = CreateSceneLoader();
         builder.RegisterInstance(sceneLoader);
+    }
+
+    private void RegisterProvider(IContainerBuilder builder)
+    {
+        builder.Register<IHandlerMessages, SceneNetworkProvider>(Lifetime.Transient);
+        builder.Register<IHandlerMessages, ObjectNetworkProvide>(Lifetime.Transient);
+        builder.Register<ConnectionNetworkProvider>(Lifetime.Transient);
     }
 
     private void RegisterSceneNetworkProvider(IContainerBuilder builder)
@@ -62,7 +71,7 @@ public class EntryPointProject : LifetimeScope
     {
         var networkManager = CreateNetworkManager();
         builder.RegisterComponent(networkManager)
-               .As<OverrideNetworkManager>()
+               .As<NetworkManager>()
                .AsImplementedInterfaces();
     }
 
@@ -93,14 +102,14 @@ public class EntryPointProject : LifetimeScope
         return ecsManager;
     }
 
-    private OverrideNetworkManager CreateNetworkManager()
+    private NetworkManager CreateNetworkManager()
     {
         var manager = new GameObject("[NetworkManager]",
                 typeof(KcpTransport),
                 typeof(SimpleWebTransport),
                 typeof(SceneInterestManagement),
-                typeof(OverrideNetworkManager))
-            .GetComponent<OverrideNetworkManager>();
+                typeof(NetworkManager))
+            .GetComponent<NetworkManager>();
 
         SetupTransportForPlatform(manager);
         DontDestroyOnLoad(manager.gameObject);

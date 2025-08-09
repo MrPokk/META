@@ -1,13 +1,9 @@
-using Mirror;
 using UnityEngine;
-using VContainer.Unity;
 
-public class GameplayEntryPoint : LifetimeScope
+public class GameplayEntryPoint : EntryPointScene
 {
-    [SerializeField] private NetworkBehaviour playerPrefab;
-
     private void Start()
     {
-       
+        ObjectNetworkProvide.ClientRequestSpawnObject(new(IDConstPrefabs.PLAYER_TEST, Vector3.zero, Quaternion.identity));
     }
 }

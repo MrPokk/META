@@ -1,0 +1,29 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Mirror;
+using UnityEngine;
+
+public class NetworkUtility
+{
+    public static IEnumerator WaitingToConnect(NetworkConnection target, Action callback)
+    {
+        if (target == null) { Debug.LogError("WaitingClientToConnect: target is null"); yield break; }
+
+        yield return new WaitUntil(() => target.isReady);
+        callback?.Invoke();
+    }
+
+    public static void SetupHandlers(IEnumerable<IHandlerMessages> handlers)
+    {
+        foreach (var handler in handlers)
+        {
+            if (NetworkManager.singleton.mode == NetworkManagerMode.ServerOnly)
+                handler.HandlersServer();
+            else if (NetworkManager.singleton.mode == NetworkManagerMode.ClientOnly)
+                handler.HandlersClient();
+            else
+                throw new Exception($"Invalid network mode: {NetworkManager.singleton.mode}");
+        }
+    }
+}
