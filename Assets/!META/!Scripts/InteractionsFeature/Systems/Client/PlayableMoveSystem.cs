@@ -1,5 +1,4 @@
 using BitterECS.Core;
-using Mirror;
 using UnityEngine;
 
 public class PlayableMoveSystem : IClientConnectedRun
@@ -11,13 +10,13 @@ public class PlayableMoveSystem : IClientConnectedRun
         var controllableEntity = EcsWorld.Get<PlayerPresenter>().Filter()
             .Include<NetworkChapterComponent>()
             .Include<ControllableComponent>()
-            .Include<MoveComponent>()
+            .Include<MovingComponent>()
             .Collect();
 
         foreach (var entity in controllableEntity)
         {
             ref var direction = ref entity.Get<ControllableComponent>().input;
-            ref var speed = ref entity.Get<MoveComponent>().speed;
+            ref var speed = ref entity.Get<MovingComponent>().speed;
             ref var viewComponent = ref entity.Get<ViewComponent>();
 
             var ecsUnityView = (MonoBehaviour)viewComponent.current;

@@ -15,17 +15,22 @@ MonoBehaviour:
   <firstSceneToLoadClient>k__BackingField: 3
   sceneMappings:
   - sceneType: 1
-    sceneName: Assets/!META/Scenes/EntryPointScene.unity
+    sceneToPath: Assets/!META/Scenes/EntryPointScene.unity
+    sceneName: EntryPointScene
     isLoadServer: 0
   - sceneType: 2
-    sceneName: Assets/!META/Scenes/OfflineLoaderMenu.unity
+    sceneToPath: Assets/!META/Scenes/OfflineLoaderMenu.unity
+    sceneName: OfflineLoaderMenu
     isLoadServer: 0
   - sceneType: 5
-    sceneName: Assets/!META/Scenes/Room_2.unity
+    sceneToPath: Assets/!META/Scenes/Room_2.unity
+    sceneName: Room_2
     isLoadServer: 1
   - sceneType: 4
-    sceneName: Assets/!META/Scenes/Room_1.unity
+    sceneToPath: Assets/!META/Scenes/Room_1.unity
+    sceneName: Room_1
     isLoadServer: 1
   - sceneType: 3
-    sceneName: Assets/!META/Scenes/StartRoom.unity
+    sceneToPath: Assets/!META/Scenes/StartRoom.unity
+    sceneName: StartRoom
     isLoadServer: 1

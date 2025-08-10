@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BitterECS.Core
 {
@@ -20,15 +19,16 @@ namespace BitterECS.Core
         protected abstract void Registration();
 
         protected void AddLimitedType<T>() where T : EcsEntity => _allowedEntityTypes.Add(typeof(T));
+        public void AddEntity(EcsEntity entity) => CreateEntity(entity);
+        public void RemoveEntity(EcsEntity entity) => DestroyEntity(entity);
+        public EntityBuilder<T> AddEntity<T>() where T : EcsEntity => new(this);
+        public EntityDestroyer<T> RemoveEntity<T>(T entity) where T : EcsEntity => new(this, entity);
 
-        public EntityBuilder<T> AddEntity<T>() where T : EcsEntity
+        internal void CreateEntity(EcsEntity entity)
         {
-            return new EntityBuilder<T>(this);
-        }
-
-        public EntityDestroyer<T> RemoveEntity<T>(T entity) where T : EcsEntity
-        {
-            return new EntityDestroyer<T>(this, entity);
+            entity.Init(new(this, _nextEntityId++));
+            entity.Registration();
+            _entities.Add(entity);
         }
 
         internal T CreateEntity<T>() where T : EcsEntity
@@ -40,7 +40,7 @@ namespace BitterECS.Core
             return entity;
         }
 
-        internal void DestroyEntity<T>(T entity) where T : EcsEntity
+        internal void DestroyEntity(EcsEntity entity)
         {
             if (_entities.Remove(entity))
             {
@@ -63,11 +63,9 @@ namespace BitterECS.Core
             return (EcsPool<T>)pool;
         }
 
-        public bool IsTypeAllowed(Type type)
+        public bool IsTypeAllowed<T>() where T : EcsEntity
         {
-            return _allowedEntityTypes.Count == 0
-                ? typeof(EcsEntity).IsAssignableFrom(type)
-                : _allowedEntityTypes.Any(allowedType => allowedType.IsAssignableFrom(type));
+            return _allowedEntityTypes.Contains(typeof(T));
         }
 
         public void Dispose()

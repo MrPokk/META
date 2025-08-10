@@ -3,6 +3,8 @@ using UnityEditor;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System;
+using UnityEditor.SearchService;
 
 [CustomEditor(typeof(SceneConfig))]
 public class SceneConfigEditor : Editor
@@ -41,7 +43,7 @@ public class SceneConfigEditor : Editor
             .ToList();
 
         // Clear existing mappings if empty
-        if (config.sceneMappings == null)
+        if (config.sceneMappings == null && config.sceneMappings.Count != Enum.GetValues(typeof(SceneTypes)).Length)
         {
             config.sceneMappings = new List<SceneConfig.SceneMapping>();
         }
@@ -49,14 +51,15 @@ public class SceneConfigEditor : Editor
         // Add new scenes that don't exist in the config
         foreach (var sceneName in scenesInBuild)
         {
-            bool exists = config.sceneMappings.Any(m => m.sceneName == sceneName);
+            bool exists = config.sceneMappings.Any(m => m.sceneName == sceneName && m.sceneToPath == sceneName);
             if (!exists)
             {
                 var newMapping = new SceneConfig.SceneMapping
                 {
                     sceneType = GetUniqueSceneType(sceneName),
                     sceneName = sceneName,
-                    isLoadServer = false // Default value
+                    sceneToPath = sceneName,
+                    isLoadServer = false
                 };
                 config.sceneMappings.Add(newMapping);
             }
@@ -73,7 +76,7 @@ public class SceneConfigEditor : Editor
 
         EditorUtility.SetDirty(config);
         AssetDatabase.SaveAssets();
-        Debug.Log($"SceneConfig updated with {config.sceneMappings.Count} scenes from Build Settings");
+        LoggerUtility.Info($"SceneConfig updated with {config.sceneMappings.Count} scenes from Build Settings");
     }
 
     private SceneTypes GetUniqueSceneType(string sceneName)
@@ -108,7 +111,7 @@ public class SceneConfigEditor : Editor
         if (duplicateNames.Count > 0)
         {
             hasErrors = true;
-            Debug.LogError($"Duplicate scene names found: {string.Join(", ", duplicateNames)}");
+            LoggerUtility.Error($"Duplicate scene names found: {string.Join(", ", duplicateNames)}");
         }
 
         // Check for duplicate scene types
@@ -121,7 +124,7 @@ public class SceneConfigEditor : Editor
         if (duplicateTypes.Count > 0)
         {
             hasErrors = true;
-            Debug.LogError($"Duplicate scene types found: {string.Join(", ", duplicateTypes)}");
+            LoggerUtility.Error($"Duplicate scene types found: {string.Join(", ", duplicateTypes)}");
         }
 
         // Check for empty scene names
@@ -132,12 +135,12 @@ public class SceneConfigEditor : Editor
         if (emptyNames.Count > 0)
         {
             hasErrors = true;
-            Debug.LogError($"Empty scene names found in {emptyNames.Count} mappings");
+            LoggerUtility.Error($"Empty scene names found in {emptyNames.Count} mappings");
         }
 
         if (!hasErrors)
         {
-            Debug.Log("SceneConfig validation successful - no duplicates found");
+            LoggerUtility.Info("SceneConfig validation successful - no duplicates found");
         }
     }
 }

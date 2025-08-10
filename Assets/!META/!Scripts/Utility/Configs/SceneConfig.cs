@@ -10,12 +10,12 @@ public class SceneConfig : ScriptableObject
     public struct SceneMapping
     {
         public SceneTypes sceneType;
-        [Scene] public string sceneName;
+        [Scene] public string sceneToPath;
+        public string sceneName;
         public bool isLoadServer;
     }
     [field: SerializeField] public SceneTypes firstSceneToLoadClient { get; private set; }
     public List<SceneMapping> sceneMappings;
-
 
     public string StringFirstSceneToLoadClient() => GetSceneName(firstSceneToLoadClient);
 
@@ -26,7 +26,8 @@ public class SceneConfig : ScriptableObject
             if (mapping.sceneType == sceneType)
                 return mapping.sceneName;
         }
-        Debug.LogError($"Scene name for type {sceneType} not found!");
+
+        LoggerUtility.Error($"Scene name for type {sceneType} not found!");
         return null;
     }
 

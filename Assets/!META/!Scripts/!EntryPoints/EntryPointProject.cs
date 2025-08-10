@@ -14,6 +14,7 @@ using Unity.Multiplayer.Playmode;
 public class EntryPointProject : LifetimeScope
 {
     [Header("<size=18>Configs</size>")]
+    [SerializeField] private LoggerConfig LoggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private NetworkObjectPrefabConfig _networkObjectPrefabConfig;
     [SerializeField] private SceneConfig _sceneConfig;
@@ -33,6 +34,7 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterSharedDependencies(IContainerBuilder builder)
     {
+        RegisterLogger();
         RegisterConfigs(builder);
         RegisterSceneLoader(builder);
         RegisterProvider(builder);
@@ -47,6 +49,11 @@ public class EntryPointProject : LifetimeScope
         builder.RegisterInstance(_sceneConfig);
     }
 
+    private void RegisterLogger()
+    {
+        LoggerUtility.Initialize(LoggerConfig);
+    }
+
     private void RegisterSceneLoader(IContainerBuilder builder)
     {
         var sceneLoader = CreateSceneLoader();
@@ -55,9 +62,9 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterProvider(IContainerBuilder builder)
     {
-        builder.Register<IHandlerMessages, SceneNetworkProvider>(Lifetime.Transient);
-        builder.Register<IHandlerMessages, ObjectNetworkProvide>(Lifetime.Transient);
-        builder.Register<ConnectionNetworkProvider>(Lifetime.Transient);
+        builder.Register<SceneNetworkProvider>(Lifetime.Singleton).As<SceneNetworkProvider>().AsImplementedInterfaces();
+        builder.Register<ObjectNetworkProvide>(Lifetime.Singleton).As<ObjectNetworkProvide>().AsImplementedInterfaces();
+        builder.Register<ConnectionNetworkProvider>(Lifetime.Singleton).As<ConnectionNetworkProvider>().AsImplementedInterfaces();
     }
 
     private void RegisterSceneNetworkProvider(IContainerBuilder builder)
@@ -133,13 +140,13 @@ public class EntryPointProject : LifetimeScope
         var tags = CurrentPlayer.ReadOnlyTags();
         if (tags.Contains("Server"))
         {
-            Debug.Log("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
+            LoggerUtility.Info("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
             builder.RegisterEntryPoint<EntryPointServer>()
             .As<EntryPointServer>();
         }
         else if (tags.Contains("Client"))
         {
-            Debug.Log("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
+            LoggerUtility.Info("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
             builder.RegisterEntryPoint<EntryPointClient>()
             .As<EntryPointClient>();
         }
@@ -156,7 +163,7 @@ public class EntryPointProject : LifetimeScope
 
     private void SetupBuildMode(IContainerBuilder builder)
     {
-        Debug.Log("<color=yellow>[Network] Using <color=white>build-specific</color> configuration</color>");
+        LoggerUtility.Info("<color=yellow>[Network] Using <color=white>build-specific</color> configuration</color>");
         switch (_networkConfig.networkType)
         {
             case NetworkType.Server:

@@ -1,9 +1,10 @@
+using BitterECS.Core;
 using UnityEngine;
 
 public class GameplayEntryPoint : EntryPointScene
 {
-    private void Start()
+    protected override void Bootstrap()
     {
-        ObjectNetworkProvide.ClientRequestSpawnObject(new(IDConstPrefabs.PLAYER_TEST, Vector3.zero, Quaternion.identity));
+        ObjectNetworkProvide.ClientRequestSpawnObject<PlayerEntity, PlayerView>(new(Vector3.zero, Quaternion.identity));
     }
 }

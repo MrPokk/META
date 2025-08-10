@@ -1,3 +1,6 @@
+using System;
+using BitterECS.Core;
+using BitterECS.Core.Integration;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,66 +23,25 @@ public class ObjectNetworkProvide : IHandlerMessages
     [Server]
     public void HandlersServer()
     {
-        NetworkServer.RegisterHandler<SpawnObjectRequestMessage>(OnServerSpawnObject);
+        NetworkServer.RegisterHandler<SpawnObjectMessage>(OnServerSpawnObject);
         NetworkServer.RegisterHandler<DestroyObjectRequestMessage>(OnServerDestroyObject);
     }
 
     [Server]
-    private void OnServerSpawnObject(NetworkConnectionToClient client, SpawnObjectRequestMessage message)
+    private void OnServerSpawnObject(NetworkConnectionToClient client, SpawnObjectMessage message)
     {
         if (!NetworkServer.active)
         {
-            Debug.LogError("NetworkServer is not active");
+            LoggerUtility.Error("NetworkServer is not active");
             return;
         }
 
         if (!_prefabConfig.ContainsPrefab(message.prefabId))
         {
-            Debug.LogError($"Prefab with ID '{message.prefabId}' not registered");
+            LoggerUtility.Error($"Prefab with ID '{message.prefabId}' not registered");
             return;
         }
 
-        CoroutineUtility.Run(NetworkUtility.WaitingToConnect(client, () =>
-        {
-            SpawnObjectForClient(client, message);
-        }));
-    }
-
-
-    [Server]
-    private void SpawnObjectForClient(NetworkConnectionToClient client, SpawnObjectRequestMessage message)
-    {
-        if (!_prefabConfig.TryGetPrefabById(message.prefabId, out var prefab))
-        {
-            Debug.LogError($"Failed to spawn object: Prefab with ID '{message.prefabId}' not found");
-            return;
-        }
-
-        var instance = Object.Instantiate(prefab, message.position, message.rotation);
-
-        if (!_sceneNetworkProvider.TryGetCurrentSceneToClient(client, out var valueScene))
-        {
-            Debug.LogError("Failed to get first scene to load");
-            return;
-        }
-
-        SceneManager.MoveGameObjectToScene(instance,
-        SceneManager.GetSceneByName(valueScene.sceneName));
-        
-        NetworkServer.Spawn(instance, client);
-    }
-
-    [Server]
-    private void SpawnObjectForAll(SpawnObjectRequestMessage message)
-    {
-        if (!_prefabConfig.TryGetPrefabById(message.prefabId, out var prefab))
-        {
-            Debug.LogError($"Failed to spawn object: Prefab with ID '{message.prefabId}' not found");
-            return;
-        }
-
-        var instance = Object.Instantiate(prefab, message.position, message.rotation);
-        NetworkServer.Spawn(instance);
     }
 
     [Server]
@@ -87,7 +49,7 @@ public class ObjectNetworkProvide : IHandlerMessages
     {
         if (!NetworkServer.active)
         {
-            Debug.LogError("NetworkServer is not active");
+            LoggerUtility.Error("NetworkServer is not active");
             return;
         }
 
@@ -95,6 +57,7 @@ public class ObjectNetworkProvide : IHandlerMessages
         {
             NetworkServer.Destroy(networkIdentity.gameObject);
         }
+
     }
 
     #endregion
@@ -102,8 +65,12 @@ public class ObjectNetworkProvide : IHandlerMessages
     #region Client
 
     [Client]
-    public static void ClientRequestSpawnObject(SpawnObjectRequestMessage message)
+    public static void ClientRequestSpawnObject<TEntity, TView>(SpawnObjectMessage message) where TEntity : EcsEntity where TView : EcsNetworkView
     {
+
+        var typeEntity = typeof(TEntity);
+        var typeView = typeof(TView);
+
         CoroutineUtility.Run(NetworkUtility.WaitingToConnect(NetworkClient.connection, () => OnClientSpanObject(message)));
     }
 
@@ -118,11 +85,5 @@ public class ObjectNetworkProvide : IHandlerMessages
     {
         _prefabConfig.RegisterAllPrefabs();
     }
-
-    private static void OnClientSpanObject(SpawnObjectRequestMessage message)
-    {
-        NetworkClient.Send(message);
-    }
-
     #endregion
 }

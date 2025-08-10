@@ -16,7 +16,7 @@ public class ConnectionNetworkProvider : IServerConnected
         {
             return connection;
         }
-        Debug.LogError("Could not find connection: " + conn.ToString());
+        LoggerUtility.Error("Could not find connection: " + conn.ToString());
         return null;
     }
 

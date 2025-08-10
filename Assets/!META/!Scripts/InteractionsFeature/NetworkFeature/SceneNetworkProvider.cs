@@ -7,13 +7,13 @@ using VContainer;
 
 public class SceneNetworkProvider : IHandlerMessages
 {
-    private SceneConfig _sceneConfig;
+    public SceneConfig SceneConfig { get; private set; }
     private Dictionary<NetworkConnection, SceneTypes> _clientSceneTypes;
 
     [Inject]
     public SceneNetworkProvider(SceneConfig sceneConfig)
     {
-        _sceneConfig = sceneConfig;
+        SceneConfig = sceneConfig;
         _clientSceneTypes = new();
     }
 
@@ -29,14 +29,14 @@ public class SceneNetworkProvider : IHandlerMessages
     [Server]
     public void SetupLoadServerScene()
     {
-        var sceneFromClient = _sceneConfig.GetServerLoadScenes();
+        var sceneFromClient = SceneConfig.GetServerLoadScenes();
         if (!sceneFromClient.Any())
         {
-            Debug.LogError($"No scenes to load to server");
+            LoggerUtility.Error($"No scenes to load to server");
             return;
         }
 
-        foreach (var additiveScene in _sceneConfig.GetServerLoadScenes())
+        foreach (var additiveScene in SceneConfig.GetServerLoadScenes())
         {
             SceneLoader.LoadScene(additiveScene.sceneType, new LoadSceneParameters
             {
@@ -51,12 +51,12 @@ public class SceneNetworkProvider : IHandlerMessages
         var sceneType = message.sceneType;
         if (!NetworkServer.active)
         {
-            Debug.LogError("NetworkServer is not active");
+            LoggerUtility.Error("NetworkServer is not active");
             return;
         }
         if (!ValidateScene(sceneType))
         {
-            Debug.LogError($"Invalid scene type: {sceneType}");
+            LoggerUtility.Error($"Invalid scene type: {sceneType}");
             return;
         }
 
@@ -69,27 +69,28 @@ public class SceneNetworkProvider : IHandlerMessages
     {
         if (sceneType == SceneTypes.None) return false;
 
-        foreach (var mapping in _sceneConfig.sceneMappings)
+        foreach (var mapping in SceneConfig.sceneMappings)
         {
             if (mapping.sceneType == sceneType && mapping.isLoadServer)
             {
                 return true;
             }
         }
-        Debug.LogError($"Invalid scene type: {sceneType}");
+        LoggerUtility.Error($"Invalid scene type: {sceneType}");
         return false;
     }
 
-    public bool TryGetCurrentSceneToClient(NetworkConnection connection, out (string sceneName, SceneTypes sceneType) valueScene)
+    public bool TryGetCurrentSceneToClient(NetworkConnection connection, out (Scene sceneObject, SceneTypes sceneType) valueScene)
     {
         if (!_clientSceneTypes.TryGetValue(connection, out var sceneType))
         {
-            Debug.LogWarning("No scene type found for client");
+            LoggerUtility.Warning("No scene type found for client");
             valueScene = default;
             return false;
         }
 
-        valueScene = (_sceneConfig.GetSceneName(sceneType), sceneType);
+        var sceneName = SceneConfig.GetSceneName(sceneType);
+        valueScene = (SceneManager.GetSceneByName(sceneName), sceneType);
         return true;
     }
 
@@ -117,7 +118,7 @@ public class SceneNetworkProvider : IHandlerMessages
     [Client]
     private static void OnClientChangeScene(SceneChangeRequestMessage message)
     {
-        if (!NetworkClient.active) { Debug.LogError("NetworkClient is not active"); return; }
+        if (!NetworkClient.active) { LoggerUtility.Error("NetworkClient is not active"); return; }
         SceneLoader.LoadScene(message.sceneType);
     }
 

@@ -6,6 +6,7 @@ using Mirror;
 using System.Text;
 using System.IO;
 using UnityEditor;
+using BitterECS.Core;
 
 [CreateAssetMenu(fileName = "NetworkObjectPrefabConfig", menuName = "Network/Network Object Prefab Config")]
 public partial class NetworkObjectPrefabConfig : ScriptableObject
@@ -16,7 +17,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
     {
         [SerializeField] private string _prefabId;
         [SerializeField] private GameObject _prefab;
-
+    
         public GameObject Prefab => _prefab;
         public string PrefabId => _prefabId;
         public NetworkIdentity NetworkIdentity { get; private set; }
@@ -25,7 +26,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
         {
             if (_prefab == null)
             {
-                Debug.LogError("Prefab is null in mapping");
+                LoggerUtility.Error("Prefab is null in mapping");
                 return;
             }
 
@@ -34,7 +35,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
             NetworkIdentity = _prefab.GetComponent<NetworkIdentity>();
             if (NetworkIdentity == null)
             {
-                Debug.LogError($"Prefab {_prefab.name} doesn't have NetworkIdentity component");
+                LoggerUtility.Error($"Prefab {_prefab.name} doesn't have NetworkIdentity component");
             }
         }
     }
@@ -65,7 +66,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
             return mapping.Prefab;
         }
 
-        Debug.LogError($"Prefab with ID {prefabId} not found in config");
+        LoggerUtility.Error($"Prefab with ID {prefabId} not found in config");
         return null;
     }
 
@@ -105,7 +106,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
         {
             if (mapping.Prefab == null)
             {
-                Debug.LogError("Null prefab found in mappings - it will be removed");
+                LoggerUtility.Error("Null prefab found in mappings - it will be removed");
                 hasInvalidPrefabs = true;
                 continue;
             }
@@ -114,7 +115,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
 
             if (mapping.NetworkIdentity == null)
             {
-                Debug.LogError($"Prefab {mapping.Prefab.name} doesn't have NetworkIdentity - it will be removed from mappings");
+                LoggerUtility.Error($"Prefab {mapping.Prefab.name} doesn't have NetworkIdentity - it will be removed from mappings");
                 hasInvalidPrefabs = true;
                 continue;
             }
@@ -122,7 +123,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
             var id = mapping.PrefabId;
             if (usedIds.Contains(id))
             {
-                Debug.LogError($"Duplicate prefab ID: {id} for prefab {mapping.Prefab.name}");
+                LoggerUtility.Error($"Duplicate prefab ID: {id} for prefab {mapping.Prefab.name}");
                 hasDuplicates = true;
                 continue;
             }
@@ -142,7 +143,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
     {
         if (prefabMappings == null || prefabMappings.Count == 0)
         {
-            Debug.LogWarning("No prefab mappings to generate IDs");
+            LoggerUtility.Warning("No prefab mappings to generate IDs");
             return;
         }
 
@@ -176,7 +177,7 @@ public partial class NetworkObjectPrefabConfig : ScriptableObject
         File.WriteAllText(filePath, sb.ToString());
         AssetDatabase.Refresh();
 
-        Debug.Log($"Prefab ID class generated at: {filePath}");
+        LoggerUtility.Info($"Prefab ID class generated at: {filePath}");
     }
 
 #endif

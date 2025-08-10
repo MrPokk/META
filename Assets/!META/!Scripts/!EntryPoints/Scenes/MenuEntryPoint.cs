@@ -9,4 +9,9 @@ public class MenuEntryPoint : EntryPointScene
 
         SceneNetworkProvider.ClientChangeScene(new SceneChangeRequestMessage(SceneTypes.StartRoom));
     }
+
+    protected override void Bootstrap()
+    {
+        
+    }
 }

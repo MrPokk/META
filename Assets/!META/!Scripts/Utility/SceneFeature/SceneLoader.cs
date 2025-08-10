@@ -17,7 +17,7 @@ public class SceneLoader
         var sceneName = s_sceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogError($"Scene name for {sceneType} is not set!");
+            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
             return;
         }
 
@@ -29,7 +29,7 @@ public class SceneLoader
         var sceneName = s_sceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogError($"Scene name for {sceneType} is not set!");
+            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
             return;
         }
 
@@ -41,7 +41,7 @@ public class SceneLoader
         var sceneName = s_sceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogError($"Scene name for {sceneType} is not set!");
+            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
             return;
         }
 
@@ -49,7 +49,7 @@ public class SceneLoader
         if (asyncOp == null)
         {
 #if UNITY_EDITOR
-            Debug.LogError($"Failed to load scene: {sceneName}"); return;
+            LoggerUtility.Error($"Failed to load scene: {sceneName}"); return;
 #else
             return;
 #endif
@@ -67,7 +67,7 @@ public class SceneLoader
         var sceneName = s_sceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogError($"Scene name for {sceneType} is not set!");
+            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
             return;
         }
 
@@ -75,7 +75,7 @@ public class SceneLoader
         if (asyncOp == null)
         {
 #if UNITY_EDITOR
-            Debug.LogError($"Failed to load scene: {sceneName}"); return;
+            LoggerUtility.Error($"Failed to load scene: {sceneName}"); return;
 #else
             return;
 #endif

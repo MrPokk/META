@@ -8,7 +8,7 @@ public class NetworkUtility
 {
     public static IEnumerator WaitingToConnect(NetworkConnection target, Action callback)
     {
-        if (target == null) { Debug.LogError("WaitingClientToConnect: target is null"); yield break; }
+        if (target == null) { LoggerUtility.Error("WaitingClientToConnect: target is null"); yield break; }
 
         yield return new WaitUntil(() => target.isReady);
         callback?.Invoke();
