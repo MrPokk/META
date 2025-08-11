@@ -9,37 +9,40 @@ namespace BitterECS.Core
         public Priority PrioritySystem { get; }
     }
 
-    public interface IEcsPreInitSystem : IEcsSystem
+    public interface IEcsAutoImplement : IEcsSystem
+    { }
+
+    public interface IEcsPreInitSystem : IEcsAutoImplement
     {
         public void PreInit();
     }
 
-    public interface IEcsInitSystem : IEcsSystem
+    public interface IEcsInitSystem : IEcsAutoImplement
     {
         public void Init();
     }
 
-    public interface IEcsRunSystem : IEcsSystem
+    public interface IEcsRunSystem : IEcsAutoImplement
     {
         public void Run();
     }
 
-    public interface IEcsFixedRunSystem : IEcsSystem
+    public interface IEcsFixedRunSystem : IEcsAutoImplement
     {
         public void FixedRun();
     }
 
-    public interface IEcsPostRunSystem : IEcsSystem
+    public interface IEcsPostRunSystem : IEcsAutoImplement
     {
         public void PostRun();
     }
 
-    public interface IEcsDestroySystem : IEcsSystem
+    public interface IEcsDestroySystem : IEcsAutoImplement
     {
         public void Destroy();
     }
 
-    public interface IEcsPostDestroySystem : IEcsSystem
+    public interface IEcsPostDestroySystem : IEcsAutoImplement
     {
         public void PostDestroy();
     }

@@ -1,23 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mirror;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 
-public class SceneNetworkProvider : IHandlerMessages
+public class SceneNetworkProvider : IProviderHandler
 {
-    public SceneConfig SceneConfig { get; private set; }
-    private Dictionary<NetworkConnection, SceneTypes> _clientSceneTypes;
+    public SceneConfig SceneConfig { get; }
 
     [Inject]
     public SceneNetworkProvider(SceneConfig sceneConfig)
     {
         SceneConfig = sceneConfig;
-        _clientSceneTypes = new();
     }
 
-    #region Server
+    #region Server Implementation
 
     [Server]
     public void HandlersServer()
@@ -29,79 +26,116 @@ public class SceneNetworkProvider : IHandlerMessages
     [Server]
     public void SetupLoadServerScene()
     {
-        var sceneFromClient = SceneConfig.GetServerLoadScenes();
-        if (!sceneFromClient.Any())
-        {
-            LoggerUtility.Error($"No scenes to load to server");
-            return;
-        }
+        var serverScenes = SceneConfig.GetServerLoadScenes();
 
-        foreach (var additiveScene in SceneConfig.GetServerLoadScenes())
+        foreach (var scene in serverScenes)
         {
-            SceneLoader.LoadScene(additiveScene.sceneType, new LoadSceneParameters
+            SceneLoader.LoadScene(scene.sceneType, new LoadSceneParameters
             {
-                loadSceneMode = LoadSceneMode.Additive,
+                loadSceneMode = LoadSceneMode.Additive
             });
         }
     }
 
     [Server]
-    public void OnServerChangeScene(NetworkConnectionToClient client, SceneChangeRequestMessage message)
+    private void OnServerChangeScene(NetworkConnectionToClient client, SceneChangeRequestMessage message)
     {
-        var sceneType = message.sceneType;
-        if (!NetworkServer.active)
-        {
-            LoggerUtility.Error("NetworkServer is not active");
+        if (!NetworkUtility.IsServerActive())
             return;
-        }
-        if (!ValidateScene(sceneType))
-        {
-            LoggerUtility.Error($"Invalid scene type: {sceneType}");
-            return;
-        }
 
-        _clientSceneTypes[client] = sceneType;
-        CoroutineUtility.Run(NetworkUtility.WaitingToConnect(client, () => client.Send(new SceneChangeRequestMessage(sceneType))));
+        var sceneType = message.sceneType;
+
+        if (!SceneConfig.ValidateScene(sceneType, mapping => mapping.isLoadServer))
+            return;
+
+        UpdateClientScene(client, sceneType);
+        NotifyClientAboutSceneChange(client, sceneType);
     }
 
     [Server]
-    private bool ValidateScene(SceneTypes sceneType)
+    private void UpdateClientScene(NetworkConnectionToClient client, SceneTypes newSceneType)
     {
-        if (sceneType == SceneTypes.None) return false;
-
-        foreach (var mapping in SceneConfig.sceneMappings)
+        if (ConnectionInfo.ClientSceneTypes.TryGetValue(client, out var previousScene))
         {
-            if (mapping.sceneType == sceneType && mapping.isLoadServer)
-            {
-                return true;
-            }
+            ConnectionInfo.SceneToConnections[previousScene]?.Remove(client);
         }
-        LoggerUtility.Error($"Invalid scene type: {sceneType}");
-        return false;
+
+        ConnectionInfo.ClientSceneTypes[client] = newSceneType;
+
+        if (!ConnectionInfo.SceneToConnections.TryGetValue(newSceneType, out var connections))
+        {
+            connections = new HashSet<NetworkConnectionToClient>();
+            ConnectionInfo.SceneToConnections[newSceneType] = connections;
+        }
+
+        connections.Add(client);
     }
 
-    public bool TryGetCurrentSceneToClient(NetworkConnection connection, out (Scene sceneObject, SceneTypes sceneType) valueScene)
+    [Server]
+    private void NotifyClientAboutSceneChange(NetworkConnection client, SceneTypes sceneType)
     {
-        if (!_clientSceneTypes.TryGetValue(connection, out var sceneType))
+        client.Send(new SceneChangeRequestMessage(sceneType));
+    }
+
+    [Server]
+    public SceneTypes GetCurrentTypeSceneToClient(NetworkConnectionToClient connection)
+    {
+        if (ConnectionInfo.ClientSceneTypes.TryGetValue(connection, out var sceneType))
+            return sceneType;
+
+        LoggerUtility.Warning($"No scene type found for client {connection}");
+        return SceneTypes.None;
+    }
+
+    [Server]
+    public bool TryGetCurrentSceneToClient(
+        NetworkConnectionToClient connection,
+        out (Scene sceneObject, SceneTypes sceneType) sceneInfo)
+    {
+        if (!ConnectionInfo.ClientSceneTypes.TryGetValue(connection, out var sceneType))
         {
-            LoggerUtility.Warning("No scene type found for client");
-            valueScene = default;
+            LoggerUtility.Warning($"No scene type found for client {connection}");
+            sceneInfo = default;
             return false;
         }
 
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        valueScene = (SceneManager.GetSceneByName(sceneName), sceneType);
+        sceneInfo = (SceneManager.GetSceneByName(sceneName), sceneType);
         return true;
+    }
+
+    [Server]
+    public IReadOnlyCollection<NetworkConnectionToClient> GetConnectionsOnScene(SceneTypes sceneType)
+    {
+        return (ConnectionInfo.SceneToConnections.GetValueOrDefault(sceneType) ?? new HashSet<NetworkConnectionToClient>());
+    }
+
+    [Server]
+    public int GetNetworkCountOnScene(SceneTypes sceneType)
+    {
+        return ConnectionInfo.ClientSceneTypes.Count(kvp => kvp.Value == sceneType);
+    }
+
+    [Server]
+    private void OnClientDisconnected(NetworkConnectionToClient connection)
+    {
+        if (ConnectionInfo.ClientSceneTypes.TryGetValue(connection, out var sceneType))
+        {
+            ConnectionInfo.SceneToConnections[sceneType]?.Remove(connection);
+            ConnectionInfo.ClientSceneTypes.Remove(connection);
+        }
     }
 
     #endregion
 
-    #region Client
+    #region Client Implementation
 
     [Client]
-    public static void ClientChangeScene(SceneChangeRequestMessage message)
+    public static void ClientChangeScene(SceneTypes sceneType)
     {
-        CoroutineUtility.Run(NetworkUtility.WaitingToConnect(NetworkClient.connection, () => OnMessageClientChangeScene(message)));
+        CoroutineUtility.Run(
+        NetworkUtility.WaitingToConnect(
+        NetworkClient.connection, () => NetworkClient.Send(new SceneChangeRequestMessage(sceneType))));
     }
 
     [Client]
@@ -110,15 +144,12 @@ public class SceneNetworkProvider : IHandlerMessages
         NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientChangeScene);
     }
 
-    private static void OnMessageClientChangeScene(SceneChangeRequestMessage message)
-    {
-        NetworkClient.Send(message);
-    }
-
     [Client]
     private static void OnClientChangeScene(SceneChangeRequestMessage message)
     {
-        if (!NetworkClient.active) { LoggerUtility.Error("NetworkClient is not active"); return; }
+        if (!NetworkUtility.IsClientActive())
+            return;
+
         SceneLoader.LoadScene(message.sceneType);
     }
 

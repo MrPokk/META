@@ -50,5 +50,4 @@ MonoBehaviour:
   autoInjectGameObjects: []
   LoggerConfig: {fileID: 11400000, guid: d79582c315ec3f6c98579006a391bc70, type: 2}
   _networkConfig: {fileID: 11400000, guid: dc619894836d161fb8df5f00bbbbbec5, type: 2}
-  _networkObjectPrefabConfig: {fileID: 11400000, guid: c8a4f8c68efe489c2a76b70643c63c36, type: 2}
   _sceneConfig: {fileID: 11400000, guid: 2ed1f4dfb6a86a7c191969288eaca24e, type: 2}

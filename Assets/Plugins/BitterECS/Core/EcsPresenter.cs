@@ -63,6 +63,11 @@ namespace BitterECS.Core
             return (EcsPool<T>)pool;
         }
 
+        public bool IsTypeAllowed(Type type)
+        {
+            return type.IsSubclassOf(typeof(EcsEntity)) && _allowedEntityTypes.Contains(type);
+        }
+
         public bool IsTypeAllowed<T>() where T : EcsEntity
         {
             return _allowedEntityTypes.Contains(typeof(T));

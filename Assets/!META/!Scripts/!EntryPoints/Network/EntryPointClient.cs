@@ -9,19 +9,16 @@ using VContainer.Unity;
 public class EntryPointClient : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
-    private readonly NetworkObjectPrefabConfig _networkObjectPrefabConfig;
     private readonly NetworkManager _networkManager;
-    private readonly IEnumerable<IHandlerMessages> _handlerMessages;
+    private readonly IEnumerable<IProviderHandler> _handlerMessages;
 
     [Inject]
     public EntryPointClient(
         NetworkConfig clientConfig,
-        NetworkObjectPrefabConfig networkObjectPrefabConfig,
         NetworkManager networkManager,
-        IEnumerable<IHandlerMessages> handlerMessages)
+        IEnumerable<IProviderHandler> handlerMessages)
     {
         _networkConfig = clientConfig;
-        _networkObjectPrefabConfig = networkObjectPrefabConfig;
         _networkManager = networkManager;
         _handlerMessages = handlerMessages;
     }
@@ -36,7 +33,6 @@ public class EntryPointClient : IStartable, IDisposable
     public void SetupConnection()
     {
         _networkManager.StartClient();
-        _networkObjectPrefabConfig.RegisterAllPrefabs();
         NetworkUtility.SetupHandlers(_handlerMessages);
         OnSubscribeClient();
         OnClientStart();

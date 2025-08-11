@@ -63,21 +63,31 @@ namespace BitterECS.Core.Integration
             EnsureInitialized();
 
             if (!s_viewPrefabs.TryGetValue(viewType, out var prefab))
-                throw new KeyNotFoundException($"ECS View of type {viewType.Name} not found in database");
+            {
+
+                Debug.LogError($"ECS View of type {viewType.Name} not found in database");
+                return null;
+            }
 
             if (prefab == null)
-                throw new ArgumentNullException($"ECS View prefab is null. Check path: Resources/EcsViews");
+            {
+                Debug.LogError($"ECS View prefab is null. Check path: Resources/EcsViews");
+                return null;
+            }
 
             return prefab;
         }
 
         public static T GetPrefab<T>() where T : ILinkableView => (T)GetPrefab(typeof(T));
 
-        public static ILinkableView GetInstance(Type viewType)
+        public static ILinkableView GetInstance(Type viewType, Vector3 position = default, Quaternion rotation = default)
         {
             var prefab = GetPrefab(viewType);
+            if (prefab == null)
+                return null;
+
             var prefabUnity = prefab as MonoBehaviour;
-            var newInstance = UnityEngine.Object.Instantiate(prefabUnity);
+            var newInstance = UnityEngine.Object.Instantiate(prefabUnity, position, rotation);
             return newInstance as ILinkableView;
         }
 

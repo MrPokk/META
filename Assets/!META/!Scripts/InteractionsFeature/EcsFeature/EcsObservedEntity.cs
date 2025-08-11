@@ -1,13 +1,11 @@
 using BitterECS.Core;
 
-public class PlayerEntity : EcsEntity
+public class EcsObservedEntity : EcsEntity
 {
     public override void Registration()
     {
         Add(new ViewComponent());
-        Add(new ControllableComponent());
         Add(new TransformComponent());
-        Add(new MovingComponent(5f));
         Add(new NetworkSyncComponent());
     }
 }

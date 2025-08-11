@@ -7,7 +7,7 @@ public class MenuEntryPoint : EntryPointScene
         var entryPointClient = Parent.Container.Resolve<EntryPointClient>();
         entryPointClient.SetupConnection();
 
-        SceneNetworkProvider.ClientChangeScene(new SceneChangeRequestMessage(SceneTypes.StartRoom));
+        SceneNetworkProvider.ClientChangeScene(SceneTypes.StartRoom);
     }
 
     protected override void Bootstrap()

@@ -1,13 +1,11 @@
 using Mirror;
 
-public struct NetworkChapterComponent
+public struct NetworkSyncComponent
 {
-    public NetworkConnectionToClient connection;
-    public uint ID;
+    public int ID;
 
-    public NetworkChapterComponent(uint iD, NetworkConnectionToClient connectionToClient)
+    public NetworkSyncComponent(int iD)
     {
         ID = iD;
-        connection = connectionToClient;
     }
 }

@@ -1,4 +1,4 @@
-public struct MovingComponent
+public struct MovingComponent 
 {
     public float speed;
 

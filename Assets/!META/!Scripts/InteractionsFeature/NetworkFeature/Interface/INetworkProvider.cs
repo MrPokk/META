@@ -1,4 +1,4 @@
-public interface IHandlerMessages
+public interface IProviderHandler
 {
     void HandlersClient();
     void HandlersServer();

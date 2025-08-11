@@ -14,6 +14,24 @@ namespace BitterECS.Core
             LoadAllSystems();
         }
 
+        public static void AddSystem(IEcsSystem system)
+        {
+            if (system == null)
+                throw new ArgumentNullException(nameof(system));
+
+            s_systems.Add(system);
+            s_systems.Sort((left, right) => (int)left.PrioritySystem - (int)right.PrioritySystem);
+        }
+
+        public static void AddSystems(params IEcsSystem[] systems)
+        {
+            if (systems == null)
+                throw new ArgumentNullException(nameof(systems));
+
+            s_systems.AddRange(systems);
+            s_systems.Sort((left, right) => (int)left.PrioritySystem - (int)right.PrioritySystem);
+        }
+
         public static void Run<T>(Action<T> action) where T : class, IEcsSystem
         {
             var systems = GetSystems<T>();
@@ -32,13 +50,12 @@ namespace BitterECS.Core
                 return (T[])cached;
             }
 
-            var result = new List<T>(s_systems.Count);
-
+            var result = new Stack<T>();
             foreach (var system in s_systems)
             {
                 if (system is T typedSystem)
                 {
-                    result.Add(typedSystem);
+                    result.Push(typedSystem);
                 }
             }
 
@@ -48,12 +65,11 @@ namespace BitterECS.Core
             return cachedResult;
         }
 
-
         private void LoadAllSystems()
         {
             s_systems.Clear();
 
-            var systemTypes = ReflectionUtility.FindAllAssignments<IEcsSystem>();
+            var systemTypes = ReflectionUtility.FindAllAssignments<IEcsAutoImplement>();
             foreach (var type in systemTypes)
             {
 #if UNITY_2020_1_OR_NEWER
@@ -62,7 +78,7 @@ namespace BitterECS.Core
                     continue;
                 }
 #endif
-                if (Activator.CreateInstance(type) is IEcsSystem system)
+                if (Activator.CreateInstance(type) is IEcsAutoImplement system)
                 {
                     s_systems.Add(system);
                 }
@@ -71,7 +87,6 @@ namespace BitterECS.Core
             s_systems.Sort((left, right) => (int)left.PrioritySystem - (int)right.PrioritySystem);
             s_cachedInstanceSystems.Clear();
         }
-
 
         public void Dispose()
         {
@@ -82,6 +97,7 @@ namespace BitterECS.Core
                     disposableSystem.Dispose();
                 }
             }
+
             s_systems.Clear();
             s_cachedInstanceSystems.Clear();
             GC.SuppressFinalize(this);

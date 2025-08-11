@@ -23,7 +23,7 @@ namespace BitterECS.Core
         {
             if (entityId >= _entityToDataIndex.Length)
             {
-                Array.Resize(ref _entityToDataIndex, Math.Max(entityId + 1, _entityToDataIndex.Length *  EcsConfig.PoolGrowthFactor));
+                Array.Resize(ref _entityToDataIndex, Math.Max(entityId + 1, _entityToDataIndex.Length * EcsConfig.PoolGrowthFactor));
             }
 
             if (_entityToDataIndex[entityId] != -1)

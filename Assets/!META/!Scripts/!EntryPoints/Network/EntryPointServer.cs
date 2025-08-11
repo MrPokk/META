@@ -10,14 +10,14 @@ public class EntryPointServer : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
     private readonly NetworkManager _networkManager;
-    private readonly IEnumerable<IHandlerMessages> _handlerMessages;
+    private readonly IEnumerable<IProviderHandler> _handlerMessages;
 
 
     [Inject]
     public EntryPointServer(
         NetworkConfig networkConfig,
         NetworkManager networkManager,
-        IEnumerable<IHandlerMessages> handlerMessages)
+        IEnumerable<IProviderHandler> handlerMessages)
     {
         _networkConfig = networkConfig;
         _networkManager = networkManager;

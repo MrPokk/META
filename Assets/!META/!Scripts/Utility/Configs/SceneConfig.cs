@@ -31,7 +31,7 @@ public class SceneConfig : ScriptableObject
         return null;
     }
 
-    public SceneMapping[] GetServerLoadScenes()
+    public List<SceneMapping> GetServerLoadScenes()
     {
         var serverScenes = new List<SceneMapping>();
         foreach (var mapping in sceneMappings)
@@ -41,6 +41,28 @@ public class SceneConfig : ScriptableObject
                 serverScenes.Add(mapping);
             }
         }
-        return serverScenes.ToArray();
+
+        if (serverScenes.Count == 0)
+        {
+            LoggerUtility.Error("No server load scenes found!");
+        }
+        
+        return serverScenes;
+    }
+
+    public bool ValidateScene(SceneTypes sceneType, Predicate<SceneMapping> predicate = null)
+    {
+        if (sceneType == SceneTypes.None) return false;
+
+        foreach (var mapping in sceneMappings)
+        {
+            if (mapping.sceneType == sceneType && (predicate == null || predicate(mapping)))
+            {
+                return true;
+            }
+        }
+
+        LoggerUtility.Error($"Invalid scene type: {sceneType}");
+        return false;
     }
 }

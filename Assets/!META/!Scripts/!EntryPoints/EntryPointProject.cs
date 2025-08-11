@@ -6,6 +6,8 @@ using Mirror.SimpleWeb;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
+using BitterECS.Utility;
+
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;
@@ -16,7 +18,6 @@ public class EntryPointProject : LifetimeScope
     [Header("<size=18>Configs</size>")]
     [SerializeField] private LoggerConfig LoggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
-    [SerializeField] private NetworkObjectPrefabConfig _networkObjectPrefabConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
     protected override void Configure(IContainerBuilder builder)
@@ -45,7 +46,6 @@ public class EntryPointProject : LifetimeScope
     private void RegisterConfigs(IContainerBuilder builder)
     {
         builder.RegisterInstance(_networkConfig);
-        builder.RegisterInstance(_networkObjectPrefabConfig);
         builder.RegisterInstance(_sceneConfig);
     }
 
@@ -62,16 +62,14 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterProvider(IContainerBuilder builder)
     {
-        builder.Register<SceneNetworkProvider>(Lifetime.Singleton).As<SceneNetworkProvider>().AsImplementedInterfaces();
-        builder.Register<ObjectNetworkProvide>(Lifetime.Singleton).As<ObjectNetworkProvide>().AsImplementedInterfaces();
-        builder.Register<ConnectionNetworkProvider>(Lifetime.Singleton).As<ConnectionNetworkProvider>().AsImplementedInterfaces();
-    }
+        var providerTypes = ReflectionUtility.FindAllAssignments<IProviderHandler>();
 
-    private void RegisterSceneNetworkProvider(IContainerBuilder builder)
-    {
-        builder.Register<SceneNetworkProvider>(Lifetime.Singleton)
-          .As<SceneNetworkProvider>()
-          .AsImplementedInterfaces();
+        foreach (var type in providerTypes)
+        {
+            builder.Register(type, Lifetime.Singleton).As(type).AsImplementedInterfaces();
+        }
+
+        builder.Register<ConnectionInfo>(Lifetime.Singleton);
     }
 
     private void RegisterNetworkManager(IContainerBuilder builder)

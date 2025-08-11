@@ -13,7 +13,7 @@ namespace BitterECS.Core
             LoadAllPresenters();
         }
 
-        public static T Get<T>() where T : EcsPresenter
+        public static T Get<T>() where T : EcsPresenter, new()
         {
             if (s_ecsPresenters.TryGetValue(typeof(T), out var value))
             {
@@ -21,6 +21,19 @@ namespace BitterECS.Core
             }
 
             throw new Exception("Presenter not found");
+        }
+
+
+        public static EcsPresenter GetToEntityType(Type type)
+        {
+            foreach (var presenter in s_ecsPresenters.Values)
+            {
+                if (presenter.IsTypeAllowed(type))
+                {
+                    return presenter;
+                }
+            }
+            throw new Exception($"No presenter found that can handle type");
         }
 
         public static EcsPresenter GetToEntityType<T>() where T : EcsEntity

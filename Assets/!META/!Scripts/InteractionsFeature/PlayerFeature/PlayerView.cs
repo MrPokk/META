@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerView : EcsNetworkView
+public class PlayerView : EcsUnityView
 {
 
 }
