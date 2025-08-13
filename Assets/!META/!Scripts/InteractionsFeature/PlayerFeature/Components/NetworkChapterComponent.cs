@@ -1,11 +1,15 @@
+using System;
 using Mirror;
 
+[Serializable]
 public struct NetworkSyncComponent
 {
-    public int ID;
+    public ushort objectId;
+    public int ownedId;
 
-    public NetworkSyncComponent(int iD)
+    public NetworkSyncComponent(int owned = -1, ushort objectId = 0)
     {
-        ID = iD;
+        ownedId = owned;
+        this.objectId = objectId;
     }
 }

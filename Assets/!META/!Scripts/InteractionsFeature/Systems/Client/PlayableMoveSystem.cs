@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 using UnityEngine;
@@ -53,9 +54,7 @@ public class PlayableMoveSystem : IClientConnectedRun
     {
         if (ShouldSyncPosition(transform.position))
         {
-            ref var network = ref entity.Get<NetworkSyncComponent>();
-
-            SyncTransformNetworkProvider.SyncTransformToClient(transform, network.ID);
+            SyncTransformNetworkProvider.SendRequest(transform, new(entity.GetType()), entity.Get<NetworkSyncComponent>());
             _lastSentPosition = transform.position;
         }
     }

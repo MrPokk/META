@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 793ddad4101d497d1947d9270d90d2a3, type: 3}
   m_Name: NetworkConfig
   m_EditorClassIdentifier: 
-  networkAddress: 25.39.188.177
+  networkAddress: 127.0.0.1
   networkType: 1
   kcpPort: 5050
   kcpNoDelay: 1

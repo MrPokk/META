@@ -61,6 +61,10 @@ namespace BitterECS.Core
 
     #region Helper
 
+    public interface IEcsEntity : ILinkableEntity
+    { 
+        public void Registration();
+    }
     public interface ILinkableEntity : IInitialize<EcsEntityProperty>, IDisposable
     {
         public ILinkableView View => EcsLinker.GetView(this);
@@ -82,9 +86,9 @@ namespace BitterECS.Core
         public void Init();
     }
 
-    public interface IInitialize<T> where T : class, IInitializeProperty
+    public interface IInitialize<T> where T : IInitializeProperty
     {
-        public T Properties { get; set; }
+        public T Properties { get; }
         public void Init(T property);
         public T ValidateProperty(T property) { return property; }
     }
@@ -116,9 +120,9 @@ namespace BitterECS.Core
     public class EcsEntityProperty : IInitializeProperty
     {
         public readonly EcsPresenter Presenter;
-        public readonly int Id = -1;
+        public readonly ushort Id = 0;
 
-        public EcsEntityProperty(EcsPresenter presenter, int id)
+        public EcsEntityProperty(EcsPresenter presenter, ushort id)
         {
             Presenter = presenter;
             Id = id;

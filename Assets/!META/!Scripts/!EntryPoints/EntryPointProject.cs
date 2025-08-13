@@ -7,6 +7,10 @@ using UnityEngine;
 using VContainer;
 using VContainer.Unity;
 using BitterECS.Utility;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+
+
 
 
 #if UNITY_EDITOR
@@ -117,6 +121,7 @@ public class EntryPointProject : LifetimeScope
             .GetComponent<NetworkManager>();
 
         SetupTransportForPlatform(manager);
+        SetupLoadServerScene();
         DontDestroyOnLoad(manager.gameObject);
         return manager;
     }
@@ -126,6 +131,19 @@ public class EntryPointProject : LifetimeScope
         manager.transport = Application.platform == RuntimePlatform.WebGLPlayer
             ? manager.GetComponent<SimpleWebTransport>()
             : manager.GetComponent<KcpTransport>();
+    }
+
+    private void SetupLoadServerScene()
+    {
+        var serverScenes = _sceneConfig.GetServerLoadScenes();
+
+        foreach (var scene in serverScenes)
+        {
+            SceneLoader.LoadScene(scene.sceneType, new LoadSceneParameters
+            {
+                loadSceneMode = LoadSceneMode.Additive
+            });
+        }
     }
 
     #endregion

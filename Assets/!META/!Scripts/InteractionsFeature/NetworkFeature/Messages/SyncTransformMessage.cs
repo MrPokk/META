@@ -2,12 +2,14 @@ using Mirror;
 
 public struct SyncTransformMessage : NetworkMessage
 {
-    public int entityId;
+    public SerializedType entity;
+    public NetworkSyncComponent connectionId;
     public TransformComponent transformComponent;
 
-    public SyncTransformMessage(int id,TransformComponent transform)
+    public SyncTransformMessage(NetworkSyncComponent id, TransformComponent transform, SerializedType entity)
     {
         transformComponent = transform;
-        entityId = id;
+        connectionId = id;
+        this.entity = entity;
     }
 }

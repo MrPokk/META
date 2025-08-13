@@ -1,7 +1,7 @@
 public interface IProviderHandler
 {
-    void HandlersClient();
-    void HandlersServer();
+    public void HandlersClient();
+    public void HandlersServer();
 }
 
 

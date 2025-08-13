@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 using VContainer.Unity;
 
@@ -10,18 +11,17 @@ public class EntryPointServer : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
     private readonly NetworkManager _networkManager;
-    private readonly IEnumerable<IProviderHandler> _handlerMessages;
-
+    private readonly IEnumerable<IProviderHandler> _providers;
 
     [Inject]
     public EntryPointServer(
         NetworkConfig networkConfig,
         NetworkManager networkManager,
-        IEnumerable<IProviderHandler> handlerMessages)
+        IEnumerable<IProviderHandler> providers)
     {
         _networkConfig = networkConfig;
         _networkManager = networkManager;
-        _handlerMessages = handlerMessages;
+        _providers = providers;
     }
 
     public void Start()
@@ -29,9 +29,17 @@ public class EntryPointServer : IStartable, IDisposable
         LoggerUtility.Info("[Server] Injecting server...");
         _networkConfig.Configure(_networkManager);
         _networkManager.StartServer();
-        NetworkUtility.SetupHandlers(_handlerMessages);
+        SetupProvider();
         SubscribeServerEvents();
         OnServerStart();
+    }
+
+    private void SetupProvider()
+    {
+        foreach (var provider in _providers)
+        {
+            provider.HandlersServer();
+        }
     }
 
     private void OnServerStart()

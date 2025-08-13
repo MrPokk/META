@@ -6,6 +6,8 @@ using Mirror;
 [CreateAssetMenu(fileName = "SceneConfig", menuName = "Configs/SceneConfig")]
 public class SceneConfig : ScriptableObject
 {
+    private static readonly HashSet<SceneTypes> s_serverScenes = new();
+
     [Serializable]
     public struct SceneMapping
     {
@@ -30,14 +32,19 @@ public class SceneConfig : ScriptableObject
         LoggerUtility.Error($"Scene name for type {sceneType} not found!");
         return null;
     }
+    
+    public static bool IsServerScene(SceneTypes sceneType) => s_serverScenes.Contains(sceneType);
 
     public List<SceneMapping> GetServerLoadScenes()
     {
+        s_serverScenes.Clear();
+
         var serverScenes = new List<SceneMapping>();
         foreach (var mapping in sceneMappings)
         {
             if (mapping.isLoadServer)
             {
+                s_serverScenes.Add(mapping.sceneType);
                 serverScenes.Add(mapping);
             }
         }
@@ -46,7 +53,7 @@ public class SceneConfig : ScriptableObject
         {
             LoggerUtility.Error("No server load scenes found!");
         }
-        
+
         return serverScenes;
     }
 

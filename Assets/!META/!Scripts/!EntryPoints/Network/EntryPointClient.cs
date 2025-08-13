@@ -10,17 +10,17 @@ public class EntryPointClient : IStartable, IDisposable
 {
     private readonly NetworkConfig _networkConfig;
     private readonly NetworkManager _networkManager;
-    private readonly IEnumerable<IProviderHandler> _handlerMessages;
+    private IEnumerable<IProviderHandler> _providers;
 
     [Inject]
     public EntryPointClient(
         NetworkConfig clientConfig,
         NetworkManager networkManager,
-        IEnumerable<IProviderHandler> handlerMessages)
+        IEnumerable<IProviderHandler> providers)
     {
         _networkConfig = clientConfig;
         _networkManager = networkManager;
-        _handlerMessages = handlerMessages;
+        _providers = providers;
     }
 
     public void Start()
@@ -33,9 +33,17 @@ public class EntryPointClient : IStartable, IDisposable
     public void SetupConnection()
     {
         _networkManager.StartClient();
-        NetworkUtility.SetupHandlers(_handlerMessages);
+        SetupProvider();
         OnSubscribeClient();
         OnClientStart();
+    }
+
+    private void SetupProvider()
+    {
+        foreach (var provider in _providers)
+        {
+            provider.HandlersClient();
+        }
     }
 
     private void OnClientStart()

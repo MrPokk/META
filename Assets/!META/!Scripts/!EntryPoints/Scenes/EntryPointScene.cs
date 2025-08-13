@@ -23,3 +23,5 @@ public abstract class EntryPointScene : LifetimeScope
 
     protected abstract void Bootstrap();
 }
+
+

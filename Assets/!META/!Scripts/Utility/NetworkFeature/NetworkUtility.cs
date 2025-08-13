@@ -1,42 +1,31 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
 using Mirror;
 using UnityEngine;
 
-public class NetworkUtility
+public static class NetworkUtility
 {
-    public static IEnumerator WaitingToConnect(NetworkConnection target, Action callback)
-    {
-        if (target == null) { LoggerUtility.Error("WaitingClientToConnect: target is null"); yield break; }
 
-        yield return new WaitUntil(() => target.isReady);
-        callback?.Invoke();
-    }
-
-    public static void SetupHandlers(IEnumerable<IProviderHandler> handlers)
+    public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
-        foreach (var handler in handlers)
+        if (NetworkServer.active && target != null)
         {
-            if (NetworkManager.singleton.mode == NetworkManagerMode.ServerOnly)
-                handler.HandlersServer();
-            else if (NetworkManager.singleton.mode == NetworkManagerMode.ClientOnly)
-                handler.HandlersClient();
-            else
-                throw new Exception($"Invalid network mode: {NetworkManager.singleton.mode}");
+            target.Send<T>(value);
+        }
+        else if (NetworkServer.active)
+        {
+            NetworkServer.SendToAll<T>(value);
+        }
+        else if (NetworkClient.active)
+        {
+            CoroutineUtility.Run(WaitingToSend<T>(value));
         }
     }
 
-    public static Guid GetStableGuid(Type type)
+    private static IEnumerator WaitingToSend<T>(T message) where T : struct, NetworkMessage
     {
-        string stableName = type.AssemblyQualifiedName;
-        using (MD5 md5 = MD5.Create())
-        {
-            byte[] hash = md5.ComputeHash(Encoding.UTF8.GetBytes(stableName));
-            return new Guid(hash);
-        }
+        yield return new WaitUntil(() => NetworkClient.connection.isReady);
+        NetworkClient.Send<T>(message);
     }
 
     public static bool IsClientActive()
@@ -46,7 +35,7 @@ public class NetworkUtility
             LoggerUtility.Error("NetworkClient is not active");
             return false;
         }
-        return NetworkClient.active;
+        return true;
     }
 
     public static bool IsServerActive()
@@ -56,6 +45,6 @@ public class NetworkUtility
             LoggerUtility.Error("NetworkServer is not active");
             return false;
         }
-        return NetworkServer.active;
+        return true;
     }
 }
