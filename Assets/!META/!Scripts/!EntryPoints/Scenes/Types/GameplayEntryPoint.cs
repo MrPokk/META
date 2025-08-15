@@ -4,7 +4,6 @@ public class GameplayEntryPoint : EntryPointScene
 {
     protected override void Bootstrap()
     {
-        SyncSceneNetworkProvider.SendRequest();
-        ObjectNetworkProvider.SendRequest<PlayerEntity, PlayerView>(new(Vector3.zero, Quaternion.identity));
+        ObjectNetworkProvider.Spawn<PlayerEntity, PlayerView>(Vector3.zero, Quaternion.identity);
     }
 }

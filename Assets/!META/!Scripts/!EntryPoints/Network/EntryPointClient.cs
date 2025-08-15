@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BitterECS.Core;
+using BitterECS.Core.Integration;
 using Mirror;
 using UnityEngine;
 using VContainer;

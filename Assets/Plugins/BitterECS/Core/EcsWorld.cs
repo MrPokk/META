@@ -55,7 +55,7 @@ namespace BitterECS.Core
             {
                 if (Activator.CreateInstance(type) is EcsPresenter presenter)
                 {
-                    s_ecsPresenters.Add(type, presenter);
+                    s_ecsPresenters.TryAdd(type, presenter);
                 }
             }
         }

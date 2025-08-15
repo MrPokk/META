@@ -14,7 +14,7 @@ public class SceneLoader
 
     public static void LoadScene(SceneTypes sceneType)
     {
-        var sceneName = s_sceneConfig.GetSceneName(sceneType);
+        var sceneName = SceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
             LoggerUtility.Error($"Scene name for {sceneType} is not set!");
@@ -26,7 +26,7 @@ public class SceneLoader
 
     public static void LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
-        var sceneName = s_sceneConfig.GetSceneName(sceneType);
+        var sceneName = SceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
             LoggerUtility.Error($"Scene name for {sceneType} is not set!");
@@ -38,7 +38,7 @@ public class SceneLoader
 
     public static async Task LoadSceneAsync(SceneTypes sceneType)
     {
-        var sceneName = s_sceneConfig.GetSceneName(sceneType);
+        var sceneName = SceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
             LoggerUtility.Error($"Scene name for {sceneType} is not set!");
@@ -64,7 +64,7 @@ public class SceneLoader
 
     public static async Task LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
-        var sceneName = s_sceneConfig.GetSceneName(sceneType);
+        var sceneName = SceneConfig.GetSceneName(sceneType);
         if (string.IsNullOrEmpty(sceneName))
         {
             LoggerUtility.Error($"Scene name for {sceneType} is not set!");

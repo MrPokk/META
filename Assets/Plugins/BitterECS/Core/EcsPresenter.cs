@@ -9,7 +9,7 @@ namespace BitterECS.Core
         private readonly Dictionary<ushort, EcsEntity> _entities = new(EcsConfig.InitialEntitiesCapacity);
         private readonly Dictionary<Type, object> _pools = new(EcsConfig.InitialPoolCapacity);
         private readonly HashSet<Type> _allowedEntityTypes = new();
-        
+
         public IReadOnlyCollection<EcsEntity> GetAll() => _entities.Values;
 
         protected EcsPresenter() => Registration();
@@ -61,20 +61,20 @@ namespace BitterECS.Core
 
         public EcsFilter Filter() => new(this);
 
-        public EcsPool<T> GetPool<T>() where T : struct => 
-            (EcsPool<T>)(_pools.TryGetValue(typeof(T), out var pool) 
-                ? pool 
-                : _pools[typeof(T)] = new EcsPool<T>());
+        public EcsPool<T> GetPool<T>() where T : struct
+        {
+            return (EcsPool<T>)(_pools.TryGetValue(typeof(T), out var pool) ? pool : _pools[typeof(T)] = new EcsPool<T>());
+        }
 
         public void Dispose()
         {
             foreach (var entity in _entities.Values) entity.Dispose();
             foreach (var pool in _pools.Values) (pool as IDisposable)?.Dispose();
-            
+
             _entities.Clear();
             _pools.Clear();
             _allowedEntityTypes.Clear();
-            
+
             GC.SuppressFinalize(this);
         }
     }

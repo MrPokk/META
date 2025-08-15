@@ -6,8 +6,6 @@ public class PlayerEntity : EcsEntity
     {
         Add(new ViewComponent());
         Add(new ControllableComponent());
-        Add(new TransformComponent());
         Add(new MovingComponent(5f));
-        Add(new NetworkSyncComponent());
     }
 }

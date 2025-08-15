@@ -57,40 +57,57 @@ namespace BitterECS.Core.Integration
                 throw new Exception($"ECS View Database initialization failed: {ex.Message}", ex);
             }
         }
+        
+        public static IEnumerable<(Type type, MonoBehaviour monoBehaviour, ILinkableView linkableView)> GetAll()
+        {
+            EnsureInitialized();
 
-        public static ILinkableView GetPrefab(Type viewType)
+            foreach (var kvp in s_viewPrefabs)
+            {
+                yield return (kvp.Key, kvp.Value as MonoBehaviour, kvp.Value);
+            }
+        }
+
+        public static (MonoBehaviour monoBehaviour, ILinkableView linkableView) GetPrefab(Type viewType)
         {
             EnsureInitialized();
 
             if (!s_viewPrefabs.TryGetValue(viewType, out var prefab))
             {
-
                 Debug.LogError($"ECS View of type {viewType.Name} not found in database");
-                return null;
+                return (null, null);
             }
 
             if (prefab == null)
             {
                 Debug.LogError($"ECS View prefab is null. Check path: Resources/EcsViews");
-                return null;
+                return (null, null);
             }
 
-            return prefab;
+            return (prefab as MonoBehaviour, prefab);
         }
 
-        public static T GetPrefab<T>() where T : ILinkableView => (T)GetPrefab(typeof(T));
+        public static (T monoBehaviour, ILinkableView linkableView) GetPrefab<T>() where T : MonoBehaviour
+        {
+            var result = GetPrefab(typeof(T));
+            return (result.monoBehaviour as T, result.linkableView);
+        }
 
-        public static ILinkableView GetInstance(Type viewType, Vector3 position = default, Quaternion rotation = default)
+        public static (MonoBehaviour monoBehaviour, ILinkableView linkableView) GetInstance(Type viewType, Vector3 position = default, Quaternion rotation = default)
         {
             var prefab = GetPrefab(viewType);
-            if (prefab == null)
-                return null;
+            if (prefab.monoBehaviour == null)
+                return (null, null);
 
-            var prefabUnity = prefab as MonoBehaviour;
-            var newInstance = UnityEngine.Object.Instantiate(prefabUnity, position, rotation);
-            return newInstance as ILinkableView;
+            var newInstance = UnityEngine.Object.Instantiate(prefab.monoBehaviour, position, rotation);
+            var linkableView = newInstance.GetComponent<ILinkableView>();
+            return (newInstance, linkableView);
         }
 
-        public static T GetInstance<T>() where T : ILinkableView => (T)GetInstance(typeof(T));
+        public static (T monoBehaviour, ILinkableView linkableView) GetInstance<T>(Vector3 position = default, Quaternion rotation = default) where T : MonoBehaviour
+        {
+            var result = GetInstance(typeof(T), position, rotation);
+            return (result.monoBehaviour as T, result.linkableView);
+        }
     }
 }

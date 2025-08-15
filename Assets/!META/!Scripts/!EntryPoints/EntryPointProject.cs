@@ -9,6 +9,8 @@ using VContainer.Unity;
 using BitterECS.Utility;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using BitterECS.Core.Integration;
+
 
 
 
@@ -120,10 +122,21 @@ public class EntryPointProject : LifetimeScope
                 typeof(NetworkManager))
             .GetComponent<NetworkManager>();
 
+        SetupSpawnPrefab(manager);
         SetupTransportForPlatform(manager);
         SetupLoadServerScene();
         DontDestroyOnLoad(manager.gameObject);
         return manager;
+    }
+
+    private void SetupSpawnPrefab(NetworkManager manager)
+    {
+        var viewDatabase = EcsUnityViewDatabase.GetAll();
+        foreach (var ecsUnityView in viewDatabase)
+        {
+            if (ecsUnityView.monoBehaviour.TryGetComponent<NetworkIdentity>(out var _))
+                manager.spawnPrefabs.Add(ecsUnityView.monoBehaviour.gameObject);
+        }
     }
 
     private void SetupTransportForPlatform(NetworkManager manager)

@@ -6,8 +6,6 @@ using Mirror;
 [CreateAssetMenu(fileName = "SceneConfig", menuName = "Configs/SceneConfig")]
 public class SceneConfig : ScriptableObject
 {
-    private static readonly HashSet<SceneTypes> s_serverScenes = new();
-
     [Serializable]
     public struct SceneMapping
     {
@@ -16,60 +14,75 @@ public class SceneConfig : ScriptableObject
         public string sceneName;
         public bool isLoadServer;
     }
-    [field: SerializeField] public SceneTypes firstSceneToLoadClient { get; private set; }
-    public List<SceneMapping> sceneMappings;
 
-    public string StringFirstSceneToLoadClient() => GetSceneName(firstSceneToLoadClient);
+    public SceneTypes firstSceneToLoadClient;
+    
+    public List<SceneMapping> sceneMappings = new();
 
-    public string GetSceneName(SceneTypes sceneType)
+    // Static access
+    private static readonly Dictionary<SceneTypes, SceneMapping> _sceneMap = new();
+    private static readonly HashSet<SceneTypes> _serverScenes = new();
+
+    public static IReadOnlyDictionary<SceneTypes, SceneMapping> SceneMap => _sceneMap;
+    public static IReadOnlyCollection<SceneTypes> ServerScenes => _serverScenes;
+
+    private void OnEnable()
     {
+        InitializeStaticData();
+    }
+
+    private void InitializeStaticData()
+    {
+        _sceneMap.Clear();
+        _serverScenes.Clear();
+
         foreach (var mapping in sceneMappings)
         {
-            if (mapping.sceneType == sceneType)
-                return mapping.sceneName;
+            _sceneMap[mapping.sceneType] = mapping;
+            
+            if (mapping.isLoadServer)
+            {
+                _serverScenes.Add(mapping.sceneType);
+            }
+        }
+
+        if (_serverScenes.Count == 0)
+        {
+            LoggerUtility.Error("No server load scenes found!");
+        }
+    }
+
+    public static string GetSceneName(SceneTypes sceneType)
+    {
+        if (_sceneMap.TryGetValue(sceneType, out var mapping))
+        {
+            return mapping.sceneName;
         }
 
         LoggerUtility.Error($"Scene name for type {sceneType} not found!");
         return null;
     }
-    
-    public static bool IsServerScene(SceneTypes sceneType) => s_serverScenes.Contains(sceneType);
 
-    public List<SceneMapping> GetServerLoadScenes()
-    {
-        s_serverScenes.Clear();
+    public static bool IsServerScene(SceneTypes sceneType) => _serverScenes.Contains(sceneType);
 
-        var serverScenes = new List<SceneMapping>();
-        foreach (var mapping in sceneMappings)
-        {
-            if (mapping.isLoadServer)
-            {
-                s_serverScenes.Add(mapping.sceneType);
-                serverScenes.Add(mapping);
-            }
-        }
+    public static bool TryGetMapping(SceneTypes sceneType, out SceneMapping mapping) => 
+        _sceneMap.TryGetValue(sceneType, out mapping);
 
-        if (serverScenes.Count == 0)
-        {
-            LoggerUtility.Error("No server load scenes found!");
-        }
-
-        return serverScenes;
-    }
-
-    public bool ValidateScene(SceneTypes sceneType, Predicate<SceneMapping> predicate = null)
+    public static bool ValidateScene(SceneTypes sceneType, Predicate<SceneMapping> predicate = null)
     {
         if (sceneType == SceneTypes.None) return false;
 
-        foreach (var mapping in sceneMappings)
+        if (!TryGetMapping(sceneType, out var mapping))
         {
-            if (mapping.sceneType == sceneType && (predicate == null || predicate(mapping)))
-            {
-                return true;
-            }
+            LoggerUtility.Error($"Invalid scene type: {sceneType}");
+            return false;
         }
 
-        LoggerUtility.Error($"Invalid scene type: {sceneType}");
-        return false;
+        return predicate == null || predicate(mapping);
     }
+
+    public IReadOnlyList<SceneMapping> GetServerLoadScenes() => 
+        sceneMappings.FindAll(m => m.isLoadServer);
+
+    public string StringFirstSceneToLoadClient() => GetSceneName(firstSceneToLoadClient);
 }

@@ -50,7 +50,7 @@ public class EntryPointServer : IStartable, IDisposable
 
     private void OnServerConnected(NetworkConnectionToClient client)
     {
-        LoggerUtility.Info("[Server] Server connected!");
+        LoggerUtility.Info("[Server] Server to client connected!");
         EcsSystems.Run<IServerConnected>(system => system.Connect(client));
     }
 

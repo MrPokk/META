@@ -41,7 +41,12 @@ namespace BitterECS.Core
 
         public static ILinkableView GetView(ILinkableEntity entity)
         {
-            return entity == null || !s_linkedEntities.TryGetValue(entity, out var view) ? null : view;
+            return entity == null || !s_linkedEntities.TryGetValue(entity, out var view) ? default : view;
+        }
+
+        public static T GetView<T>(ILinkableEntity entity) where T : ILinkableView
+        {
+            return entity == null || !s_linkedEntities.TryGetValue(entity, out var view) ? default : (T)view;
         }
 
         public static ILinkableEntity GetEntity(ILinkableView view)

@@ -2,145 +2,153 @@
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
-using System;
-using UnityEditor.SearchService;
 
 [CustomEditor(typeof(SceneConfig))]
 public class SceneConfigEditor : Editor
 {
-    private SceneConfig config;
+    private SceneConfig _config;
 
     private void OnEnable()
     {
-        config = (SceneConfig)target;
+        _config = (SceneConfig)target;
     }
 
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
+        serializedObject.Update();
+
+        // Draw firstSceneToLoadClient field directly
+        _config.firstSceneToLoadClient = (SceneTypes)EditorGUILayout.EnumPopup(
+            new GUIContent("First Scene To Load Client"), 
+            _config.firstSceneToLoadClient);
+
+        // Draw sceneMappings list
+        EditorGUILayout.LabelField("Scene Mappings", EditorStyles.boldLabel);
+        
+        for (int i = 0; i < _config.sceneMappings.Count; i++)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                var mapping = _config.sceneMappings[i];
+                
+                mapping.sceneType = (SceneTypes)EditorGUILayout.EnumPopup("Scene Type", mapping.sceneType);
+                mapping.sceneName = EditorGUILayout.TextField("Scene Name", mapping.sceneName);
+                mapping.sceneToPath = EditorGUILayout.TextField("Scene Path", mapping.sceneToPath);
+                mapping.isLoadServer = EditorGUILayout.Toggle("Load on Server", mapping.isLoadServer);
+                
+                _config.sceneMappings[i] = mapping;
+
+                if (GUILayout.Button("Remove"))
+                {
+                    _config.sceneMappings.RemoveAt(i);
+                    break;
+                }
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        if (GUILayout.Button("Add New Mapping"))
+        {
+            _config.sceneMappings.Add(new SceneConfig.SceneMapping());
+        }
 
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Editor Tools", EditorStyles.boldLabel);
 
-        if (GUILayout.Button("Auto-Fill from Build Settings"))
+        EditorGUILayout.BeginHorizontal();
         {
-            AutoFillFromBuildSettings();
-        }
+            if (GUILayout.Button("Auto-Fill from Build"))
+            {
+                AutoFillFromBuildSettings();
+            }
 
-        if (GUILayout.Button("Validate Config"))
+            if (GUILayout.Button("Validate Config"))
+            {
+                ValidateConfig();
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
+        if (GUI.changed)
         {
-            ValidateConfig();
+            EditorUtility.SetDirty(_config);
+            AssetDatabase.SaveAssets();
         }
     }
 
     private void AutoFillFromBuildSettings()
     {
-        // Get all scenes from Build Settings
         var scenesInBuild = EditorBuildSettings.scenes
             .Where(scene => scene.enabled)
             .Select(scene => System.IO.Path.GetFileNameWithoutExtension(scene.path))
             .ToList();
 
-        // Clear existing mappings if empty
-        if (config.sceneMappings == null && config.sceneMappings.Count != Enum.GetValues(typeof(SceneTypes)).Length)
-        {
-            config.sceneMappings = new List<SceneConfig.SceneMapping>();
-        }
+        _config.sceneMappings.Clear();
 
-        // Add new scenes that don't exist in the config
         foreach (var sceneName in scenesInBuild)
         {
-            bool exists = config.sceneMappings.Any(m => m.sceneName == sceneName && m.sceneToPath == sceneName);
-            if (!exists)
+            _config.sceneMappings.Add(new SceneConfig.SceneMapping
             {
-                var newMapping = new SceneConfig.SceneMapping
-                {
-                    sceneType = GetUniqueSceneType(sceneName),
-                    sceneName = sceneName,
-                    sceneToPath = sceneName,
-                    isLoadServer = false
-                };
-                config.sceneMappings.Add(newMapping);
-            }
+                sceneName = sceneName,
+                sceneToPath = sceneName,
+                sceneType = GetUniqueSceneType(sceneName),
+                isLoadServer = false
+            });
         }
 
-        // Remove scenes that no longer exist in Build Settings
-        for (int i = config.sceneMappings.Count - 1; i >= 0; i--)
-        {
-            if (!scenesInBuild.Contains(config.sceneMappings[i].sceneName))
-            {
-                config.sceneMappings.RemoveAt(i);
-            }
-        }
-
-        EditorUtility.SetDirty(config);
+        EditorUtility.SetDirty(_config);
         AssetDatabase.SaveAssets();
-        LoggerUtility.Info($"SceneConfig updated with {config.sceneMappings.Count} scenes from Build Settings");
+        
+        Debug.Log($"SceneConfig updated with {scenesInBuild.Count} scenes from Build Settings");
     }
 
     private SceneTypes GetUniqueSceneType(string sceneName)
     {
-        // Try to find existing enum value that matches the scene name
+        // Try to match existing enum values first
         if (System.Enum.TryParse<SceneTypes>(sceneName, true, out var existingType))
         {
             return existingType;
         }
 
-        // Generate a new unique value by incrementing
-        if (config.sceneMappings.Count > 0)
-        {
-            var maxValue = config.sceneMappings.Max(m => (int)m.sceneType);
-            return (SceneTypes)(maxValue + 1);
-        }
+        // Find next available value
+        var highestValue = _config.sceneMappings
+            .Select(m => (int)m.sceneType)
+            .DefaultIfEmpty()
+            .Max();
 
-        return SceneTypes.EntryPoint; // Default fallback
+        return (SceneTypes)(highestValue + 1);
     }
 
     private void ValidateConfig()
     {
         bool hasErrors = false;
 
-        // Check for duplicate scene names
-        var duplicateNames = config.sceneMappings
-            .GroupBy(m => m.sceneName)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToList();
+        // Check duplicates
+        var nameGroups = _config.sceneMappings.GroupBy(m => m.sceneName);
+        var typeGroups = _config.sceneMappings.GroupBy(m => m.sceneType);
 
-        if (duplicateNames.Count > 0)
+        foreach (var group in nameGroups.Where(g => g.Count() > 1))
         {
             hasErrors = true;
-            LoggerUtility.Error($"Duplicate scene names found: {string.Join(", ", duplicateNames)}");
+            Debug.LogError($"Duplicate scene name: {group.Key}");
         }
 
-        // Check for duplicate scene types
-        var duplicateTypes = config.sceneMappings
-            .GroupBy(m => m.sceneType)
-            .Where(g => g.Count() > 1)
-            .Select(g => g.Key)
-            .ToList();
-
-        if (duplicateTypes.Count > 0)
+        foreach (var group in typeGroups.Where(g => g.Count() > 1))
         {
             hasErrors = true;
-            LoggerUtility.Error($"Duplicate scene types found: {string.Join(", ", duplicateTypes)}");
+            Debug.LogError($"Duplicate scene type: {group.Key}");
         }
 
-        // Check for empty scene names
-        var emptyNames = config.sceneMappings
-            .Where(m => string.IsNullOrEmpty(m.sceneName))
-            .ToList();
-
-        if (emptyNames.Count > 0)
+        // Check empty names
+        foreach (var mapping in _config.sceneMappings.Where(m => string.IsNullOrEmpty(m.sceneName)))
         {
             hasErrors = true;
-            LoggerUtility.Error($"Empty scene names found in {emptyNames.Count} mappings");
+            Debug.LogError($"Empty scene name found for type: {mapping.sceneType}");
         }
 
         if (!hasErrors)
         {
-            LoggerUtility.Info("SceneConfig validation successful - no duplicates found");
+            Debug.Log("SceneConfig validation passed with no errors");
         }
     }
 }

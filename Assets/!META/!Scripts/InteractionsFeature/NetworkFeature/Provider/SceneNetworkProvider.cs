@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 public class SceneNetworkProvider : IProviderHandler
 {
-    public static void SendRequest(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
+    public static void ChangeScene(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
     public void HandlersClient()
     {
@@ -13,6 +14,7 @@ public class SceneNetworkProvider : IProviderHandler
     private void OnClientRequest(SceneChangeRequestMessage message)
     {
         SceneLoader.LoadScene(message.sceneType);
+        NetworkUtility.SendMessage<SyncStateSceneMessage>(new());
     }
 
     public void HandlersServer()
@@ -27,6 +29,7 @@ public class SceneNetworkProvider : IProviderHandler
 
         ConnectionInfo.ClientToScene[client] = message.sceneType;
         ConnectionInfo.SceneToConnections.GetOrAdd(message.sceneType, _ => new() { client }).Add(client);
+
         client.Send(new SceneChangeRequestMessage(message.sceneType));
     }
 }

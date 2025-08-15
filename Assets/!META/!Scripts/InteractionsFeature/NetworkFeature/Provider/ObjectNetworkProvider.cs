@@ -1,98 +1,73 @@
-using System;
-using System.Collections.Generic;
+using Mirror;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using BitterECS.Core;
 using BitterECS.Core.Integration;
-using Mirror;
-using Unity.VisualScripting;
-using UnityEngine;
+using System;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static void SendRequest<TEntity, TView>(TransformComponent transform, NetworkSyncComponent id = default) =>
-        NetworkUtility.SendMessage<SyncObjectSpawn>(new(id, typeof(TEntity), typeof(TView), transform));
+    public static void Spawn<TEntity, TView>(Vector3 position, Quaternion rotation)
+        => NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(TEntity), typeof(TView), position, rotation));
 
     public void HandlersClient()
     {
-        NetworkClient.ReplaceHandler<ForeignSpawnObjectMessage>(OnForeignClientSpawn);
-        NetworkClient.RegisterHandler<OwnerSpawnObjectMessage>(OnOwnerClientSpawn);
-    }
-
-    private void OnForeignClientSpawn(ForeignSpawnObjectMessage message)
-    {
-        var entity = CreateEntity(message.entity.Type, message.view.Type, message.connectionId);
-        entity.Remove<ControllableComponent>();
-    }
-
-    private void OnOwnerClientSpawn(OwnerSpawnObjectMessage message)
-    {
-        CreateEntity(message.entity.Type, message.view.Type, message.connectionId);
+        NetworkClient.RegisterHandler<SyncObjectSpawn>(OnClientSync);
     }
 
     public void HandlersServer()
     {
-        NetworkServer.RegisterHandler<SyncObjectSpawn>(OnServerSpawn);
+        NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
+        NetworkServer.RegisterHandler<SyncObjectSpawn>(OnServerSync);
     }
 
-    private void OnServerSpawn(NetworkConnectionToClient client, SyncObjectSpawn message)
+    private void OnSceneMoveSync(NetworkConnectionToClient client, SyncStateSceneMessage message)
     {
-        if (!message.entity.Type.IsSubclassOf(typeof(EcsEntity)))
+        var entities = ConnectionInfo.ClientEntities.GetOrAdd(client, _ => new());
+
+        foreach (var entity in entities)
         {
-            LoggerUtility.Error("Type is not a subclass of EcsEntity");
-            return;
-        }
+            var view = EcsLinker.GetView<EcsNetworkView>(entity);
+            if (view == null)
+                continue;
 
-        var entity = CreateEntity(message.entity.Type, message.view.Type, new NetworkSyncComponent(client.connectionId));
+            if (!view.TryGetComponent<NetworkIdentity>(out var identity))
+                continue;
 
-        if (entity.Has<ControllableComponent>())
-            entity.Remove<ControllableComponent>();
-            
-        ref var syncComponent = ref entity.Get<NetworkSyncComponent>();
-        syncComponent.objectId = ConnectionInfo.GlobalObjectIdCounter++;
-
-        var response = message;
-        response.connectionId = syncComponent;
-        ConnectionInfo.ClientEntities.GetOrAdd(client, _ => new() { entity }).Add(entity);
-
-        SendSpawnResponses(client, response);
-    }
-
-    private void SendSpawnResponses(NetworkConnectionToClient ownerClient, SyncObjectSpawn message)
-    {
-        var sceneType = ConnectionInfo.ClientToScene.GetValueOrDefault(ownerClient);
-        var connections = ConnectionInfo.SceneToConnections.GetValueOrDefault(sceneType);
-
-        // Send owner-specific message to the owner
-        ownerClient.Send(new OwnerSpawnObjectMessage(
-            message.connectionId,
-            message.entity,
-            message.view,
-            message.transformComponent
-        ));
-
-        // Broadcast regular message to other clients
-        foreach (var connection in connections)
-        {
-            if (connection != ownerClient)
-            {
-                connection.Send(new ForeignSpawnObjectMessage(
-                    message.connectionId,
-                    message.entity,
-                    message.view,
-                    message.transformComponent
-                ));
-            }
+            SceneManager.MoveGameObjectToScene(identity.gameObject, GetClientScene(client));
         }
     }
 
-    private EcsEntity CreateEntity(Type entityType, Type viewType, NetworkSyncComponent syncComponent)
+    private void OnClientSync(SyncObjectSpawn spawn)
     {
-        var instance = EcsUnityViewDatabase.GetInstance(viewType);
-        var entity = EcsWorld.GetToEntityType(entityType).AddEntity(entityType);
+        var typeEntity = spawn.entity.Type;
 
-        entity.Get<NetworkSyncComponent>() = syncComponent;
-
-        EcsLinker.Link(entity, instance);
-
-        return entity;
+        var view = NetworkClient.spawned[spawn.assetId];
+        var entity = EcsWorld.GetToEntityType(typeEntity).AddEntity(typeEntity);
+        EcsLinker.Link(entity, view.GetComponent<ILinkableView>());
     }
+
+    private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
+    {
+        var typeEntity = spawn.entity.Type;
+        var typeView = spawn.view.Type;
+
+        var instance = EcsUnityViewDatabase.GetInstance(typeView, spawn.position, spawn.rotation);
+        var entity = EcsWorld.GetToEntityType(typeEntity).AddEntity(typeEntity);
+        EcsLinker.Link(entity, instance.linkableView);
+
+        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(entity);
+
+        var go = instance.monoBehaviour.gameObject;
+        go.name = $"{go.name} [{conn.connectionId}]";
+        SceneManager.MoveGameObjectToScene(go, GetClientScene(conn));
+
+        var identity = go.GetComponent<NetworkIdentity>();
+        NetworkServer.AddPlayerForConnection(conn, go);
+
+        conn.Send(new SyncObjectSpawn(spawn, identity.netId));
+    }
+
+    private Scene GetClientScene(NetworkConnectionToClient conn)
+        => SceneManager.GetSceneByName(SceneConfig.GetSceneName(ConnectionInfo.ClientToScene[conn]));
 }

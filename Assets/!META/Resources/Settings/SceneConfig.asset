@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19a22e5f52e5886e494e0c546faac06a, type: 3}
   m_Name: SceneConfig
   m_EditorClassIdentifier: 
-  <firstSceneToLoadClient>k__BackingField: 3
+  firstSceneToLoadClient: 3
   sceneMappings:
   - sceneType: 1
     sceneToPath: Assets/!META/Scenes/EntryPointScene.unity
