@@ -4,6 +4,7 @@ using VContainer.Unity;
 
 public abstract class EntryPointScene : LifetimeScope
 {
+    protected IObjectResolver ParentContainer => Parent.Container;
     protected override void Awake()
     {
         parentReference = ParentReference.Create<EntryPointProject>();

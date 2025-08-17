@@ -22,15 +22,15 @@ MonoBehaviour:
     sceneToPath: Assets/!META/Scenes/OfflineLoaderMenu.unity
     sceneName: OfflineLoaderMenu
     isLoadServer: 0
-  - sceneType: 5
-    sceneToPath: Assets/!META/Scenes/Room_2.unity
-    sceneName: Room_2
+  - sceneType: 3
+    sceneToPath: Assets/!META/Scenes/StartRoom.unity
+    sceneName: StartRoom
     isLoadServer: 1
   - sceneType: 4
     sceneToPath: Assets/!META/Scenes/Room_1.unity
     sceneName: Room_1
     isLoadServer: 1
-  - sceneType: 3
-    sceneToPath: Assets/!META/Scenes/StartRoom.unity
-    sceneName: StartRoom
+  - sceneType: 5
+    sceneToPath: Assets/!META/Scenes/Room_2.unity
+    sceneName: Room_2
     isLoadServer: 1

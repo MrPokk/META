@@ -81,8 +81,7 @@ public class SceneConfig : ScriptableObject
         return predicate == null || predicate(mapping);
     }
 
-    public IReadOnlyList<SceneMapping> GetServerLoadScenes() => 
-        sceneMappings.FindAll(m => m.isLoadServer);
+    public IReadOnlyCollection<SceneTypes> GetServerLoadScenes() => _serverScenes;
 
     public string StringFirstSceneToLoadClient() => GetSceneName(firstSceneToLoadClient);
 }

@@ -8,12 +8,7 @@ using VContainer;
 using VContainer.Unity;
 using BitterECS.Utility;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using BitterECS.Core.Integration;
-
-
-
-
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;
@@ -94,6 +89,12 @@ public class EntryPointProject : LifetimeScope
                .AsImplementedInterfaces();
     }
 
+    private void RegisterUI(IContainerBuilder builder)
+    {
+        builder.RegisterEntryPoint<UIEntryPoint>()
+        .As<UIEntryPoint>();
+    }
+
     #endregion
 
     #region Components
@@ -152,7 +153,7 @@ public class EntryPointProject : LifetimeScope
 
         foreach (var scene in serverScenes)
         {
-            SceneLoader.LoadScene(scene.sceneType, new LoadSceneParameters
+            SceneLoader.LoadScene(scene, new LoadSceneParameters
             {
                 loadSceneMode = LoadSceneMode.Additive
             });
@@ -178,6 +179,8 @@ public class EntryPointProject : LifetimeScope
             LoggerUtility.Info("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
             builder.RegisterEntryPoint<EntryPointClient>()
             .As<EntryPointClient>();
+
+            RegisterUI(builder);
         }
         else
         {
@@ -203,6 +206,8 @@ public class EntryPointProject : LifetimeScope
             case NetworkType.Client:
                 builder.RegisterEntryPoint<EntryPointClient>()
                 .As<EntryPointClient>();
+                
+                RegisterUI(builder);
                 break;
 
             default:
