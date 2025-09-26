@@ -1,14 +1,14 @@
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using BitterECS.Core;
-using BitterECS.Core.Integration;
-using System;
+using BitterECS.Integration;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static void Spawn<TEntity, TView>(Vector3 position, Quaternion rotation)
-        => NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(TEntity), typeof(TView), position, rotation));
+    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider
+    {
+        NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
+    }
 
     public void HandlersClient()
     {
@@ -28,26 +28,22 @@ public class ObjectNetworkProvider : IProviderHandler
 
         var entities = ConnectionInfo.ClientEntities.GetOrAdd(client, _ => new());
 
-        foreach (var entity in entities)
-        {
-            var view = EcsLinker.GetView<EcsNetworkView>(entity);
-            if (view == null)
-                continue;
+        //foreach (var entity in entities)
+        //{
+        //    var view = EcsLinker.GetView<EcsNetworkView>(entity);
+        //    if (view == null)
+        //        continue;
 
-            if (!view.TryGetComponent<NetworkIdentity>(out var identity))
-                continue;
+        //    if (!view.TryGetComponent<NetworkIdentity>(out var identity))
+        //        continue;
 
-            SceneManager.MoveGameObjectToScene(identity.gameObject, scene);
-        }
+        //    SceneManager.MoveGameObjectToScene(identity.gameObject, scene);
+        //}
     }
 
     private void OnClientSync(SyncObjectSpawn spawn)
     {
-        var typeEntity = spawn.entity.Type;
-
-        var view = NetworkClient.spawned[spawn.assetId];
-        var entity = EcsWorld.GetToEntityType(typeEntity).AddEntity(typeEntity);
-        EcsLinker.Link(entity, view.GetComponent<ILinkableView>());
+        _ = NetworkClient.spawned[spawn.assetId];
     }
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
@@ -55,16 +51,15 @@ public class ObjectNetworkProvider : IProviderHandler
         if (!TryGetClientScene(conn, out var scene))
             return;
 
+
+        // TODO: Порефактори для оптимизации
         var typeEntity = spawn.entity.Type;
-        var typeView = spawn.view.Type;
+        var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
+        var entityToSpawn = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(typeEntity, out var entity));
 
-        var instance = EcsUnityViewDatabase.GetInstance(typeView, spawn.position, spawn.rotation);
-        var entity = EcsWorld.GetToEntityType(typeEntity).AddEntity(typeEntity);
-        EcsLinker.Link(entity, instance.linkableView);
+        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(entityToSpawn);
 
-        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(entity);
-
-        var go = instance.monoBehaviour.gameObject;
+        var go = entityToSpawn.gameObject;
         go.name = $"{go.name} [{conn.connectionId}]";
         SceneManager.MoveGameObjectToScene(go, scene);
 

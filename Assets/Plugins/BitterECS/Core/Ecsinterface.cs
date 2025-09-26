@@ -61,30 +61,12 @@ namespace BitterECS.Core
 
     #region Helper
 
-    public interface IEcsEntity : ILinkableEntity
-    { 
-        public void Registration();
-    }
-    public interface ILinkableEntity : IInitialize<EcsEntityProperty>, IDisposable
+    public interface ILinkableProvider : IInitialize<EcsProviderProperty>, IDisposable
     {
-        public ILinkableView View => EcsLinker.GetView(this);
-        bool Has<T>() where T : struct;
-        void Add<T>(in T component) where T : struct;
-        void Remove<T>() where T : struct;
-        ref T Get<T>() where T : struct;
-    }
-
-    public interface ILinkableView : IInitialize<EcsViewProperty>, IDisposable
-    {
-        public ILinkableEntity Entity => EcsLinker.GetEntity(this);
+        public EcsEntity Entity => Properties?.Presenter?.Get(this);
     }
 
     public interface IInitializeProperty { }
-
-    public interface IInitialize
-    {
-        public void Init();
-    }
 
     public interface IInitialize<T> where T : IInitializeProperty
     {
@@ -102,27 +84,24 @@ namespace BitterECS.Core
         LAST_TASK = 10000,
     }
 
-    public struct EntityProperties
+    public record EcsProviderProperty : IInitializeProperty
     {
-        public EcsPresenter Presenter;
-    }
+        public EcsPresenter Presenter { get; }
+        public ushort Id { get; }
 
-    public class EcsViewProperty : IInitializeProperty
-    {
-        public readonly EcsPresenter Presenter;
-
-        public EcsViewProperty(EcsPresenter presenter)
+        public EcsProviderProperty(EcsPresenter presenter, ushort id)
         {
             Presenter = presenter;
+            Id = id;
         }
     }
 
-    public class EcsEntityProperty : IInitializeProperty
+    public record EcsEntityProperty : IInitializeProperty
     {
-        public readonly EcsPresenter Presenter;
-        public readonly ushort Id = 0;
+        public EcsPresenter Presenter { get; }
+        public ushort Id { get; }
 
-        public EcsEntityProperty(EcsPresenter presenter, ushort id)
+        public EcsEntityProperty(EcsPresenter presenter, ushort id = 0)
         {
             Presenter = presenter;
             Id = id;

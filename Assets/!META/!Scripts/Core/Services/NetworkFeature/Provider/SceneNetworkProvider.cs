@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Mirror;
-using UnityEngine.SceneManagement;
 
 public class SceneNetworkProvider : IProviderHandler
 {
