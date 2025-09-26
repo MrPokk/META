@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BitterECS.Utility;
+using BitterECS.Extra;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;

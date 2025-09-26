@@ -17,7 +17,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
     public void HandlersServer()
     {
-        NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
+        //   NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
         NetworkServer.RegisterHandler<SyncObjectSpawn>(OnServerSync);
     }
 
@@ -43,7 +43,11 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnClientSync(SyncObjectSpawn spawn)
     {
-        _ = NetworkClient.spawned[spawn.assetId];
+        var clientGameObject = NetworkClient.spawned[spawn.assetId];
+        if (clientGameObject.TryGetComponent<MonoProvider>(out var provider))
+        {
+            provider.Entity.Add<ControllableComponent>(new());
+        }
     }
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
@@ -51,22 +55,29 @@ public class ObjectNetworkProvider : IProviderHandler
         if (!TryGetClientScene(conn, out var scene))
             return;
 
-
-        // TODO: Порефактори для оптимизации
         var typeEntity = spawn.entity.Type;
         var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
-        var entityToSpawn = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(typeEntity, out var entity));
+        var entityPrefab = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(typeEntity, out var entity));
 
-        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(entityToSpawn);
+        if (entityPrefab == null)
+        {
+            Debug.LogError($"Prefab with component {typeEntity} not found in spawnPrefabs");
+            return;
+        }
 
-        var go = entityToSpawn.gameObject;
-        go.name = $"{go.name} [{conn.connectionId}]";
-        SceneManager.MoveGameObjectToScene(go, scene);
+        var goInstance = Object.Instantiate(entityPrefab.gameObject);
+        goInstance.name = $"{entityPrefab.gameObject.name} [{conn.connectionId}]";
 
-        var identity = go.GetComponent<NetworkIdentity>();
-        NetworkServer.AddPlayerForConnection(conn, go);
+        SceneManager.MoveGameObjectToScene(goInstance, scene);
+
+        var identity = goInstance.GetComponent<NetworkIdentity>();
+
+        NetworkServer.Spawn(goInstance, conn);
+        NetworkServer.AddPlayerForConnection(conn, goInstance);
 
         conn.Send(new SyncObjectSpawn(spawn, identity.netId));
+
+        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(goInstance);
     }
 
     private bool TryGetClientScene(NetworkConnectionToClient conn, out Scene scene)

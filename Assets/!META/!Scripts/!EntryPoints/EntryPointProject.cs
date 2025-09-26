@@ -9,8 +9,7 @@ using VContainer.Unity;
 using BitterECS.Utility;
 using UnityEngine.SceneManagement;
 using BitterECS.Integration;
-
-
+using BitterECS.Extra;
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;

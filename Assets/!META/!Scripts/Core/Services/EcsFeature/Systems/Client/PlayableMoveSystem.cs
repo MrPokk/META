@@ -18,13 +18,11 @@ public class PlayableMoveSystem : IClientConnectedRun
             ref var movingComponent = ref entity.Get<MovingComponent>();
             ref var controllableComponent = ref entity.Get<ControllableComponent>();
 
-            if (entity.Provider is not MonoProvider monoProvider)
+            if (entity.Provider is MonoProvider monoProvider)
             {
-                return;
+                var direction = new Vector3(controllableComponent.input.x, 0, controllableComponent.input.y);
+                monoProvider.gameObject.transform.Translate(direction * movingComponent.speed * Time.deltaTime);
             }
-
-            var direction = new Vector3(controllableComponent.input.x, 0, controllableComponent.input.y);
-            monoProvider.transform.Translate(direction * movingComponent.speed * Time.deltaTime);
         }
     }
 }

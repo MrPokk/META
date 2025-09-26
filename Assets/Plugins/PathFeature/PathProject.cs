@@ -1,4 +1,4 @@
-namespace BitterECS.Utility
+namespace BitterECS.Extra
 {
     public static class PathProject
     {
@@ -19,5 +19,6 @@ namespace BitterECS.Utility
         public const string POPUPS = UI + "Popups/";
         public const string SCREENS = UI + "Screens/";
         public const string SETTING = "Settings/";
+        public const string PROVIDERS = PREFABS + "Providers/";
     }
 }
