@@ -8,7 +8,9 @@ using VContainer;
 using VContainer.Unity;
 using BitterECS.Utility;
 using UnityEngine.SceneManagement;
-using BitterECS.Core.Integration;
+using BitterECS.Integration;
+
+
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;
@@ -17,7 +19,7 @@ using Unity.Multiplayer.Playmode;
 public class EntryPointProject : LifetimeScope
 {
     [Header("<size=18>Configs</size>")]
-    [SerializeField] private LoggerConfig LoggerConfig;
+    [SerializeField] private LoggerConfig _loggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
@@ -52,7 +54,7 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterLogger()
     {
-        LoggerUtility.Initialize(LoggerConfig);
+        LoggerUtility.Initialize(_loggerConfig);
     }
 
     private void RegisterSceneLoader(IContainerBuilder builder)
@@ -132,11 +134,14 @@ public class EntryPointProject : LifetimeScope
 
     private void SetupSpawnPrefab(NetworkManager manager)
     {
-        var viewDatabase = EcsUnityViewDatabase.GetAll();
-        foreach (var ecsUnityView in viewDatabase)
+        var prefab = Resources.LoadAll<GameObject>(PathProject.ENTITIES);
+        foreach (var prefabToSpawn in prefab)
         {
-            if (ecsUnityView.monoBehaviour.TryGetComponent<NetworkIdentity>(out var _))
-                manager.spawnPrefabs.Add(ecsUnityView.monoBehaviour.gameObject);
+            var networkIdentity = prefabToSpawn.TryGetComponent<NetworkIdentity>(out var _);
+            var monoProvider = prefabToSpawn.TryGetComponent<MonoProvider>(out var _);
+
+            if (networkIdentity && monoProvider)
+                manager.spawnPrefabs.Add(prefabToSpawn.gameObject);
         }
     }
 
@@ -206,7 +211,7 @@ public class EntryPointProject : LifetimeScope
             case NetworkType.Client:
                 builder.RegisterEntryPoint<EntryPointClient>()
                 .As<EntryPointClient>();
-                
+
                 RegisterUI(builder);
                 break;
 

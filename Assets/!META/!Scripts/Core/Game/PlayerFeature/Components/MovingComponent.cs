@@ -1,4 +1,7 @@
-public struct MovingComponent 
+using System;
+
+[Serializable]
+public struct MovingComponent
 {
     public float speed;
 

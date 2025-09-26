@@ -1,4 +1,5 @@
 using BitterECS.Core;
+using BitterECS.Integration;
 using UnityEngine;
 
 public class PlayableMoveSystem : IClientConnectedRun
@@ -17,12 +18,13 @@ public class PlayableMoveSystem : IClientConnectedRun
             ref var movingComponent = ref entity.Get<MovingComponent>();
             ref var controllableComponent = ref entity.Get<ControllableComponent>();
 
-            var viewGameObject = EcsLinker.GetView<PlayerView>(entity);
-            if (viewGameObject == null)
-                continue;
+            if (entity.Provider is not MonoProvider monoProvider)
+            {
+                return;
+            }
 
             var direction = new Vector3(controllableComponent.input.x, 0, controllableComponent.input.y);
-            viewGameObject.transform.Translate(direction * movingComponent.speed * Time.deltaTime);
+            monoProvider.transform.Translate(direction * movingComponent.speed * Time.deltaTime);
         }
     }
 }

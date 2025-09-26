@@ -1,8 +1,9 @@
 using System;
 using BitterECS.Core;
-using BitterECS.Core.Integration;
 using VContainer;
 using System.Linq;
+using BitterECS.Integration;
+
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;
