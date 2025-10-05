@@ -1,5 +1,4 @@
 using UnityEngine;
-using VContainer;
 
 public class GameplayEntryPoint : EntryPointScene
 {

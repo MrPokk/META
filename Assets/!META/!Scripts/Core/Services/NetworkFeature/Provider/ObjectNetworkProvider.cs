@@ -17,7 +17,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
     public void HandlersServer()
     {
-        //   NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
+        NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
         NetworkServer.RegisterHandler<SyncObjectSpawn>(OnServerSync);
     }
 
@@ -28,17 +28,13 @@ public class ObjectNetworkProvider : IProviderHandler
 
         var entities = ConnectionInfo.ClientEntities.GetOrAdd(client, _ => new());
 
-        //foreach (var entity in entities)
-        //{
-        //    var view = EcsLinker.GetView<EcsNetworkView>(entity);
-        //    if (view == null)
-        //        continue;
-
-        //    if (!view.TryGetComponent<NetworkIdentity>(out var identity))
-        //        continue;
-
-        //    SceneManager.MoveGameObjectToScene(identity.gameObject, scene);
-        //}
+        foreach (var entity in entities)
+        {
+            if (NetworkServer.spawned.TryGetValue(entity, out var networkIdentity))
+            {
+                SceneManager.MoveGameObjectToScene(networkIdentity.gameObject, scene);
+            }
+        }
     }
 
     private void OnClientSync(SyncObjectSpawn spawn)
@@ -77,7 +73,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
         conn.Send(new SyncObjectSpawn(spawn, identity.netId));
 
-        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(goInstance);
+        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(identity.netId);
     }
 
     private bool TryGetClientScene(NetworkConnectionToClient conn, out Scene scene)
