@@ -17,14 +17,14 @@ public class TeleportView : MonoBehaviour
     {
         if (other.gameObject.GetComponent<ITeleported>() != null)
         {
-            //  _teleportPresenter.UITeleport.ShowScreen();
+            // _teleportPresenter.UITeleport.ShowScreen();
         }
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject.GetComponent<ITeleported>() != null)
         {
-            //  _teleportPresenter.UITeleport.HideScreen();
+            // _teleportPresenter.UITeleport.HideScreen();
         }
     }
 }
