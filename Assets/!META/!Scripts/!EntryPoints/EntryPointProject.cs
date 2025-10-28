@@ -17,55 +17,69 @@ using Unity.Multiplayer.Playmode;
 
 public class EntryPointProject : LifetimeScope
 {
-    [Header("<size=18>Configs</size>")]
+    [Header("Configurations")]
     [SerializeField] private LoggerConfig _loggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
 
     protected override void Configure(IContainerBuilder builder)
     {
-        RegisterSharedDependencies(builder);
-
-#if UNITY_EDITOR
-        SetupEditorMode(builder);
-#else
-        SetupBuildMode(builder);
-#endif
+        InitializeLogger();
+        RegisterCoreDependencies(builder);
+        RegisterPlatformSpecificEntryPoints(builder);
     }
 
-    #region Registration
+    #region Core Initialization
 
-    private void RegisterSharedDependencies(IContainerBuilder builder)
+    private void InitializeLogger()
     {
-        RegisterLogger();
-        RegisterConfigs(builder);
-        RegisterSceneLoader(builder);
-        RegisterProvider(builder);
-        RegisterNetworkManager(builder);
-        RegisterEcsManager(builder);
+        LoggerUtility.Initialize(_loggerConfig);
     }
 
-    private void RegisterConfigs(IContainerBuilder builder)
+    private void RegisterCoreDependencies(IContainerBuilder builder)
+    {
+        RegisterConfigurations(builder);
+        RegisterSceneManagement(builder);
+        RegisterNetworkInfrastructure(builder);
+        RegisterEcsSystem(builder);
+        RegisterProviders(builder);
+    }
+
+    #endregion
+
+    #region Dependency Registration
+
+    private void RegisterConfigurations(IContainerBuilder builder)
     {
         builder.RegisterInstance(_networkConfig);
         builder.RegisterInstance(_sceneConfig);
     }
 
-    private void RegisterLogger()
-    {
-        LoggerUtility.Initialize(_loggerConfig);
-    }
-
-    private void RegisterSceneLoader(IContainerBuilder builder)
+    private void RegisterSceneManagement(IContainerBuilder builder)
     {
         var sceneLoader = CreateSceneLoader();
         builder.RegisterInstance(sceneLoader);
     }
 
-    private void RegisterProvider(IContainerBuilder builder)
+    private void RegisterNetworkInfrastructure(IContainerBuilder builder)
+    {
+        var networkManager = CreateNetworkManager();
+        builder.RegisterComponent(networkManager)
+               .As<NetworkManager>()
+               .AsImplementedInterfaces();
+    }
+
+    private void RegisterEcsSystem(IContainerBuilder builder)
+    {
+        var ecsManager = CreateEcsManager();
+        builder.RegisterComponent(ecsManager)
+               .As<EcsNetworkUnity>()
+               .AsImplementedInterfaces();
+    }
+
+    private void RegisterProviders(IContainerBuilder builder)
     {
         var providerTypes = ReflectionUtility.FindAllAssignments<IProviderHandler>();
-
         foreach (var type in providerTypes)
         {
             builder.Register(type, Lifetime.Singleton).As(type).AsImplementedInterfaces();
@@ -74,31 +88,14 @@ public class EntryPointProject : LifetimeScope
         builder.Register<ConnectionInfo>(Lifetime.Singleton);
     }
 
-    private void RegisterNetworkManager(IContainerBuilder builder)
+    private void RegisterUIEntryPoint(IContainerBuilder builder)
     {
-        var networkManager = CreateNetworkManager();
-        builder.RegisterComponent(networkManager)
-               .As<NetworkManager>()
-               .AsImplementedInterfaces();
-    }
-
-    private void RegisterEcsManager(IContainerBuilder builder)
-    {
-        var ecsManager = CreateEcsManager();
-        builder.RegisterComponent(ecsManager)
-               .As<EcsNetworkUnity>()
-               .AsImplementedInterfaces();
-    }
-
-    private void RegisterUI(IContainerBuilder builder)
-    {
-        builder.RegisterEntryPoint<UIEntryPoint>()
-        .As<UIEntryPoint>();
+        builder.RegisterEntryPoint<UIEntryPoint>();
     }
 
     #endregion
 
-    #region Components
+    #region Component Creation
 
     private SceneLoader CreateSceneLoader()
     {
@@ -124,37 +121,41 @@ public class EntryPointProject : LifetimeScope
                 typeof(NetworkManager))
             .GetComponent<NetworkManager>();
 
-        SetupSpawnPrefab(manager);
-        SetupTransportForPlatform(manager);
-        SetupLoadServerScene();
+        ConfigureNetworkManager(manager);
         DontDestroyOnLoad(manager.gameObject);
         return manager;
     }
 
-    private void SetupSpawnPrefab(NetworkManager manager)
+    private void ConfigureNetworkManager(NetworkManager manager)
     {
-        var prefab = Resources.LoadAll<GameObject>(PathProject.ENTITIES);
-        foreach (var prefabToSpawn in prefab)
-        {
-            var networkIdentity = prefabToSpawn.TryGetComponent<NetworkIdentity>(out var _);
-            var monoProvider = prefabToSpawn.TryGetComponent<MonoProvider>(out var _);
+        RegisterSpawnPrefabs(manager);
+        SetupPlatformSpecificTransport(manager);
+        LoadServerScenes();
+    }
 
-            if (networkIdentity && monoProvider)
-                manager.spawnPrefabs.Add(prefabToSpawn.gameObject);
+    private void RegisterSpawnPrefabs(NetworkManager manager)
+    {
+        var entityPrefabs = Resources.LoadAll<GameObject>(PathProject.ENTITIES);
+        foreach (var prefab in entityPrefabs)
+        {
+            var hasNetworkIdentity = prefab.TryGetComponent<NetworkIdentity>(out var _);
+            var hasMonoProvider = prefab.TryGetComponent<MonoProvider>(out var _);
+
+            if (hasNetworkIdentity && hasMonoProvider)
+                manager.spawnPrefabs.Add(prefab.gameObject);
         }
     }
 
-    private void SetupTransportForPlatform(NetworkManager manager)
+    private void SetupPlatformSpecificTransport(NetworkManager manager)
     {
         manager.transport = Application.platform == RuntimePlatform.WebGLPlayer
             ? manager.GetComponent<SimpleWebTransport>()
             : manager.GetComponent<KcpTransport>();
     }
 
-    private void SetupLoadServerScene()
+    private void LoadServerScenes()
     {
         var serverScenes = _sceneConfig.GetServerLoadScenes();
-
         foreach (var scene in serverScenes)
         {
             SceneLoader.LoadScene(scene, new LoadSceneParameters
@@ -166,57 +167,64 @@ public class EntryPointProject : LifetimeScope
 
     #endregion
 
-    #region Editor
+    #region Platform-Specific Configuration
 
-#if UNITY_EDITOR
-    private void SetupEditorMode(IContainerBuilder builder)
+    private void RegisterPlatformSpecificEntryPoints(IContainerBuilder builder)
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
-        if (tags.Contains("Server"))
-        {
-            LoggerUtility.Info("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
-            builder.RegisterEntryPoint<EntryPointServer>()
-            .As<EntryPointServer>();
-        }
-        else if (tags.Contains("Client"))
-        {
-            LoggerUtility.Info("<color=yellow>[Network] Using <color=white>editor-specific</color> configuration</color>");
-            builder.RegisterEntryPoint<EntryPointClient>()
-            .As<EntryPointClient>();
+#if UNITY_EDITOR
+        ConfigureEditorMode(builder);
+#else
+        ConfigureBuildMode(builder);
+#endif
+    }
 
-            RegisterUI(builder);
+    private void RegisterAppropriateEntryPoint(IContainerBuilder builder, bool isClient)
+    {
+        if (isClient)
+        {
+            builder.RegisterEntryPoint<EntryPointClient>().As<EntryPointClient>(); ;
+            RegisterUIEntryPoint(builder);
+            RegisterClientGameplayLogic(builder);
         }
         else
         {
-            SetupBuildMode(builder);
+            builder.RegisterEntryPoint<EntryPointServer>().As<EntryPointServer>();
+        }
+    }
+
+    private void RegisterClientGameplayLogic(IContainerBuilder builder)
+    {
+        builder.Register<TeleportService>(Lifetime.Singleton);
+    }
+
+
+#if UNITY_EDITOR
+    private void ConfigureEditorMode(IContainerBuilder builder)
+    {
+        var tags = CurrentPlayer.ReadOnlyTags();
+
+        if (tags.Contains("Server") || tags.Contains("Client"))
+        {
+            var isClient = tags.Contains("Client");
+            var mode = isClient ? "Client" : "Server";
+            LoggerUtility.Info($"<color=yellow>[Network] Editor mode: <color=white>{mode}</color></color>");
+
+            RegisterAppropriateEntryPoint(builder, isClient);
+        }
+        else
+        {
+            ConfigureBuildMode(builder);
         }
     }
 #endif
 
-    #endregion
-
-    #region Build
-
-    private void SetupBuildMode(IContainerBuilder builder)
+    private void ConfigureBuildMode(IContainerBuilder builder)
     {
-        LoggerUtility.Info("<color=yellow>[Network] Using <color=white>build-specific</color> configuration</color>");
-        switch (_networkConfig.networkType)
-        {
-            case NetworkType.Server:
-                builder.RegisterEntryPoint<EntryPointServer>()
-                .As<EntryPointServer>();
-                break;
+        var isClient = _networkConfig.networkType == NetworkType.Client;
+        var mode = isClient ? "Client" : "Server";
+        LoggerUtility.Info($"<color=yellow>[Network] Build mode: <color=white>{mode}</color></color>");
 
-            case NetworkType.Client:
-                builder.RegisterEntryPoint<EntryPointClient>()
-                .As<EntryPointClient>();
-
-                RegisterUI(builder);
-                break;
-
-            default:
-                throw new ArgumentException($"Invalid network type: {_networkConfig.networkType}");
-        }
+        RegisterAppropriateEntryPoint(builder, isClient);
     }
 
     #endregion

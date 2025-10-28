@@ -1,4 +1,4 @@
 public interface ITeleported
 {
-    public void Teleported(TeleportModel toTeleport);
+    void OnTeleported(TeleportPoint teleportPoint);
 }

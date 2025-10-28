@@ -7,7 +7,8 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
 
     public void Bind(IObjectResolver resolver)
     {
-        Container = resolver.Resolve<IObjectResolver>();
+        Container = resolver;
+        Container.Inject(this);
     }
 
     public virtual void Open()
@@ -17,6 +18,7 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
 
     public virtual void Close()
     {
+        gameObject.SetActive(false);
         Destroy(gameObject);
     }
 }

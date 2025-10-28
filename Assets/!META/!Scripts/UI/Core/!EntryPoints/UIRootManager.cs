@@ -13,7 +13,32 @@ public class UIRootManager : MonoBehaviour
         s_instance = this;
     }
 
-    public void OpenScreen<T>() where T : WindowBinder
+    public static void OpenScreen<T>() where T : WindowBinder
+    {
+        Instance?.OpenScreenInstance<T>();
+    }
+
+    public static void CloseScreen()
+    {
+        Instance?.CloseScreenInstance();
+    }
+
+    public static void OpenPopup<T>() where T : WindowBinder
+    {
+        Instance?.OpenPopupInstance<T>();
+    }
+
+    public static void ClosePopup<T>() where T : WindowBinder
+    {
+        Instance?.ClosePopupInstance<T>();
+    }
+
+    public static void CloseAllPopups()
+    {
+        Instance?.CloseAllPopupsInstance();
+    }
+
+    private void OpenScreenInstance<T>() where T : WindowBinder
     {
         var binder = Binding<T>();
 
@@ -22,21 +47,21 @@ public class UIRootManager : MonoBehaviour
         _windowsContainer.OpenedScreenBinder.Open();
     }
 
-    public void CloseScreen()
+    private void CloseScreenInstance()
     {
         _windowsContainer.OpenedScreenBinder?.Close();
         _windowsContainer.OpenedScreenBinder = null;
     }
 
-    public void OpenPopup<T>() where T : WindowBinder
+    private void OpenPopupInstance<T>() where T : WindowBinder
     {
         var binder = Binding<T>();
 
-        _windowsContainer.OpenedBinders[typeof(T)] = binder;
+        _windowsContainer.OpenedBinders.TryAdd(typeof(T), binder);
         binder.Open();
     }
 
-    public void ClosePopup<T>() where T : WindowBinder
+    private void ClosePopupInstance<T>() where T : WindowBinder
     {
         if (_windowsContainer.OpenedBinders.TryGetValue(typeof(T), out var binder))
         {
@@ -45,11 +70,11 @@ public class UIRootManager : MonoBehaviour
         }
     }
 
-    public void CloseAllPopups()
+    private void CloseAllPopupsInstance()
     {
         foreach (var binder in _windowsContainer.OpenedBinders.Values)
         {
-            binder.Close();
+            binder?.Close();
         }
         _windowsContainer.OpenedBinders.Clear();
     }

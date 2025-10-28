@@ -8,7 +8,6 @@ using VContainer.Unity;
 public class UIEntryPoint : IStartable
 {
     private readonly IObjectResolver _container;
-    private UIRootManager _uiRootManager;
 
     [Inject]
     public UIEntryPoint(IObjectResolver container)
@@ -31,7 +30,7 @@ public class UIEntryPoint : IStartable
             }
         }
 
-        _uiRootManager = UIFactory.CreateRootManager(allBinders, _container);
-        _uiRootManager.OpenScreen<UIMainScreen>();
+        UIFactory.CreateRootManager(allBinders, _container);
+        UIRootManager.OpenScreen<UIMainScreen>();
     }
 }

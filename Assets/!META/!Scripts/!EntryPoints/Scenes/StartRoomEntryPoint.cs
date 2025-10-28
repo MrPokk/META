@@ -1,6 +1,7 @@
 using UnityEngine;
+using VContainer;
 
-public class GameplayEntryPoint : EntryPointScene
+public class StartRoomEntryPoint : EntryPointScene
 {
     protected override void Bootstrap()
     {
