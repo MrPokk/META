@@ -1,10 +1,10 @@
-using Michsky.MUIP;
+using Michsky.UI.Heat;
 using UnityEngine;
 using VContainer;
 
 public class UITeleportPopup : UIPopup
 {
-    [SerializeField] private GameObject _buttonFloorPrefab;
+    [SerializeField] private ButtonManager _buttonFloorPrefab;
     [SerializeField] private Transform _buttonContainer;
 
     private TeleportService _teleportService;
@@ -16,39 +16,30 @@ public class UITeleportPopup : UIPopup
         _teleportService.OnTeleport += OnTeleportExecuted;
 
         CreateButtons();
-        SetupUI();
-    }
-
-    private void OnDestroy()
-    {
-        if (_teleportService != null)
-        {
-            _teleportService.OnTeleport -= OnTeleportExecuted;
-        }
     }
 
     private void OnTeleportExecuted(TeleportPoint teleportPoint)
     {
+        print(teleportPoint.FloorNumber);
         Close();
+        SceneNetworkProvider.ChangeScene(teleportPoint.SceneType);
     }
 
     public override void Open()
     {
         base.Open();
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
 
     public override void Close()
     {
-        base.Close();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-    }
+        _teleportService.OnTeleport -= OnTeleportExecuted;
 
-    private void SetupUI()
-    {
-
+        base.Close();
     }
 
     private void CreateButtons()
@@ -58,11 +49,8 @@ public class UITeleportPopup : UIPopup
         foreach (var teleportPoint in _teleportService.GetTeleports())
         {
             var buttonObj = Instantiate(_buttonFloorPrefab, _buttonContainer);
-            if (buttonObj.TryGetComponent<ButtonManager>(out var manager))
-            {
-                manager.SetText($"{teleportPoint.FloorNumber}");
-                manager.onClick.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
-            }
+            buttonObj.SetText($"{teleportPoint.FloorNumber}");
+            buttonObj.onClick.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
         }
     }
 }

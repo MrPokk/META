@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
 public class SceneLoader
@@ -14,76 +14,46 @@ public class SceneLoader
     public static void LoadScene(SceneTypes sceneType)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        if (string.IsNullOrEmpty(sceneName))
-        {
-            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
-            return;
-        }
-
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     public static void LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        if (string.IsNullOrEmpty(sceneName))
-        {
-            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
-            return;
-        }
-
         SceneManager.LoadScene(sceneName, loadSceneParameters);
     }
 
-    public static async Task LoadSceneAsync(SceneTypes sceneType)
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        if (string.IsNullOrEmpty(sceneName))
-        {
-            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
-            return;
-        }
-
         var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-        if (asyncOp == null)
-        {
-#if UNITY_EDITOR
-            LoggerUtility.Error($"Failed to load scene: {sceneName}"); return;
-#else
-            return;
-#endif
-        }
         asyncOp.allowSceneActivation = true;
-
-        while (!asyncOp.isDone)
-        {
-            await Task.Yield();
-        }
+        await asyncOp.ToUniTask();
     }
 
-    public static async Task LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        if (string.IsNullOrEmpty(sceneName))
-        {
-            LoggerUtility.Error($"Scene name for {sceneType} is not set!");
-            return;
-        }
-
         var asyncOp = SceneManager.LoadSceneAsync(sceneName, loadSceneParameters);
-        if (asyncOp == null)
-        {
-#if UNITY_EDITOR
-            LoggerUtility.Error($"Failed to load scene: {sceneName}"); return;
-#else
-            return;
-#endif
-        }
         asyncOp.allowSceneActivation = true;
+        await asyncOp.ToUniTask();
+    }
 
-        while (!asyncOp.isDone)
-        {
-            await Task.Yield();
-        }
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType, System.Action onComplete = null)
+    {
+        var sceneName = SceneConfig.GetSceneName(sceneType);
+        var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        asyncOp.allowSceneActivation = true;
+        await asyncOp.ToUniTask();
+        onComplete?.Invoke();
+    }
+
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters, System.Action onComplete = null)
+    {
+        var sceneName = SceneConfig.GetSceneName(sceneType);
+        var asyncOp = SceneManager.LoadSceneAsync(sceneName, loadSceneParameters);
+        asyncOp.allowSceneActivation = true;
+        await asyncOp.ToUniTask();
+        onComplete?.Invoke();
     }
 }

@@ -10,6 +10,8 @@ using BitterECS.Utility;
 using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using BitterECS.Extra;
+using UnityEngine.InputSystem.UI;
+
 
 #if UNITY_EDITOR
 using Unity.Multiplayer.Playmode;
@@ -21,6 +23,7 @@ public class EntryPointProject : LifetimeScope
     [SerializeField] private LoggerConfig _loggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
+    [SerializeField] private InputSystemUIInputModule _inputSystemUIInputModule;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -43,6 +46,7 @@ public class EntryPointProject : LifetimeScope
         RegisterNetworkInfrastructure(builder);
         RegisterEcsSystem(builder);
         RegisterProviders(builder);
+        RegisterGameplayInject(builder);
     }
 
     #endregion
@@ -88,9 +92,15 @@ public class EntryPointProject : LifetimeScope
         builder.Register<ConnectionInfo>(Lifetime.Singleton);
     }
 
+    private void RegisterGameplayInject(IContainerBuilder builder)
+    {
+        builder.Register<TeleportService>(Lifetime.Singleton);
+    }
+
     private void RegisterUIEntryPoint(IContainerBuilder builder)
     {
         builder.RegisterEntryPoint<UIEntryPoint>();
+        DontDestroyOnLoad(Instantiate(_inputSystemUIInputModule).gameObject);
     }
 
     #endregion
@@ -184,19 +194,12 @@ public class EntryPointProject : LifetimeScope
         {
             builder.RegisterEntryPoint<EntryPointClient>().As<EntryPointClient>(); ;
             RegisterUIEntryPoint(builder);
-            RegisterClientGameplayLogic(builder);
         }
         else
         {
             builder.RegisterEntryPoint<EntryPointServer>().As<EntryPointServer>();
         }
     }
-
-    private void RegisterClientGameplayLogic(IContainerBuilder builder)
-    {
-        builder.Register<TeleportService>(Lifetime.Singleton);
-    }
-
 
 #if UNITY_EDITOR
     private void ConfigureEditorMode(IContainerBuilder builder)

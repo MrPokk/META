@@ -4,16 +4,22 @@ using VContainer;
 public class TeleportPoint : MonoBehaviour
 {
     [SerializeField] private int _floorNumber;
+    [SerializeField] private SceneTypes _sceneType;
 
     private TeleportService _teleportService;
 
     public int FloorNumber => _floorNumber;
+    public SceneTypes SceneType => _sceneType;
 
     [Inject]
     public void Construct(TeleportService teleportService)
     {
         _teleportService = teleportService;
-        _teleportService.RegisterTeleport(this);
+    }
+
+    private void Start()
+    {
+        _teleportService?.RegisterTeleport(this);
     }
 
     private void OnDestroy()

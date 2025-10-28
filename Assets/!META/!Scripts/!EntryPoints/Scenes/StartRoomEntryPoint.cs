@@ -1,9 +1,9 @@
 using UnityEngine;
-using VContainer;
+using VContainer.Unity;
 
-public class StartRoomEntryPoint : EntryPointScene
+public class StartRoomEntryPoint : LifetimeScope
 {
-    protected override void Bootstrap()
+    void Start()
     {
         ObjectNetworkProvider.Spawn<PlayerProvider>(Vector3.zero, Quaternion.identity);
     }

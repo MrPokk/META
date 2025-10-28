@@ -81,9 +81,18 @@ public class UIRootManager : MonoBehaviour
 
     private IWindowBinder Binding<T>() where T : WindowBinder
     {
-        var binderPrefab = _windowsContainer.Binders[typeof(T)];
-        var popup = Instantiate(binderPrefab.gameObject, _windowsContainer.PopupsContainer);
-        var binder = popup.GetComponent<IWindowBinder>();
+        if (!_windowsContainer.Binders.TryGetValue(typeof(T), out var binderPrefab))
+        {
+            Debug.LogError($"WindowBinder of type {typeof(T)} not found in binders dictionary");
+            return null;
+        }
+
+        var parent = typeof(T).IsSubclassOf(typeof(UIScreen))
+            ? _windowsContainer.ScreensContainer
+            : _windowsContainer.PopupsContainer;
+
+        var windowObject = Instantiate(binderPrefab.gameObject, parent);
+        var binder = windowObject.GetComponent<IWindowBinder>();
         binder.Bind(_windowsContainer.RootContainer);
 
         return binder;

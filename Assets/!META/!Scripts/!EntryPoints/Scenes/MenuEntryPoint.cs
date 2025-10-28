@@ -1,7 +1,5 @@
-using VContainer;
+using VContainer.Unity;
 
-public class MenuEntryPoint : EntryPointScene
+public class MenuEntryPoint : LifetimeScope
 {
-    protected override void Bootstrap()
-    { }
 }

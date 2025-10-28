@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Mirror;
+using UnityEngine.SceneManagement;
 
 [CreateAssetMenu(fileName = "SceneConfig", menuName = "Configs/SceneConfig")]
 public class SceneConfig : ScriptableObject
@@ -16,7 +17,7 @@ public class SceneConfig : ScriptableObject
     }
 
     public SceneTypes firstSceneToLoadClient;
-    
+
     public List<SceneMapping> sceneMappings = new();
 
     // Static access
@@ -39,7 +40,7 @@ public class SceneConfig : ScriptableObject
         foreach (var mapping in sceneMappings)
         {
             _sceneMap[mapping.sceneType] = mapping;
-            
+
             if (mapping.isLoadServer)
             {
                 _serverScenes.Add(mapping.sceneType);
@@ -63,9 +64,11 @@ public class SceneConfig : ScriptableObject
         return null;
     }
 
+    public static Scene GetSceneToType(SceneTypes sceneType) => SceneManager.GetSceneByName(GetSceneName(sceneType));
+
     public static bool IsServerScene(SceneTypes sceneType) => _serverScenes.Contains(sceneType);
 
-    public static bool TryGetMapping(SceneTypes sceneType, out SceneMapping mapping) => 
+    public static bool TryGetMapping(SceneTypes sceneType, out SceneMapping mapping) =>
         _sceneMap.TryGetValue(sceneType, out mapping);
 
     public static bool ValidateScene(SceneTypes sceneType, Predicate<SceneMapping> predicate = null)

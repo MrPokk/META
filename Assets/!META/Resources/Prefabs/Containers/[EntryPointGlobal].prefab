@@ -51,3 +51,4 @@ MonoBehaviour:
   _loggerConfig: {fileID: 11400000, guid: d79582c315ec3f6c98579006a391bc70, type: 2}
   _networkConfig: {fileID: 11400000, guid: dc619894836d161fb8df5f00bbbbbec5, type: 2}
   _sceneConfig: {fileID: 11400000, guid: 2ed1f4dfb6a86a7c191969288eaca24e, type: 2}
+  _inputSystemUIInputModule: {fileID: 2769998970435889956, guid: f1300eecd81aae69c90cf3e7579133c7, type: 3}
