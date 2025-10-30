@@ -1,4 +1,5 @@
 public interface ITeleported
 {
-    void OnTeleported(TeleportPoint teleportPoint);
+    void EnterTeleport(TeleportPoint teleportPoint);
+    void ExitTeleport(TeleportPoint teleportPoint);
 }

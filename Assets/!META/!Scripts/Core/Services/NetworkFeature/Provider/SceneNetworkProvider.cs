@@ -10,21 +10,14 @@ public class SceneNetworkProvider : IProviderHandler
         NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
     }
 
-    private async void OnClientRequest(SceneChangeRequestMessage message)
+    private void OnClientRequest(SceneChangeRequestMessage message)
     {
-        await SceneLoader.LoadSceneAsync(message.sceneType, () => OnSceneLoaded(message.sceneType));
-    }
-
-
-    private void OnSceneLoaded(SceneTypes scene)
-    {
-        NetworkUtility.SendMessage<SyncStateSceneMessage>(new());
+        SceneLoader.LoadScene(message.sceneType);
     }
 
     public void HandlersServer()
     {
         NetworkServer.RegisterHandler<SceneChangeRequestMessage>(OnServerRequest);
-        NetworkServer.RegisterHandler<SyncStateSceneMessage>(OnSceneMoveSync);
     }
 
     private void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
@@ -38,17 +31,9 @@ public class SceneNetworkProvider : IProviderHandler
         ConnectionInfo.ClientToScene[client] = message.sceneType;
         ConnectionInfo.SceneToConnections.GetOrAdd(message.sceneType, _ => new() { client }).Add(client);
 
-        MoveClientObjectsToScene(client, message.sceneType);
-
         client.Send(new SceneChangeRequestMessage(message.sceneType));
-    }
 
-    private void OnSceneMoveSync(NetworkConnectionToClient client, SyncStateSceneMessage message)
-    {
-        if (ConnectionInfo.ClientToScene.TryGetValue(client, out var sceneType))
-        {
-            MoveClientObjectsToScene(client, sceneType);
-        }
+        MoveClientObjectsToScene(client, message.sceneType);
     }
 
     private void MoveClientObjectsToScene(NetworkConnectionToClient client, SceneTypes sceneType)
@@ -66,7 +51,9 @@ public class SceneNetworkProvider : IProviderHandler
             {
                 if (NetworkServer.spawned.TryGetValue(entityId, out var networkIdentity))
                 {
+                    NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
                     SceneManager.MoveGameObjectToScene(networkIdentity.gameObject, scene);
+                    NetworkServer.AddPlayerForConnection(client, networkIdentity.gameObject);
                 }
             }
         }

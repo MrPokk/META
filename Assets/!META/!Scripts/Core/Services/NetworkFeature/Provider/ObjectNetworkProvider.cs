@@ -2,6 +2,8 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using BitterECS.Integration;
+using System;
+using Object = UnityEngine.Object;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
@@ -26,40 +28,68 @@ public class ObjectNetworkProvider : IProviderHandler
         {
             if (clientGameObject.TryGetComponent<MonoProvider>(out var provider))
             {
-                provider.Entity.Add<ControllableComponent>(new());// Убрать это
+                provider.Entity.Add<ControllableComponent>(new());
             }
         }
     }
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
     {
-        var typeEntity = spawn.entity.Type;
-        var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
-        var entityPrefab = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(typeEntity, out var entity));
+        var entityPrefab = FindEntityPrefab(spawn.entity.Type);
+        if (entityPrefab == null) return;
 
-        if (entityPrefab == null)
-        {
-            LoggerUtility.Error($"Prefab with component {typeEntity} not found in spawnPrefabs");
-            return;
-        }
-
-
-        var goInstance = Object.Instantiate(entityPrefab.gameObject);
-        goInstance.name = $"{entityPrefab.gameObject.name} [{conn.connectionId}]";
-
-        if (ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
-        {
-            var scene = SceneConfig.GetSceneToType(sceneType);
-            SceneManager.MoveGameObjectToScene(goInstance, scene);
-        }
+        var goInstance = CreateEntityInstance(entityPrefab, conn);
+        MoveEntityToClientScene(goInstance, conn);
 
         var identity = goInstance.GetComponent<NetworkIdentity>();
 
-        NetworkServer.Spawn(goInstance, conn);
-        NetworkServer.AddPlayerForConnection(conn, goInstance);
+        if (identity.TryGetComponent<PlayerProvider>(out var _))
+        {
+            RegisterPlayerForConnection(conn, goInstance);
+        }
+        else
+        {
+            RegisterObjectForConnection(conn, goInstance);
+        }
 
-        conn.Send(new SyncObjectSpawn(spawn, identity.netId));
-
-        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new()).Add(identity.netId);
+        SendSpawnConfirmation(conn, spawn, identity);
+        TrackClientEntity(conn, identity.netId);
     }
+
+    private GameObject FindEntityPrefab(Type entityType)
+    {
+        var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
+        var entityPrefab = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(entityType, out var entity));
+
+        if (entityPrefab == null)
+        {
+            LoggerUtility.Error($"Prefab with component {entityType} not found in spawnPrefabs");
+            return null;
+        }
+
+        return entityPrefab.gameObject;
+    }
+
+    private GameObject CreateEntityInstance(GameObject prefab, NetworkConnectionToClient conn)
+    {
+        var instance = Object.Instantiate(prefab);
+        instance.name = $"{prefab.name} [{conn.connectionId}]";
+        return instance;
+    }
+
+    private void MoveEntityToClientScene(GameObject entity, NetworkConnectionToClient conn)
+    {
+        if (ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
+        {
+            SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
+        }
+    }
+
+    private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) => NetworkServer.Spawn(networkObject, conn);
+    private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject) => NetworkServer.AddPlayerForConnection(conn, playerObject);
+
+    private void SendSpawnConfirmation(NetworkConnectionToClient conn, SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
+    conn.Send(new SyncObjectSpawn(originalSpawn, identity.netId));
+
+    private void TrackClientEntity(NetworkConnectionToClient conn, uint netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
 }

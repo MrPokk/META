@@ -31,7 +31,7 @@ public class TeleportPoint : MonoBehaviour
     {
         if (other.TryGetComponent<ITeleported>(out var teleported))
         {
-            UIRootManager.OpenPopup<UITeleportPopup>();
+            teleported.EnterTeleport(this);
         }
     }
 
@@ -39,7 +39,7 @@ public class TeleportPoint : MonoBehaviour
     {
         if (other.TryGetComponent<ITeleported>(out var teleported))
         {
-            UIRootManager.ClosePopup<UITeleportPopup>();
+            teleported.ExitTeleport(this);
         }
     }
 }
