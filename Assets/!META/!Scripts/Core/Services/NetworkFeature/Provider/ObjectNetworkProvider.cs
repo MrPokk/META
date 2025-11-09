@@ -7,10 +7,7 @@ using Object = UnityEngine.Object;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider
-    {
-        NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
-    }
+    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider => NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
 
     public void HandlersClient()
     {
@@ -24,7 +21,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnClientSync(SyncObjectSpawn spawn)
     {
-        if (NetworkClient.spawned.TryGetValue(spawn.assetId, out var clientGameObject))
+        if (NetworkClient.spawned.TryGetValue(spawn.netId, out var clientGameObject))
         {
             if (clientGameObject.TryGetComponent<MonoProvider>(out var provider))
             {
@@ -45,15 +42,17 @@ public class ObjectNetworkProvider : IProviderHandler
 
         if (identity.TryGetComponent<PlayerProvider>(out var _))
         {
+            LoggerUtility.Info($"Registering player for connection {conn}");
             RegisterPlayerForConnection(conn, goInstance);
         }
         else
         {
+            LoggerUtility.Info("Registering object for connection");
             RegisterObjectForConnection(conn, goInstance);
         }
 
         SendSpawnConfirmation(conn, spawn, identity);
-        TrackClientEntity(conn, identity.netId);
+        TrackClientEntity(conn, identity);
     }
 
     private GameObject FindEntityPrefab(Type entityType)
@@ -85,11 +84,16 @@ public class ObjectNetworkProvider : IProviderHandler
         }
     }
 
+    private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject)
+    {
+        NetworkServer.AddPlayerForConnection(conn, playerObject);
+        ConnectionInfo.PlayerEntityId[conn] = playerObject.GetComponent<NetworkIdentity>();
+    }
+
     private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) => NetworkServer.Spawn(networkObject, conn);
-    private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject) => NetworkServer.AddPlayerForConnection(conn, playerObject);
 
     private void SendSpawnConfirmation(NetworkConnectionToClient conn, SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
-    conn.Send(new SyncObjectSpawn(originalSpawn, identity.netId));
+    NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), conn);
 
-    private void TrackClientEntity(NetworkConnectionToClient conn, uint netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
+    private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
 }

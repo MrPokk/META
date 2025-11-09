@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using BitterECS.Core;
 using Mirror;
 
-public class ConnectionInfo : IServerConnected, IServerStart
+public class ConnectionInfo : IServerConnected, IServerDisconnected, IServerStart
 {
     public Priority PrioritySystem => Priority.High;
     public static ConnectionInfo Instance { get; } = new();
-    public static readonly Dictionary<NetworkConnectionToClient, HashSet<uint>> ClientEntities = new();
+    public static readonly Dictionary<NetworkConnectionToClient, HashSet<NetworkIdentity>> ClientEntities = new();
+    public static readonly Dictionary<NetworkConnectionToClient, NetworkIdentity> PlayerEntityId = new();
     public static readonly Dictionary<NetworkConnectionToClient, SceneTypes> ClientToScene = new();
     public static readonly Dictionary<SceneTypes, HashSet<NetworkConnectionToClient>> SceneToConnections = new();
-
 
     public void Start()
     {
@@ -20,6 +20,20 @@ public class ConnectionInfo : IServerConnected, IServerStart
 
     public void Connect(NetworkConnectionToClient client)
     {
-        ClientEntities.TryAdd(client, new HashSet<uint>());
+        ClientEntities.TryAdd(client, new HashSet<NetworkIdentity>());
+    }
+
+    public void Disconnect(NetworkConnectionToClient client)
+    {
+        ClientEntities.Remove(client);
+        PlayerEntityId.Remove(client);
+        ClientToScene.Remove(client);
+
+        foreach (var sceneConnections in SceneToConnections.Values)
+        {
+            sceneConnections.Remove(client);
+        }
+
+        LoggerUtility.Info($"Cleaned up connection info for connection {client.connectionId}");
     }
 }

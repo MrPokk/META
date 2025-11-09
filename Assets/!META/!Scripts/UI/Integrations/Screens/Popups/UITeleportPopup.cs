@@ -20,7 +20,6 @@ public class UITeleportPopup : UIPopup
 
     private void OnTeleportExecuted(TeleportPoint teleportPoint)
     {
-        print(teleportPoint.FloorNumber);
         Close();
         SceneNetworkProvider.ChangeScene(teleportPoint.SceneType);
     }

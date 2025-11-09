@@ -5,7 +5,13 @@ using UnityEngine;
 [Serializable]
 public struct SyncObjectSpawn : NetworkMessage
 {
-    public uint assetId;
+    public uint netId;
+
+    public SyncObjectSpawn(uint netId) : this()
+    {
+        this.netId = netId;
+    }
+
     public SerializedType entity;
     public Vector3 position;
     public Quaternion rotation;
@@ -17,12 +23,12 @@ public struct SyncObjectSpawn : NetworkMessage
         this.rotation = rotation;
     }
 
-    public SyncObjectSpawn(SyncObjectSpawn spawn, uint assetId) : this()
+    public SyncObjectSpawn(SyncObjectSpawn spawn, uint netId) : this()
     {
         entity = spawn.entity;
         position = spawn.position;
         rotation = spawn.rotation;
-        this.assetId = assetId;
+        this.netId = netId;
     }
 }
 

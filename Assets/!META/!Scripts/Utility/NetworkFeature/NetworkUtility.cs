@@ -1,31 +1,48 @@
 using System;
-using System.Collections;
 using Mirror;
-using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public static class NetworkUtility
 {
-
     public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
         if (NetworkServer.active && target != null)
         {
-            target.Send<T>(value);
+            target.Send(value);
         }
         else if (NetworkServer.active)
         {
-            NetworkServer.SendToAll<T>(value);
+            NetworkServer.SendToAll(value);
         }
         else if (NetworkClient.active)
         {
-            CoroutineUtility.Run(WaitingToSend<T>(value));
+            WaitingToSend(value).Forget();
+        }
+        else
+        {
+            LoggerUtility.Warning("Waiting for connection...");
         }
     }
 
-    private static IEnumerator WaitingToSend<T>(T message) where T : struct, NetworkMessage
+    private static async UniTaskVoid WaitingToSend<T>(T message) where T : struct, NetworkMessage
     {
-        yield return new WaitUntil(() => NetworkClient.connection.isReady);
-        NetworkClient.Send<T>(message);
+        try
+        {
+            await UniTask.WaitUntil(() =>
+                NetworkClient.connection != null &&
+                NetworkClient.connection.isReady
+            );
+
+            NetworkClient.Send(message);
+        }
+        catch (OperationCanceledException)
+        {
+            LoggerUtility.Warning("NetworkClient is not ready");
+        }
+        catch (Exception ex)
+        {
+            LoggerUtility.Critical($"Failed to send network message: {ex.Message}");
+        }
     }
 
     public static bool IsClientActive()
