@@ -2,9 +2,15 @@ using BitterECS.Core;
 using BitterECS.Integration;
 using UnityEngine;
 
-public class PlayableMoveSystem : IClientConnectedRun
+public class PlayableRotationSystem : IClientConnectedRun, IClientConnected
 {
     public Priority PrioritySystem => Priority.High;
+    public Camera mainCamera;
+
+    public void Connect()
+    {
+        mainCamera = Camera.main;
+    }
 
     public void Run()
     {
@@ -15,13 +21,13 @@ public class PlayableMoveSystem : IClientConnectedRun
 
         foreach (var entity in query)
         {
-            ref var movingComponent = ref entity.Get<MovingComponent>();
-            ref var controllableComponent = ref entity.Get<ControllableComponent>();
-
             if (entity.Provider is MonoProvider monoProvider)
             {
-                var directionTo = new Vector3(controllableComponent.input.x, 0, controllableComponent.input.y).normalized;
-                monoProvider.gameObject.transform.Translate(directionTo * movingComponent.speed * Time.deltaTime);
+                if (mainCamera != null)
+                {
+                    var cameraForward = mainCamera.transform.forward;
+                    monoProvider.transform.rotation = Quaternion.LookRotation(cameraForward).normalized;
+                }
             }
         }
     }

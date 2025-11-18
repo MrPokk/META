@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
+public class DontDestroyComponent : MonoBehaviour
 {
     private void Start()
     {
