@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b70abea511859e248a1cf2c44035e321, type: 3}
   m_Name: Russian  (ru-RU)
   m_EditorClassIdentifier: 
-  localizationSettings: {fileID: 11400000, guid: 2cbd73cf0fc79bf4ab2e27e18b1ba7c8, type: 2}
+  localizationSettings: {fileID: 11400000, guid: 60ac4837a368ce300823b639d05918d4, type: 2}
   languageID: ru-RU
   languageName: 'Russian '
   localizedName: Russian (RU)
   tableList:
   - table: {fileID: 11400000, guid: c4d223e438e911a44aecec230da547ea, type: 2}
     tableContent:
-    - key: IDMultiplayer
-      value: "\u041C\u0443\u043B\u044C\u0442\u0438\u043F\u043B\u0435\u0435\u0440"
+    - key: IDPlayGame
+      value: "\u041D\u0430\u0447\u0430\u0442\u044C \u0438\u0433\u0440\u0443"
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
     - key: IDSettings
       value: "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
-    - key: IDApplicant
-      value: "\u0410\u0431\u0438\u0442\u0443\u0440\u0438\u0435\u043D\u0442\u0443"
+    - key: IDExitGame
+      value: "\u0412\u044B\u0445\u043E\u0434 \u0438\u0437 \u0438\u0433\u0440\u044B"
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}

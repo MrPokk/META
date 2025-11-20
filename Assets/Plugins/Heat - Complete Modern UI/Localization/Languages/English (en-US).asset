@@ -12,22 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b70abea511859e248a1cf2c44035e321, type: 3}
   m_Name: English (en-US)
   m_EditorClassIdentifier: 
-  localizationSettings: {fileID: 11400000, guid: 2cbd73cf0fc79bf4ab2e27e18b1ba7c8, type: 2}
+  localizationSettings: {fileID: 11400000, guid: 60ac4837a368ce300823b639d05918d4, type: 2}
   languageID: en-US
   languageName: English
   localizedName: English (US)
   tableList:
   - table: {fileID: 11400000, guid: c4d223e438e911a44aecec230da547ea, type: 2}
     tableContent:
-    - key: IDMultiplayer
-      value: Multiplayer
+    - key: IDPlayGame
+      value: Start game
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
     - key: IDSettings
       value: Settings
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
-    - key: IDApplicant
-      value: Applicant
+    - key: IDExitGame
+      value: Exit game
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
