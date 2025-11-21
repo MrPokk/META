@@ -59,7 +59,7 @@ public class EntryPointClient : IStartable, IDisposable
 
     private void OnClientDisconnected()
     {
-        LoggerUtility.Error("[Client] Connection failed or disconnected!");
+        LoggerUtility.Info("[Client] Connection disconnected!");
         EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
     }
 

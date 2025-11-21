@@ -4141,7 +4141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc2fc407cf287745b4df9913e70134e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localizationSettings: {fileID: 11400000, guid: 2cbd73cf0fc79bf4ab2e27e18b1ba7c8, type: 2}
+  localizationSettings: {fileID: 11400000, guid: 60ac4837a368ce300823b639d05918d4, type: 2}
   textObj: {fileID: 0}
   audioObj: {fileID: 0}
   imageObj: {fileID: 0}
@@ -6796,7 +6796,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc2fc407cf287745b4df9913e70134e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localizationSettings: {fileID: 11400000, guid: 2cbd73cf0fc79bf4ab2e27e18b1ba7c8, type: 2}
+  localizationSettings: {fileID: 11400000, guid: 60ac4837a368ce300823b639d05918d4, type: 2}
   textObj: {fileID: 0}
   audioObj: {fileID: 0}
   imageObj: {fileID: 0}
@@ -7994,7 +7994,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 150, y: -195}
-  m_SizeDelta: {x: 186.48, y: 50}
+  m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3801193089645073720
 MonoBehaviour:
@@ -8062,7 +8062,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc2fc407cf287745b4df9913e70134e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localizationSettings: {fileID: 11400000, guid: 2cbd73cf0fc79bf4ab2e27e18b1ba7c8, type: 2}
+  localizationSettings: {fileID: 11400000, guid: 60ac4837a368ce300823b639d05918d4, type: 2}
   textObj: {fileID: 0}
   audioObj: {fileID: 0}
   imageObj: {fileID: 0}

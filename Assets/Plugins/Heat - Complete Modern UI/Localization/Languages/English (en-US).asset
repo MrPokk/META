@@ -31,3 +31,7 @@ MonoBehaviour:
       value: Exit game
       audioValue: {fileID: 0}
       spriteValue: {fileID: 0}
+    - key: IDReconnect
+      value: Reconnect game
+      audioValue: {fileID: 0}
+      spriteValue: {fileID: 0}

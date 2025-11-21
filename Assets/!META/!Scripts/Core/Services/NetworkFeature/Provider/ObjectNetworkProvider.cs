@@ -35,7 +35,7 @@ public class ObjectNetworkProvider : IProviderHandler
         var entityPrefab = FindEntityPrefab(spawn.entity.Type);
         if (entityPrefab == null) return;
 
-        var goInstance = CreateEntityInstance(entityPrefab, conn);
+        var goInstance = CreateEntityInstance(spawn, entityPrefab, conn);
         MoveEntityToClientScene(goInstance, conn);
 
         var identity = goInstance.GetComponent<NetworkIdentity>();
@@ -69,9 +69,9 @@ public class ObjectNetworkProvider : IProviderHandler
         return entityPrefab.gameObject;
     }
 
-    private GameObject CreateEntityInstance(GameObject prefab, NetworkConnectionToClient conn)
+    private GameObject CreateEntityInstance(in SyncObjectSpawn spawn, GameObject prefab, NetworkConnectionToClient conn)
     {
-        var instance = Object.Instantiate(prefab);
+        var instance = Object.Instantiate(prefab, spawn.position, spawn.rotation);
         instance.name = $"{prefab.name} [{conn.connectionId}]";
         return instance;
     }
@@ -92,7 +92,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) => NetworkServer.Spawn(networkObject, conn);
 
-    private void SendSpawnConfirmation(NetworkConnectionToClient conn, SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
+    private void SendSpawnConfirmation(NetworkConnectionToClient conn, in SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
     NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), conn);
 
     private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);

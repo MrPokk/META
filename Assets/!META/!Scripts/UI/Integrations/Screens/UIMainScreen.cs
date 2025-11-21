@@ -5,10 +5,9 @@ using VContainer;
 public class UIMainScreen : UIScreen
 {
     [SerializeField] private UIButtonProvider _btnGoToGameplay;
-
     [SerializeField] private UIButtonProvider _btnGoToSettings;
-
     [SerializeField] private UIButtonProvider _btnGoToExit;
+
     private void OnEnable()
     {
         _btnGoToGameplay.onClick.AddListener(OnGoToGameplayButtonClicked);
@@ -24,10 +23,12 @@ public class UIMainScreen : UIScreen
 
     private void OnGoToExitButtonClicked()
     {
+        Application.Quit();
     }
 
     private void OnGoToSettingsButtonClicked()
     {
+        UIRootManager.OpenScreen<UISettingScreen>();
     }
 
     private void OnGoToGameplayButtonClicked()

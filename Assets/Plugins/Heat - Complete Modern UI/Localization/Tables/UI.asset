@@ -18,3 +18,4 @@ MonoBehaviour:
   - key: IDPlayGame
   - key: IDSettings
   - key: IDExitGame
+  - key: IDReconnect

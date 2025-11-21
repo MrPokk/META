@@ -26,7 +26,7 @@ MonoBehaviour:
   tables:
   - tableID: UI
     localizationTable: {fileID: 11400000, guid: c4d223e438e911a44aecec230da547ea, type: 2}
-    isExpanded: 0
-  defaultLanguageID: English (en-US)
-  defaultLanguageIndex: 0
+    isExpanded: 1
+  defaultLanguageID: Russian  (ru-RU)
+  defaultLanguageIndex: 1
   enableExperimental: 0

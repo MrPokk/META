@@ -40,11 +40,15 @@ public class UIRootManager : MonoBehaviour
 
     private void OpenScreenInstance<T>() where T : WindowBinder
     {
-        var binder = Binding<T>();
+        if (_windowsContainer.OpenedScreenBinder != null &&
+            _windowsContainer.OpenedScreenBinder.GetType() == typeof(T))
+        {
+            return;
+        }
 
-        _windowsContainer.OpenedScreenBinder?.Close();
+        var binder = Binding<T>();
         _windowsContainer.OpenedScreenBinder = binder;
-        _windowsContainer.OpenedScreenBinder.Open();
+        _windowsContainer.OpenedScreenBinder?.Open();
     }
 
     private void CloseScreenInstance()
