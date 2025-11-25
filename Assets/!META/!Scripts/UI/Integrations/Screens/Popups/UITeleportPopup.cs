@@ -1,10 +1,9 @@
-using Michsky.UI.Heat;
 using UnityEngine;
 using VContainer;
 
 public class UITeleportPopup : UIPopup
 {
-    [SerializeField] private ButtonManager _buttonFloorPrefab;
+    [SerializeField] private UIButtonProvider _buttonFloorPrefab;
     [SerializeField] private Transform _buttonContainer;
 
     private TeleportService _teleportService;

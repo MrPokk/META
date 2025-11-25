@@ -12,4 +12,9 @@ public class UIButtonProvider : MonoBehaviour, IPointerClickHandler
     {
         onClick?.Invoke();
     }
+
+    public void SetText(string v)
+    {
+        //TODO
+    }
 }

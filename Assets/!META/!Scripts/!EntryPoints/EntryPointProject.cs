@@ -95,6 +95,7 @@ public class EntryPointProject : LifetimeScope
     private void RegisterGameplayInject(IContainerBuilder builder)
     {
         builder.Register<TeleportService>(Lifetime.Singleton);
+        builder.Register<QuestionService>(Lifetime.Singleton);
     }
 
     private void RegisterUIEntryPoint(IContainerBuilder builder)

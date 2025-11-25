@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _btnClose: {fileID: 0}
   _btnAlternativeClose: {fileID: 0}
-  _buttonFloorPrefab: {fileID: 5879019178481829647, guid: ae8354a29a04c0e6a92dc92441d84181, type: 3}
+  _buttonFloorPrefab: {fileID: 3108715065492896943, guid: ae8354a29a04c0e6a92dc92441d84181, type: 3}
   _buttonContainer: {fileID: 5022515665234329022}
 --- !u!1 &8513675223480577482
 GameObject:
