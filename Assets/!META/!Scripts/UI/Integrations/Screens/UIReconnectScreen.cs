@@ -1,29 +1,42 @@
-using System;
 using UnityEngine;
 using VContainer;
 
 public class UIReconnectScreen : UIScreen
 {
     [SerializeField] private UIButtonProvider _btnGoToReconnect;
-
     [SerializeField] private UIButtonProvider _btnGoToExit;
-    private void OnEnable()
+
+
+    public override void Open()
     {
-        _btnGoToReconnect.onClick.AddListener(OnGoToGameplayButtonClicked);
-        _btnGoToExit.onClick.AddListener(OnGoToExitButtonClicked);
-    }
-    private void OnDisable()
-    {
-        _btnGoToReconnect.onClick.RemoveListener(OnGoToGameplayButtonClicked);
-        _btnGoToExit.onClick.RemoveListener(OnGoToExitButtonClicked);
+        AddListener();
+        base.Open();
     }
 
-    private void OnGoToExitButtonClicked()
+    public override void Close()
+    {
+        RemoveListener();
+        base.Close();
+    }
+
+    private void AddListener()
+    {
+        _btnGoToReconnect.AddListener(OnGoToGameplayButtOnClicked);
+        _btnGoToExit.AddListener(OnGoToExitButtOnClicked);
+    }
+
+    private void RemoveListener()
+    {
+        _btnGoToReconnect.RemoveListener(OnGoToGameplayButtOnClicked);
+        _btnGoToExit.RemoveListener(OnGoToExitButtOnClicked);
+    }
+
+    private void OnGoToExitButtOnClicked()
     {
         Application.Quit();
     }
 
-    private void OnGoToGameplayButtonClicked()
+    private void OnGoToGameplayButtOnClicked()
     {
         Container.Resolve<EntryPointClient>().SetupConnection();
     }

@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 55.15, y: -27.5}
-  m_SizeDelta: {x: 70.3, y: 45}
+  m_AnchoredPosition: {x: 50.864998, y: -27.5}
+  m_SizeDelta: {x: 61.73, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &416188231134046854
 CanvasRenderer:
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0412\u044B\u0439\u0442\u0438"
+  m_text: ExitID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}
@@ -193,7 +193,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 150, y: -230}
-  m_SizeDelta: {x: 333.42, y: 55}
+  m_SizeDelta: {x: 184.98, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5855433942355894216
 MonoBehaviour:
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonIcon: {fileID: 21300000, guid: d58c56a572b8c424b977292054ceb745, type: 3}
-  buttonText: " \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
+  buttonText: ReconnectID
   iconScale: 1
   textSize: 24
   autoFitContent: 1
@@ -359,9 +359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09df02e7a07220478a1a1ae01f4b9eac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onClick:
-    m_PersistentCalls:
-      m_Calls: []
+  _wordID: 3
+  _buttonManager: {fileID: 5855433942355894216}
 --- !u!1 &821064873174841533
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,8 +885,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 55.15, y: -27.5}
-  m_SizeDelta: {x: 70.3, y: 45}
+  m_AnchoredPosition: {x: 50.864998, y: -27.5}
+  m_SizeDelta: {x: 61.73, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &41984385525226204
 CanvasRenderer:
@@ -917,7 +916,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0412\u044B\u0439\u0442\u0438"
+  m_text: ExitID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}
@@ -1115,8 +1114,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 166.71, y: -27.5}
-  m_SizeDelta: {x: 333.42, y: 55}
+  m_AnchoredPosition: {x: 92.49, y: -27.5}
+  m_SizeDelta: {x: 184.98, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &7708894972953556365
 CanvasGroup:
@@ -1537,8 +1536,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 166.71, y: -27.5}
-  m_SizeDelta: {x: 293.42, y: 45}
+  m_AnchoredPosition: {x: 92.49, y: -27.5}
+  m_SizeDelta: {x: 144.98, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5848080317085030836
 CanvasRenderer:
@@ -1568,7 +1567,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: " \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
+  m_text: ReconnectID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}
@@ -1788,8 +1787,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 166.71, y: -27.5}
-  m_SizeDelta: {x: 293.42, y: 45}
+  m_AnchoredPosition: {x: 92.49, y: -27.5}
+  m_SizeDelta: {x: 144.98, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5415812186754667039
 CanvasRenderer:
@@ -1819,7 +1818,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: " \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
+  m_text: ReconnectID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}
@@ -2297,8 +2296,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 55.15, y: -27.5}
-  m_SizeDelta: {x: 110.3, y: 55}
+  m_AnchoredPosition: {x: 50.864998, y: -27.5}
+  m_SizeDelta: {x: 101.729996, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &6230783680391340622
 CanvasGroup:
@@ -2547,8 +2546,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 166.71, y: -27.5}
-  m_SizeDelta: {x: 293.42, y: 45}
+  m_AnchoredPosition: {x: 92.49, y: -27.5}
+  m_SizeDelta: {x: 144.98, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &565861408886483579
 CanvasRenderer:
@@ -2578,7 +2577,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: " \u041F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
+  m_text: ReconnectID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}
@@ -2983,7 +2982,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 150, y: -310}
-  m_SizeDelta: {x: 110.3, y: 55}
+  m_SizeDelta: {x: 101.729996, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1324444756482626292
 MonoBehaviour:
@@ -2998,7 +2997,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonIcon: {fileID: 21300000, guid: d58c56a572b8c424b977292054ceb745, type: 3}
-  buttonText: "\u0412\u044B\u0439\u0442\u0438"
+  buttonText: ExitID
   iconScale: 1
   textSize: 24
   autoFitContent: 1
@@ -3149,9 +3148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09df02e7a07220478a1a1ae01f4b9eac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onClick:
-    m_PersistentCalls:
-      m_Calls: []
+  _wordID: 2
+  _buttonManager: {fileID: 1324444756482626292}
 --- !u!1 &8550238691963583831
 GameObject:
   m_ObjectHideFlags: 0
@@ -3382,8 +3380,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 55.15, y: -27.5}
-  m_SizeDelta: {x: 70.3, y: 45}
+  m_AnchoredPosition: {x: 50.864998, y: -27.5}
+  m_SizeDelta: {x: 61.73, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &274448579716861571
 CanvasRenderer:
@@ -3413,7 +3411,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0412\u044B\u0439\u0442\u0438"
+  m_text: ExitID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c550e16dbec68344f93da161beab22b4, type: 2}
   m_sharedMaterial: {fileID: -4014648909110670409, guid: c550e16dbec68344f93da161beab22b4, type: 2}

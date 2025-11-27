@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using VContainer;
 
@@ -8,30 +7,43 @@ public class UIMainScreen : UIScreen
     [SerializeField] private UIButtonProvider _btnGoToSettings;
     [SerializeField] private UIButtonProvider _btnGoToExit;
 
-    private void OnEnable()
+    public override void Open()
     {
-        _btnGoToGameplay.onClick.AddListener(OnGoToGameplayButtonClicked);
-        _btnGoToSettings.onClick.AddListener(OnGoToSettingsButtonClicked);
-        _btnGoToExit.onClick.AddListener(OnGoToExitButtonClicked);
-    }
-    private void OnDisable()
-    {
-        _btnGoToGameplay.onClick.RemoveListener(OnGoToGameplayButtonClicked);
-        _btnGoToSettings.onClick.RemoveListener(OnGoToSettingsButtonClicked);
-        _btnGoToExit.onClick.RemoveListener(OnGoToExitButtonClicked);
+        AddListener();
+        base.Open();
     }
 
-    private void OnGoToExitButtonClicked()
+    public override void Close()
+    {
+        RemoveListener();
+        base.Close();
+    }
+
+    private void AddListener()
+    {
+        _btnGoToGameplay.AddListener(OnGoToGameplayButted);
+        _btnGoToSettings.AddListener(OnGoToSettingsButted);
+        _btnGoToExit.AddListener(OnGoToExitButted);
+    }
+
+    private void RemoveListener()
+    {
+        _btnGoToGameplay.RemoveListener(OnGoToGameplayButted);
+        _btnGoToSettings.RemoveListener(OnGoToSettingsButted);
+        _btnGoToExit.RemoveListener(OnGoToExitButted);
+    }
+
+    private void OnGoToExitButted()
     {
         Application.Quit();
     }
 
-    private void OnGoToSettingsButtonClicked()
+    private void OnGoToSettingsButted()
     {
         UIRootManager.OpenScreen<UISettingScreen>();
     }
 
-    private void OnGoToGameplayButtonClicked()
+    private void OnGoToGameplayButted()
     {
         Container.Resolve<EntryPointClient>().SetupConnection();
         SceneNetworkProvider.ChangeScene(SceneTypes.StartRoom);

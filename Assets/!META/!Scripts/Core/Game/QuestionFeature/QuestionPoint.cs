@@ -5,6 +5,11 @@ public class QuestionPoint : MonoBehaviour
 {
     private QuestionService _questionService;
 
+    [SerializeField] private string _title = "NULL";
+    [SerializeField] private string _description = "NULL";
+    public string Title => _title;
+    public string Description => _description;
+
     [Inject]
     public void Construct(QuestionService questionService)
     {
@@ -26,6 +31,7 @@ public class QuestionPoint : MonoBehaviour
         if (other.TryGetComponent<IUsingQuestions>(out var questions))
         {
             questions.EnterQuestion(this);
+            _questionService.ExecuteQuestion(this);
         }
     }
 

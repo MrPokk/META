@@ -1655,7 +1655,7 @@ MonoBehaviour:
   onLeave:
     m_PersistentCalls:
       m_Calls: []
-  rippleUpdateMode: 1
+  rippleUpdateMode: 0
   targetCanvas: {fileID: 0}
   rippleShape: {fileID: 21300000, guid: 100d5727b1babc14bac90fe9c56af800, type: 3}
   speed: 5

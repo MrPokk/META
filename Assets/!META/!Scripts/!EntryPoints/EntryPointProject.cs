@@ -43,6 +43,7 @@ public class EntryPointProject : LifetimeScope
     {
         RegisterConfigurations(builder);
         RegisterSceneManagement(builder);
+        RegisterSettings(builder);
         RegisterNetworkInfrastructure(builder);
         RegisterEcsSystem(builder);
         RegisterProviders(builder);
@@ -57,6 +58,11 @@ public class EntryPointProject : LifetimeScope
     {
         builder.RegisterInstance(_networkConfig);
         builder.RegisterInstance(_sceneConfig);
+    }
+
+    private void RegisterSettings(IContainerBuilder builder)
+    {
+        builder.Register<SettingGlobal>(Lifetime.Singleton);
     }
 
     private void RegisterSceneManagement(IContainerBuilder builder)

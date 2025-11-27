@@ -229,7 +229,7 @@ MonoBehaviour:
   closeOnClick: 1
   useStacking: 0
   isOn: 0
-  startBehaviour: 2
+  startBehaviour: 0
   closeBehaviour: 1
   slideDirection: 0
   onOpen:
@@ -461,7 +461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -195}
   m_SizeDelta: {x: 440, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &-5090920391561329837
@@ -478,6 +478,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _btnClose: {fileID: 0}
   _btnAlternativeClose: {fileID: 0}
+  _notificationManager: {fileID: 6435461263245175634}
 --- !u!1 &8623292503381724383
 GameObject:
   m_ObjectHideFlags: 0

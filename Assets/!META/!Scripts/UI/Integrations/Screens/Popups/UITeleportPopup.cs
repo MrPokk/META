@@ -47,8 +47,8 @@ public class UITeleportPopup : UIPopup
         foreach (var teleportPoint in _teleportService.GetTeleports())
         {
             var buttonObj = Instantiate(_buttonFloorPrefab, _buttonContainer);
-            buttonObj.SetText($"{teleportPoint.FloorNumber}");
-            buttonObj.onClick.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
+            buttonObj.SetText($"Этаж: {teleportPoint.FloorNumber}");
+            buttonObj.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
         }
     }
 }
