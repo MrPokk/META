@@ -1,43 +1,27 @@
-using Gley.Localization;
 using Michsky.MUIP;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using static UnityEngine.UI.Button;
 
-public class UIButtonProvider : MonoBehaviour, IPointerClickHandler
+public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler
 {
-    [SerializeField] private WordIDs _wordID;
     [SerializeField] private ButtonManager _buttonManager;
     private ButtonClickedEvent _onClick;
 
-    private void Awake()
-    {
-        InitializeComponents();
-        UpdateUI();
-    }
-
-    private void OnValidate()
-    {
-        UpdateUIEditor();
-    }
-
-    private void InitializeComponents()
+    protected override void InitializeComponents()
     {
         _buttonManager ??= GetComponent<ButtonManager>();
         _onClick ??= new ButtonClickedEvent();
-
-        SetText(API.GetText(_wordID));
     }
 
-    public void AddListener(UnityAction value)
+    public void AddListener(UnityEngine.Events.UnityAction action)
     {
-        _onClick?.AddListener(value);
+        _onClick?.AddListener(action);
     }
 
-    public void RemoveListener(UnityAction value)
+    public void RemoveListener(UnityEngine.Events.UnityAction action)
     {
-        _onClick?.RemoveListener(value);
+        _onClick?.RemoveListener(action);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -45,21 +29,9 @@ public class UIButtonProvider : MonoBehaviour, IPointerClickHandler
         _onClick?.Invoke();
     }
 
-    public void SetText(string valueText)
+    public override void SetText(string text)
     {
-        _buttonManager?.SetText(valueText);
-    }
-
-    public void UpdateUI()
-    {
+        _buttonManager?.SetText(text);
         _buttonManager?.UpdateUI();
     }
-
-    private void UpdateUIEditor()
-    {
-        _buttonManager ??= GetComponent<ButtonManager>();
-        _buttonManager?.SetText(_wordID.ToString());
-        _buttonManager?.UpdateUI();
-    }
-
 }

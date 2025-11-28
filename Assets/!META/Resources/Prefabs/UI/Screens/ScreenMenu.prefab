@@ -3295,6 +3295,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8626347139393138529}
   - component: {fileID: 72731762411104779}
+  - component: {fileID: 263820254173297576}
   m_Layer: 5
   m_Name: ScreenMenu
   m_TagString: Untagged
@@ -3338,6 +3339,35 @@ MonoBehaviour:
   _btnGoToGameplay: {fileID: 251476793259634963}
   _btnGoToSettings: {fileID: 2479483493738840380}
   _btnGoToExit: {fileID: 3372235358064106707}
+--- !u!114 &263820254173297576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5840243719601556783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f0813a684d9fc11db6e5dfc582b788c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _openPreset:
+    duration: 0.3
+    easeType: 27
+    startScale: {x: 0, y: 0, z: 0}
+    endScale: {x: 1, y: 1, z: 1}
+    startAlpha: 0
+    endAlpha: 1
+  _closePreset:
+    duration: 0.3
+    easeType: 27
+    startScale: {x: 0, y: 0, z: 0}
+    endScale: {x: 1, y: 1, z: 1}
+    startAlpha: 0
+    endAlpha: 1
+  _canvasGroup: {fileID: 881896732482742551}
+  _rectTransform: {fileID: 8338833500763221756}
+  _raycaster: {fileID: 0}
 --- !u!1 &5889061070686445009
 GameObject:
   m_ObjectHideFlags: 0
@@ -3695,6 +3725,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _wordID: 0
+  _buttonManager: {fileID: 522132727976367261}
 --- !u!1 &6482843596312415327
 GameObject:
   m_ObjectHideFlags: 0
@@ -4225,6 +4256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _wordID: 1
+  _buttonManager: {fileID: 7519886761250861507}
 --- !u!1 &7125370542016417365
 GameObject:
   m_ObjectHideFlags: 0
@@ -4849,6 +4881,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _wordID: 2
+  _buttonManager: {fileID: 5275461087875291258}
 --- !u!1 &8104456070853985364
 GameObject:
   m_ObjectHideFlags: 0
@@ -4969,6 +5002,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8338833500763221756}
   - component: {fileID: 6136075484586342203}
+  - component: {fileID: 881896732482742551}
   m_Layer: 5
   m_Name: ButtonMenu
   m_TagString: Untagged
@@ -5024,6 +5058,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &881896732482742551
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8318528705153561714}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8636027800811725912
 GameObject:
   m_ObjectHideFlags: 0

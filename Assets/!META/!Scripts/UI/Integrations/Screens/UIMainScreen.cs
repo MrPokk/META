@@ -7,16 +7,23 @@ public class UIMainScreen : UIScreen
     [SerializeField] private UIButtonProvider _btnGoToSettings;
     [SerializeField] private UIButtonProvider _btnGoToExit;
 
-    public override void Open()
+    public override async void Open()
     {
         AddListener();
+        UIAnimationComponent
+        .UsingAnimation(gameObject)
+        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+        .PlayOpenAnimation();
         base.Open();
     }
 
-    public override void Close()
+    public override async void Close()
     {
         RemoveListener();
-        base.Close();
+        UIAnimationComponent
+        .UsingAnimation(gameObject)
+        .ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
+        .PlayCloseAnimation(() => base.Close());
     }
 
     private void AddListener()
@@ -50,3 +57,4 @@ public class UIMainScreen : UIScreen
         Close();
     }
 }
+

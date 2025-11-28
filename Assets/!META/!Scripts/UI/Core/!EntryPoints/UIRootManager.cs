@@ -45,6 +45,7 @@ public class UIRootManager : MonoBehaviour
         {
             return;
         }
+        CloseScreenInstance();
 
         var binder = Binding<T>();
         _windowsContainer.OpenedScreenBinder = binder;
