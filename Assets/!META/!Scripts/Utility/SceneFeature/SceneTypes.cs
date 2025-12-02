@@ -2,12 +2,13 @@
 using System;
 
 [Serializable]
-public enum SceneTypes : byte
+public enum SceneTypes
 {
     None,
     EntryPoint,
     Menu,
-    StartRoom,
-    Room_1,
-    Room_2,
+    StartFloor, // Floor3
+    Floor4,
+    Floor5,
+    Floor6
 }

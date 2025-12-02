@@ -1743,7 +1743,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5.550003, y: 0}
+  m_AnchoredPosition: {x: -5.5500183, y: 0}
   m_SizeDelta: {x: 11.100003, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3682677823382906983
@@ -1909,10 +1909,10 @@ MonoBehaviour:
   enableSaving: 0
   invokeOnAwake: 1
   sliderTag: Tag Text
-  usePercent: 0
+  usePercent: 1
   showValue: 1
-  showPopupValue: 0
-  useRoundValue: 0
+  showPopupValue: 1
+  useRoundValue: 1
   minValue: 0
   maxValue: 0
   onValueChanged:
@@ -1968,9 +1968,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4756770071920550393}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
-  m_Value: 0.547
+  m_MaxValue: 100
+  m_WholeNumbers: 1
+  m_Value: 30
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2057,10 +2057,10 @@ MonoBehaviour:
   enableSaving: 0
   invokeOnAwake: 1
   sliderTag: Tag Text
-  usePercent: 0
+  usePercent: 1
   showValue: 1
-  showPopupValue: 0
-  useRoundValue: 0
+  showPopupValue: 1
+  useRoundValue: 1
   minValue: 0
   maxValue: 0
   onValueChanged:
@@ -2116,9 +2116,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6813498454272421978}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
-  m_WholeNumbers: 0
-  m_Value: 0.547
+  m_MaxValue: 100
+  m_WholeNumbers: 1
+  m_Value: 30
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2385,7 +2385,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -5.550003, y: 0}
+  m_AnchoredPosition: {x: -5.5500183, y: 0}
   m_SizeDelta: {x: 11.100003, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3894052254969889455

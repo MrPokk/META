@@ -134,7 +134,6 @@ public class UIAnimationComponent : MonoBehaviour
     private void CancelCurrentAnimation()
     {
         _currentAnimation?.Kill();
-        _currentAnimation = null;
     }
 
     private void OnDestroy()

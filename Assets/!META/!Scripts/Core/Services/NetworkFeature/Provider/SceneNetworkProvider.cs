@@ -1,6 +1,8 @@
+using System.Linq;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer.Unity;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
@@ -63,17 +65,38 @@ public partial class SceneNetworkProvider : IProviderHandler
             return;
         }
 
-        if (!NetworkServer.spawned.TryGetValue(playerEntity.netId, out var networkIdentity))
+
+        NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
+        SceneManager.MoveGameObjectToScene(playerEntity.gameObject, scene);
+        SetPositionPlayerToSpawnPoint(playerEntity, scene, out var entryPointPosition);
+        NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
+
+        SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId));
+    }
+
+    private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene, out Vector3 position)
+    {
+        EntryPointFloors entryPoint = null;
+
+        var rootGameObjects = scene.GetRootGameObjects();
+        foreach (var gameObject in rootGameObjects)
         {
-            LoggerUtility.Error($"No network identity found for player entity id {playerEntity.netId}");
+            if (gameObject.TryGetComponent(out EntryPointFloors component))
+            {
+                entryPoint = component;
+                break;
+            }
+        }
+
+        if (entryPoint == null)
+        {
+            LoggerUtility.Error($"No entry point found in scene {scene.name}");
+            position = default;
             return;
         }
 
-        NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
-        SceneManager.MoveGameObjectToScene(networkIdentity.gameObject, scene);
-        NetworkServer.AddPlayerForConnection(client, networkIdentity.gameObject);
-
-        SyncObjectSpawn(client, new SyncObjectSpawn(networkIdentity.netId));
+        player.transform.position = entryPoint.PlayerSpawnPoint;
+        position = entryPoint.PlayerSpawnPoint;
     }
 
     private void SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn) => NetworkUtility.SendMessage(spawn, client);

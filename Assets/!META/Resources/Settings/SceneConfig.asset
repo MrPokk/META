@@ -23,14 +23,18 @@ MonoBehaviour:
     sceneName: OfflineLoaderMenu
     isLoadServer: 0
   - sceneType: 3
-    sceneToPath: Assets/!META/Scenes/StartRoom.unity
+    sceneToPath: Assets/!META/Scenes/Floors/StartRoom.unity
     sceneName: StartRoom
     isLoadServer: 1
   - sceneType: 4
-    sceneToPath: Assets/!META/Scenes/Room_1.unity
-    sceneName: Room_1
+    sceneToPath: Assets/!META/Scenes/Floors/Floor4.unity
+    sceneName: Floor4
     isLoadServer: 1
   - sceneType: 5
-    sceneToPath: Assets/!META/Scenes/Room_2.unity
-    sceneName: Room_2
+    sceneToPath: Assets/!META/Scenes/Floors/Floor5.unity
+    sceneName: Floor5
+    isLoadServer: 1
+  - sceneType: 6
+    sceneToPath: Assets/!META/Scenes/Floors/Floor6.unity
+    sceneName: Floor6
     isLoadServer: 1

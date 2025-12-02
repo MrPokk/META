@@ -8,7 +8,7 @@ public class UISettingScreen : UIScreen
     [SerializeField] private UIButtonProvider _btnGoToLanguage;
     [SerializeField] private UIButtonProvider _btnGoToBack;
 
-    public async override void Open()
+    public override void Open()
     {
         AddListener();
         UIAnimationComponent
@@ -34,7 +34,7 @@ public class UISettingScreen : UIScreen
         _btnGoToBack.RemoveListener(OnGoToBackButton);
     }
 
-    public async override void Close()
+    public override void Close()
     {
         RemoveListener();
         UIAnimationComponent

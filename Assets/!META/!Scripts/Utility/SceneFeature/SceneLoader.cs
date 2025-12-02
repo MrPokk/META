@@ -1,14 +1,17 @@
+using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
 public class SceneLoader
 {
     private static SceneConfig s_sceneConfig;
+    private static HashSet<Scene> s_scenesToLoadServer;
 
-    public static SceneLoader Initialize(SceneConfig sceneConfig)
+    public void Initialize(SceneConfig sceneConfig)
     {
         s_sceneConfig = sceneConfig;
-        return new SceneLoader();
+        s_scenesToLoadServer = new(s_sceneConfig.GetServerLoadScenes().Count);
     }
 
     public static void LoadScene(SceneTypes sceneType)
@@ -17,10 +20,10 @@ public class SceneLoader
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
-    public static void LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
+    public static Scene LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        SceneManager.LoadScene(sceneName, loadSceneParameters);
+        return SceneManager.LoadScene(sceneName, loadSceneParameters);
     }
 
     public static async UniTask LoadSceneAsync(SceneTypes sceneType)
@@ -55,5 +58,17 @@ public class SceneLoader
         asyncOp.allowSceneActivation = true;
         await asyncOp.ToUniTask();
         onComplete?.Invoke();
+    }
+
+    public static void AddServerScene(SceneTypes types, Scene sceneToServer)
+    {
+        if (SceneConfig.IsServerScene(types))
+        {
+            s_scenesToLoadServer.Add(sceneToServer);
+        }
+        else
+        {
+            LoggerUtility.Error($"Scene {types} is not a server scene!");
+        }
     }
 }

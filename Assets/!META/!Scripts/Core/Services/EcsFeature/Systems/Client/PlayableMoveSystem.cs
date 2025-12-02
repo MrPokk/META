@@ -1,12 +1,11 @@
 using BitterECS.Core;
-using BitterECS.Integration;
 using UnityEngine;
 
-public class PlayableMoveSystem : IClientConnectedRun
+public class PlayableMoveSystem : IClientConnectedFixedRun
 {
     public Priority PrioritySystem => Priority.High;
 
-    public void Run()
+    public void FixedRun()
     {
         var query = EcsWorld.Get<PlayerPresenter>().Filter()
             .Include<ControllableComponent>()
@@ -18,11 +17,29 @@ public class PlayableMoveSystem : IClientConnectedRun
             ref var movingComponent = ref entity.Get<MovingComponent>();
             ref var controllableComponent = ref entity.Get<ControllableComponent>();
 
-            if (entity.Provider is MonoProvider monoProvider)
+            if (entity.Provider is PlayerProvider monoProvider)
             {
-                var directionTo = new Vector3(controllableComponent.input.x, 0, controllableComponent.input.y).normalized;
-                monoProvider.gameObject.transform.Translate(directionTo * movingComponent.speed * Time.deltaTime);
+                if (monoProvider.CharacterController != null)
+                {
+                    GetPlayerDirection(monoProvider, out var playerForward, out var playerRight);
+
+                    var directionTo = (playerForward * controllableComponent.input.y +
+                                      playerRight * controllableComponent.input.x).normalized;
+
+                    monoProvider.CharacterController.SimpleMove(directionTo * movingComponent.speed);
+                }
             }
         }
+    }
+
+    private static void GetPlayerDirection(PlayerProvider monoProvider, out Vector3 playerForward, out Vector3 playerRight)
+    {
+        playerForward = monoProvider.transform.forward;
+        playerForward.y = 0;
+        playerForward.Normalize();
+
+        playerRight = monoProvider.transform.right;
+        playerRight.y = 0;
+        playerRight.Normalize();
     }
 }

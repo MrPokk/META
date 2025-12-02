@@ -6,15 +6,14 @@ using UnityEngine;
 public struct SyncObjectSpawn : NetworkMessage
 {
     public uint netId;
+    public SerializedType entity;
+    public Vector3 position;
+    public Quaternion rotation;
 
     public SyncObjectSpawn(uint netId) : this()
     {
         this.netId = netId;
     }
-
-    public SerializedType entity;
-    public Vector3 position;
-    public Quaternion rotation;
 
     public SyncObjectSpawn(SerializedType entityType, Vector3 position, Quaternion rotation) : this()
     {

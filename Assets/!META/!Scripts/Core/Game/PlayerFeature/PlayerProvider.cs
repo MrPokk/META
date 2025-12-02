@@ -4,6 +4,13 @@ using UnityEngine;
 [RequireComponent(typeof(MovingComponentProvider))]
 public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsingQuestions
 {
+    public CharacterController CharacterController { get; private set; }
+
+    private void Start()
+    {
+        CharacterController = GetComponent<CharacterController>();
+    }
+
     public void EnterQuestion(QuestionPoint questionPoint)
     {
         if (Entity.Has<ControllableComponent>())
@@ -35,4 +42,5 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
             UIRootManager.ClosePopup<UITeleportPopup>();
         }
     }
+
 }

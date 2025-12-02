@@ -116,7 +116,8 @@ public class EntryPointProject : LifetimeScope
 
     private SceneLoader CreateSceneLoader()
     {
-        var loader = SceneLoader.Initialize(_sceneConfig);
+        var loader = new SceneLoader();
+        loader.Initialize(_sceneConfig);
         SceneLoader.LoadScene(SceneTypes.EntryPoint);
         return loader;
     }
@@ -175,10 +176,11 @@ public class EntryPointProject : LifetimeScope
         var serverScenes = _sceneConfig.GetServerLoadScenes();
         foreach (var scene in serverScenes)
         {
-            SceneLoader.LoadScene(scene, new LoadSceneParameters
+            var sceneToServer = SceneLoader.LoadScene(scene, new LoadSceneParameters
             {
                 loadSceneMode = LoadSceneMode.Additive
             });
+            SceneLoader.AddServerScene(scene, sceneToServer);
         }
     }
 

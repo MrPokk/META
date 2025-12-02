@@ -7,7 +7,7 @@ public class UIMainScreen : UIScreen
     [SerializeField] private UIButtonProvider _btnGoToSettings;
     [SerializeField] private UIButtonProvider _btnGoToExit;
 
-    public override async void Open()
+    public override void Open()
     {
         AddListener();
         UIAnimationComponent
@@ -17,7 +17,7 @@ public class UIMainScreen : UIScreen
         base.Open();
     }
 
-    public override async void Close()
+    public override void Close()
     {
         RemoveListener();
         UIAnimationComponent
@@ -53,7 +53,7 @@ public class UIMainScreen : UIScreen
     private void OnGoToGameplayButted()
     {
         Container.Resolve<EntryPointClient>().SetupConnection();
-        SceneNetworkProvider.ChangeScene(SceneTypes.StartRoom);
+        SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
         Close();
     }
 }

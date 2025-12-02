@@ -3367,7 +3367,7 @@ MonoBehaviour:
     endAlpha: 1
   _canvasGroup: {fileID: 881896732482742551}
   _rectTransform: {fileID: 8338833500763221756}
-  _raycaster: {fileID: 0}
+  _raycast: {fileID: 0}
 --- !u!1 &5889061070686445009
 GameObject:
   m_ObjectHideFlags: 0
