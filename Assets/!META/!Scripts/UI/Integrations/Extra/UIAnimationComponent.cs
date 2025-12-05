@@ -125,15 +125,26 @@ public class UIAnimationComponent : MonoBehaviour
 
     private void CancelCurrentAnimation()
     {
-        _currentAnimation?.Kill();
+        if (this == null || gameObject == null) return;
+        if (_currentAnimation == null) return;
+        if (_currentAnimation.IsActive())
+        {
+            _currentAnimation.Kill();
+            _currentAnimation = null;
+        }
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
         CancelCurrentAnimation();
     }
 
-    public static UIAnimationComponent UsingAnimation(GameObject gameObject) => 
+    private void OnDisable()
+    {
+        CancelCurrentAnimation();
+    }
+
+    public static UIAnimationComponent UsingAnimation(GameObject gameObject) =>
     gameObject.TryGetComponent(out UIAnimationComponent component) ? component : gameObject.AddComponent<UIAnimationComponent>();
 
     public UIAnimationComponent ApplyCanvasGroup(CanvasGroup canvasGroup)

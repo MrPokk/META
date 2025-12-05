@@ -1,30 +1,52 @@
-using System.Collections.Generic;
 using BitterECS.Core;
-using UnityEngine;
 
-public class PlayerAnimationSystem : IPlayerUsingSystem
+public class PlayerAnimationSystem : IEcsFixedRunSystem
 {
     public Priority PrioritySystem => Priority.Medium;
 
     private string _isWalk = "IsWalk";
-    private string _isRun = "IsRun";
+    private string _isIdle = "IsIdle";
 
-
-    public void OnRun(PlayerProvider player)
+    public void FixedRun()
     {
-        if (player.Animator == null)
-        {
-            Debug.LogError("Animator is null!");
-            return;
-        }
+        var query = EcsWorld.Get<PlayerPresenter>().Filter()
+            .Include<ControllableComponent>()
+            .Include<MovingComponent>()
+            .Include<StateComponent>()
+            .Collect();
 
-        if (player.Animator.runtimeAnimatorController == null)
+        foreach (var player in query)
         {
-            Debug.LogError("AnimatorController is not assigned!");
-            return;
-        }
+            ref var state = ref player.Get<StateComponent>();
+            if (player.Provider is PlayerProvider monoProvider)
+            {
+                if (monoProvider.animator == null)
+                    continue;
 
-        var isMove = player.CharacterController.velocity.magnitude > 0.1f;
-        player.Animator.SetBool(_isWalk, isMove);
+                SetSpeedAnimation(monoProvider);
+
+                switch (state.state)
+                {
+                    case StateComponent.State.Idle:
+                        monoProvider.animator.SetTrigger(_isIdle);
+                        break;
+                    case StateComponent.State.Moving:
+                        monoProvider.animator.SetTrigger(_isWalk);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    private static void SetSpeedAnimation(PlayerProvider monoProvider)
+    {
+        if (monoProvider.animator == null)
+            return;
+
+        var animationSpeedMultiplier = 1;
+        var speedPlayer = monoProvider.CharacterController.velocity.magnitude;
+        monoProvider.animator.speed = speedPlayer > 0.1f ? speedPlayer * animationSpeedMultiplier : 1;
     }
 }

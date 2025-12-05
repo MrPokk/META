@@ -1,7 +1,8 @@
 using BitterECS.Core;
 using UnityEngine;
+using static PlayerProvider;
 
-public class PlayableMoveSystem : IClientConnectedFixedRun
+public partial class PlayableMoveSystem : IClientConnectedFixedRun
 {
     public Priority PrioritySystem => Priority.High;
 
@@ -16,6 +17,7 @@ public class PlayableMoveSystem : IClientConnectedFixedRun
         {
             ref var movingComponent = ref entity.Get<MovingComponent>();
             ref var controllableComponent = ref entity.Get<ControllableComponent>();
+            ref var stateComponent = ref entity.Get<StateComponent>();
 
             if (entity.Provider is PlayerProvider monoProvider)
             {
@@ -27,8 +29,14 @@ public class PlayableMoveSystem : IClientConnectedFixedRun
                                       playerRight * controllableComponent.input.x).normalized;
 
                     monoProvider.CharacterController.SimpleMove(directionTo * movingComponent.speed);
-
-                    EcsSystems.Run<IPlayerUsingSystem>(system => system.OnRun(monoProvider));
+                    if (directionTo != Vector3.zero)
+                    {
+                        stateComponent.state = StateComponent.State.Moving;
+                    }
+                    else
+                    {
+                        stateComponent.state = StateComponent.State.Idle;
+                    }
                 }
             }
         }

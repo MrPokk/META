@@ -1,17 +1,25 @@
 using BitterECS.Integration;
 using UnityEngine;
+using static StateComponent;
 
 [RequireComponent(typeof(MovingComponentProvider))]
 [RequireComponent(typeof(CharacterController))]
 public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsingQuestions
 {
     public CharacterController CharacterController { get; private set; }
-    [field: SerializeField] public Animator Animator { get; private set; }
+    public Animator animator;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        
+        Entity.Add<StateComponent>(new(State.Idle));
+    }
 
     private void Start()
     {
         CharacterController = GetComponent<CharacterController>();
-        Animator ??= GetComponent<Animator>();
+        animator = animator != null ? animator : GetComponent<Animator>();
     }
 
     public void EnterQuestion(QuestionPoint questionPoint)
@@ -45,5 +53,4 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
             UIRootManager.ClosePopup<UITeleportPopup>();
         }
     }
-
 }

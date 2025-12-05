@@ -33,8 +33,6 @@ namespace BitterECS.Integration
             .WithLink(_linkableProvider)
             .WithForce()
             .Create();
-
-            var count = EcsWorld.GetToEntityType(PresenterType).EntityCount;
         }
 
         protected void ApplyComponent(EcsEntity entity)

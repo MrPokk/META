@@ -88,13 +88,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 1.5
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.5
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!114 &-2169934209317217517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
   presenterType:
     _typeName: 
     _assemblyName: 
-  <Animator>k__BackingField: {fileID: 7192205141172005327}
+  animator: {fileID: 7192205141172005327}
 --- !u!1001 &3649408636126172254
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -189,7 +189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.428
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -233,15 +233,15 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 6544a009f510605c2ae03c9cf1631412, type: 2}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalScale.x
-      value: 4.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalScale.y
-      value: 4.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalScale.z
-      value: 4.5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -249,11 +249,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.191
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.013
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 572617754110402786, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0a90a3d9a9a5729bbb738531aeb5e49f, type: 3}
       propertyPath: m_Name
@@ -373,6 +397,10 @@ PrefabInstance:
     - target: {fileID: 5573527691401548260, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
       propertyPath: m_Name
       value: '[CameraObject]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 6730684345612366462, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7284613897306740009, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
       propertyPath: IgnoreTag

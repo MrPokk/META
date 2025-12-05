@@ -26,6 +26,8 @@ public class UITeleportPopup : UIPopup
 
     public override void Open()
     {
+        base.Open();
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
@@ -33,8 +35,6 @@ public class UITeleportPopup : UIPopup
         .UsingAnimation(gameObject)
         .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
         .PlayOpenAnimation();
-
-        base.Open();
     }
 
     public override void Close()
