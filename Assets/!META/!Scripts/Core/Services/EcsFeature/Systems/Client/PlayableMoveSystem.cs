@@ -27,6 +27,8 @@ public class PlayableMoveSystem : IClientConnectedFixedRun
                                       playerRight * controllableComponent.input.x).normalized;
 
                     monoProvider.CharacterController.SimpleMove(directionTo * movingComponent.speed);
+
+                    EcsSystems.Run<IPlayerUsingSystem>(system => system.OnRun(monoProvider));
                 }
             }
         }

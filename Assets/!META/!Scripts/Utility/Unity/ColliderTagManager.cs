@@ -35,7 +35,7 @@ public class ColliderTagSynchronizer : MonoBehaviour
 
     // Кэшированные данные для оптимизации
     private List<Transform> _taggedChildren = null;
-    private List<BoxCollider> _allTaggedColliders = null;
+    private List<Collider> _allTaggedColliders = null;
     private Transform _cachedTransform = null;
     private bool _isDirty = true;
 
@@ -49,12 +49,12 @@ public class ColliderTagSynchronizer : MonoBehaviour
         }
     }
 
-    public IReadOnlyList<BoxCollider> AllTaggedColliders
+    public IReadOnlyList<Collider> AllTaggedColliders
     {
         get
         {
             EnsureInitialized();
-            return _allTaggedColliders ?? (_allTaggedColliders = new List<BoxCollider>());
+            return _allTaggedColliders ?? (_allTaggedColliders = new List<Collider>());
         }
     }
 
@@ -72,7 +72,7 @@ public class ColliderTagSynchronizer : MonoBehaviour
 
         if (_allTaggedColliders == null)
         {
-            _allTaggedColliders = new List<BoxCollider>();
+            _allTaggedColliders = new List<Collider>();
         }
     }
 
@@ -162,7 +162,7 @@ public class ColliderTagSynchronizer : MonoBehaviour
 
         if (_allTaggedColliders == null)
         {
-            _allTaggedColliders = new List<BoxCollider>();
+            _allTaggedColliders = new List<Collider>();
         }
 
         _taggedChildren.Clear();
@@ -178,11 +178,17 @@ public class ColliderTagSynchronizer : MonoBehaviour
 
                 // Получаем ВСЕ BoxCollider на объекте
                 var colliders = child.GetComponents<BoxCollider>();
+                var meshCollider = child.GetComponent<MeshCollider>();
                 foreach (var collider in colliders)
                 {
                     if (collider != null)
                     {
                         _allTaggedColliders.Add(collider);
+                    }
+
+                    if (meshCollider != null)
+                    {
+                        _allTaggedColliders.Add(meshCollider);
                     }
                 }
             }
@@ -377,7 +383,8 @@ public class ColliderTagSynchronizer : MonoBehaviour
             if (collider == null || !collider.enabled)
                 continue;
 
-            DrawColliderGizmo(collider);
+            if (collider is BoxCollider boxCollider)
+                DrawColliderGizmo(boxCollider);
         }
     }
 
@@ -386,30 +393,26 @@ public class ColliderTagSynchronizer : MonoBehaviour
         if (collider == null || collider.transform == null)
             return;
 
-        // Сохраняем оригинальную матрицу Gizmos
-        Matrix4x4 originalMatrix = Gizmos.matrix;
+        var originalMatrix = Gizmos.matrix;
+        var colliderTransform = collider.transform;
 
-        // Получаем трансформацию объекта коллайдера
-        Transform colliderTransform = collider.transform;
-
-        // Создаем матрицу трансформации для коллайдера с учетом его центра
-        Matrix4x4 colliderMatrix = Matrix4x4.TRS(
-            colliderTransform.TransformPoint(collider.center),  // Центр в мировых координатах
+        var fixSize = 0.001f;
+        var fixSizeVector = new Vector3(fixSize, fixSize, fixSize);
+        var sizeCollider = fixSizeVector + colliderTransform.lossyScale;
+        var colliderMatrix = Matrix4x4.TRS(
+            colliderTransform.TransformPoint(collider.center),
             colliderTransform.rotation,
-            Vector3.Scale(colliderTransform.lossyScale, collider.size)  // Учитываем размер коллайдера
+            Vector3.Scale(sizeCollider, collider.size + fixSizeVector)
         );
 
         Gizmos.matrix = colliderMatrix;
 
-        // Рисуем solid куб
         Gizmos.color = _gizmoColor;
         Gizmos.DrawCube(Vector3.zero, Vector3.one);
 
-        // Рисуем wireframe поверх
         Gizmos.color = _gizmoWireColor;
         Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
 
-        // Восстанавливаем оригинальную матрицу
         Gizmos.matrix = originalMatrix;
     }
 #endif

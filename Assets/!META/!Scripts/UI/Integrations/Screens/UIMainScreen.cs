@@ -20,10 +20,10 @@ public class UIMainScreen : UIScreen
     public override void Close()
     {
         RemoveListener();
-        UIAnimationComponent
-        .UsingAnimation(gameObject)
-        .ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayCloseAnimation();
+        //UIAnimationComponent
+        //.UsingAnimation(gameObject)
+        //.ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
+        //.PlayCloseAnimation();
         base.Close();
     }
 

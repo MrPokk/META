@@ -2,13 +2,16 @@ using BitterECS.Integration;
 using UnityEngine;
 
 [RequireComponent(typeof(MovingComponentProvider))]
+[RequireComponent(typeof(CharacterController))]
 public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsingQuestions
 {
     public CharacterController CharacterController { get; private set; }
+    [field: SerializeField] public Animator Animator { get; private set; }
 
     private void Start()
     {
         CharacterController = GetComponent<CharacterController>();
+        Animator ??= GetComponent<Animator>();
     }
 
     public void EnterQuestion(QuestionPoint questionPoint)
