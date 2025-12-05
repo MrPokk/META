@@ -9,15 +9,10 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
     public CharacterController CharacterController { get; private set; }
     public Animator animator;
 
-    protected override void Awake()
+    protected override void Registration()
     {
-        base.Awake();
-        
         Entity.Add<StateComponent>(new(State.Idle));
-    }
 
-    private void Start()
-    {
         CharacterController = GetComponent<CharacterController>();
         animator = animator != null ? animator : GetComponent<Animator>();
     }

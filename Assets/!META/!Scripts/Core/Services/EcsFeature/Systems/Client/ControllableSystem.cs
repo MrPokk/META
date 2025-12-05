@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 
 public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 {
-    public Priority PrioritySystem => Priority.Medium;
+    public Priority PrioritySystem => Priority.FIRST_TASK;
     private ControlsConfig _inputs;
 
     public void Init()

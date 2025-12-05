@@ -19,17 +19,20 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
             .Include<MovingComponent>()
             .Collect();
 
-        foreach (var entity in query)
+        foreach (var player in query)
         {
-            if (entity.Provider is PlayerProvider monoProvider)
-            {
-                if (mainCamera != null)
-                {
-                    var cameraForward = mainCamera.transform.forward;
-                    cameraForward.y = 0;
-                    monoProvider.transform.rotation = Quaternion.LookRotation(cameraForward).normalized;
-                }
-            }
+            if (player.Provider is not PlayerProvider monoProvider)
+                continue;
+                
+            if (monoProvider == null || monoProvider.gameObject == null)
+                continue;
+
+            if (mainCamera == null)
+                continue;
+
+            var cameraForward = mainCamera.transform.forward;
+            cameraForward.y = 0;
+            monoProvider.transform.rotation = Quaternion.LookRotation(cameraForward).normalized;
         }
     }
 

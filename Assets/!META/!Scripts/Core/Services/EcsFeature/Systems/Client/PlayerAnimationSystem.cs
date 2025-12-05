@@ -18,30 +18,38 @@ public class PlayerAnimationSystem : IEcsFixedRunSystem
         foreach (var player in query)
         {
             ref var state = ref player.Get<StateComponent>();
-            if (player.Provider is PlayerProvider monoProvider)
+            if (player.Provider is not PlayerProvider monoProvider)
+                continue;
+
+
+            if (monoProvider == null || monoProvider.gameObject == null)
+                continue;
+
+            SetSpeedAnimation(monoProvider);
+
+            switch (state.state)
             {
-                if (monoProvider.animator == null)
-                    continue;
-
-                SetSpeedAnimation(monoProvider);
-
-                switch (state.state)
-                {
-                    case StateComponent.State.Idle:
-                        monoProvider.animator.SetTrigger(_isIdle);
-                        break;
-                    case StateComponent.State.Moving:
-                        monoProvider.animator.SetTrigger(_isWalk);
-                        break;
-                    default:
-                        break;
-                }
+                case StateComponent.State.Idle:
+                    monoProvider.animator.SetTrigger(_isIdle);
+                    break;
+                case StateComponent.State.Moving:
+                    monoProvider.animator.SetTrigger(_isWalk);
+                    break;
+                default:
+                    break;
             }
         }
     }
 
     private static void SetSpeedAnimation(PlayerProvider monoProvider)
     {
+
+        if (monoProvider == null || monoProvider.gameObject == null)
+            return;
+
+        if (monoProvider.CharacterController == null)
+            return;
+
         if (monoProvider.animator == null)
             return;
 

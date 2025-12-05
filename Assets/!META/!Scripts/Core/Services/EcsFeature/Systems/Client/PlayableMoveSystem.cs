@@ -21,22 +21,25 @@ public partial class PlayableMoveSystem : IClientConnectedFixedRun
 
             if (entity.Provider is PlayerProvider monoProvider)
             {
-                if (monoProvider.CharacterController != null)
+                if (monoProvider == null || monoProvider.gameObject == null)
+                    continue;
+
+                if (monoProvider.CharacterController == null)
+                    continue;
+
+                GetPlayerDirection(monoProvider, out var playerForward, out var playerRight);
+
+                var directionTo = (playerForward * controllableComponent.input.y +
+                                  playerRight * controllableComponent.input.x).normalized;
+
+                monoProvider.CharacterController.SimpleMove(directionTo * movingComponent.speed);
+                if (directionTo != Vector3.zero)
                 {
-                    GetPlayerDirection(monoProvider, out var playerForward, out var playerRight);
-
-                    var directionTo = (playerForward * controllableComponent.input.y +
-                                      playerRight * controllableComponent.input.x).normalized;
-
-                    monoProvider.CharacterController.SimpleMove(directionTo * movingComponent.speed);
-                    if (directionTo != Vector3.zero)
-                    {
-                        stateComponent.state = StateComponent.State.Moving;
-                    }
-                    else
-                    {
-                        stateComponent.state = StateComponent.State.Idle;
-                    }
+                    stateComponent.state = StateComponent.State.Moving;
+                }
+                else
+                {
+                    stateComponent.state = StateComponent.State.Idle;
                 }
             }
         }

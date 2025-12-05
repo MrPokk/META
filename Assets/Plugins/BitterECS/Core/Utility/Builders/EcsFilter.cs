@@ -56,7 +56,7 @@ namespace BitterECS.Core
             return new FilterEnumerator(_presenter.GetAll(), _includeConditions, _excludeConditions, _includeCount, _excludeCount);
         }
 
-        public struct FilterEnumerator
+        public ref struct FilterEnumerator
         {
             private readonly EcsEntity[] _entities;
             private readonly ICondition[] _includeConditions;
