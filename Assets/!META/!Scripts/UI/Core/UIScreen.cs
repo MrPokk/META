@@ -1,6 +1,6 @@
 public abstract class UIScreen : WindowBinder
 {
-    public  override void Close()
+    public override void Close()
     {
         base.Close();
     }

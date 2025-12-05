@@ -47,7 +47,7 @@ public class EntryPointProject : LifetimeScope
         RegisterNetworkInfrastructure(builder);
         RegisterEcsSystem(builder);
         RegisterProviders(builder);
-        RegisterGameplayInject(builder);
+        RegisterServiceInject(builder);
     }
 
     #endregion
@@ -98,7 +98,7 @@ public class EntryPointProject : LifetimeScope
         builder.Register<ConnectionInfo>(Lifetime.Singleton);
     }
 
-    private void RegisterGameplayInject(IContainerBuilder builder)
+    private void RegisterServiceInject(IContainerBuilder builder)
     {
         builder.Register<TeleportService>(Lifetime.Singleton);
         builder.Register<QuestionService>(Lifetime.Singleton);

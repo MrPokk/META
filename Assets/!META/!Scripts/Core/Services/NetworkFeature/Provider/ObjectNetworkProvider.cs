@@ -32,6 +32,8 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
     {
+        if (IsHavePlayerIdentity(conn, spawn)) return;
+
         var entityPrefab = FindEntityPrefab(spawn.entity.Type);
         if (entityPrefab == null) return;
 
@@ -53,6 +55,19 @@ public class ObjectNetworkProvider : IProviderHandler
 
         SendSpawnConfirmation(conn, spawn, identity);
         TrackClientEntity(conn, identity);
+    }
+
+    private bool IsHavePlayerIdentity(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
+    {
+        if (ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerId))
+        {
+            RegisterPlayerForConnection(conn, playerId.gameObject);
+            SendSpawnConfirmation(conn, spawn, playerId);
+            TrackClientEntity(conn, playerId);
+            return true;
+        }
+
+        return false;
     }
 
     private GameObject FindEntityPrefab(Type entityType)

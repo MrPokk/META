@@ -40,7 +40,8 @@ public class UISettingScreen : UIScreen
         UIAnimationComponent
         .UsingAnimation(gameObject)
         .ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayCloseAnimation(() => base.Close());
+        .PlayCloseAnimation();
+        base.Close();
     }
 
     private void OnGoToBackButton() => UIRootManager.OpenScreen<UIMainScreen>();

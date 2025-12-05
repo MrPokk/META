@@ -52,11 +52,11 @@ public class UIAnimationComponent : MonoBehaviour
 
     public void PlayOpenAnimation()
     {
-        PlayOpenAnimation(null);
-    }
+        if (this == null || gameObject == null)
+        {
+            return;
+        }
 
-    public void PlayOpenAnimation(Action onComplete)
-    {
         CancelCurrentAnimation();
 
         if (_raycast != null) _raycast.enabled = false;
@@ -80,25 +80,23 @@ public class UIAnimationComponent : MonoBehaviour
             );
         }
 
-        _currentAnimation.OnComplete(() =>
+        _currentAnimation?.OnComplete(() =>
         {
             if (_canvasGroup != null) _canvasGroup.blocksRaycasts = true;
             if (_raycast != null) _raycast.enabled = true;
 
-            onComplete?.Invoke();
-            _currentAnimation = null;
         });
 
-        _currentAnimation.Play();
+        _currentAnimation?.Play();
     }
 
     public void PlayCloseAnimation()
     {
-        PlayCloseAnimation(null);
-    }
+        if (this == null || gameObject == null)
+        {
+            return;
+        }
 
-    public void PlayCloseAnimation(Action onComplete)
-    {
         CancelCurrentAnimation();
 
         if (_canvasGroup != null) _canvasGroup.blocksRaycasts = false;
@@ -122,13 +120,7 @@ public class UIAnimationComponent : MonoBehaviour
             );
         }
 
-        _currentAnimation.OnComplete(() =>
-        {
-            _currentAnimation = null;
-            onComplete?.Invoke();
-        });
-
-        _currentAnimation.Play();
+        _currentAnimation?.Play();
     }
 
     private void CancelCurrentAnimation()
@@ -141,16 +133,8 @@ public class UIAnimationComponent : MonoBehaviour
         CancelCurrentAnimation();
     }
 
-    public static UIAnimationComponent UsingAnimation(GameObject gameObject)
-    {
-        var isComponent = gameObject.TryGetComponent<UIAnimationComponent>(out var component);
-        if (isComponent)
-        {
-            return component;
-        }
-
-        throw new Exception("GameObject doesn't have UIAnimationComponent.");
-    }
+    public static UIAnimationComponent UsingAnimation(GameObject gameObject) => 
+    gameObject.TryGetComponent(out UIAnimationComponent component) ? component : gameObject.AddComponent<UIAnimationComponent>();
 
     public UIAnimationComponent ApplyCanvasGroup(CanvasGroup canvasGroup)
     {

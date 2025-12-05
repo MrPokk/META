@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using static UnityEngine.UI.Button;
 
+[RequireComponent(typeof(ButtonManager))]
 public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler
 {
     [SerializeField] private ButtonManager _buttonManager;

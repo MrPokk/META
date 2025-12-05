@@ -23,7 +23,8 @@ public class UIMainScreen : UIScreen
         UIAnimationComponent
         .UsingAnimation(gameObject)
         .ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayCloseAnimation(() => base.Close());
+        .PlayCloseAnimation();
+        base.Close();
     }
 
     private void AddListener()

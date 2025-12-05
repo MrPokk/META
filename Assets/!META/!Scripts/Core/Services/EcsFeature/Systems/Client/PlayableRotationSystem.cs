@@ -2,12 +2,12 @@ using BitterECS.Core;
 using BitterECS.Integration;
 using UnityEngine;
 
-public class PlayableRotationSystem : IClientConnectedFixedRun, IClientConnected
+public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
 {
     public Priority PrioritySystem => Priority.High;
     public Camera mainCamera;
 
-    public void Connect()
+    public void Start()
     {
         mainCamera = Camera.main;
     }
@@ -32,4 +32,5 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientConnected
             }
         }
     }
+
 }

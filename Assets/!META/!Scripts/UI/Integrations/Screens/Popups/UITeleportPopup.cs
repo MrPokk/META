@@ -1,3 +1,4 @@
+using Gley.Localization;
 using UnityEngine;
 using VContainer;
 
@@ -19,16 +20,21 @@ public class UITeleportPopup : UIPopup
 
     private void OnTeleportExecuted(TeleportPoint teleportPoint)
     {
-        Close();
         SceneNetworkProvider.ChangeScene(teleportPoint.SceneType);
+        Close();
     }
 
     public override void Open()
     {
-        base.Open();
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
+        UIAnimationComponent
+        .UsingAnimation(gameObject)
+        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+        .PlayOpenAnimation();
+
+        base.Open();
     }
 
     public override void Close()
@@ -37,6 +43,11 @@ public class UITeleportPopup : UIPopup
         Cursor.lockState = CursorLockMode.Locked;
         _teleportService.OnTeleport -= OnTeleportExecuted;
 
+        UIAnimationComponent
+        .UsingAnimation(gameObject)
+        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+        .PlayCloseAnimation();
+
         base.Close();
     }
 
@@ -44,10 +55,12 @@ public class UITeleportPopup : UIPopup
     {
         if (!_buttonContainer || !_buttonFloorPrefab || _teleportService == null) return;
 
-        foreach (var teleportPoint in _teleportService.GetTeleports())
+        var sortTeleport = _teleportService.GetSortTeleports((t, t2) => t.FloorNumber - t2.FloorNumber);
+        foreach (var teleportPoint in sortTeleport)
         {
             var buttonObj = Instantiate(_buttonFloorPrefab, _buttonContainer);
-            buttonObj.SetText($"Этаж: {teleportPoint.FloorNumber}");
+            var textTeleport = $"{API.GetText(WordIDs.FloorID)}: {teleportPoint.FloorNumber}";
+            buttonObj.SetText(textTeleport);
             buttonObj.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
         }
     }

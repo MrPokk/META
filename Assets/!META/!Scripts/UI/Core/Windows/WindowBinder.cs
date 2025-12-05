@@ -13,13 +13,23 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
 
     public virtual void Open()
     {
+        if (this == null || gameObject == null)
+        {
+            return;
+        }
+
         gameObject.SetActive(true);
     }
 
     public virtual void Close()
     {
+        if (this == null || gameObject == null) return;
         gameObject.SetActive(false);
-        Destroy(gameObject);
+
+        if (this != null && gameObject != null)
+        {
+            Destroy(gameObject);
+        }
     }
 }
 

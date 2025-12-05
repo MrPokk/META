@@ -33,7 +33,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.5
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -248,7 +248,7 @@ ModelImporter:
       scale: {x: 1, y: 1, z: 1}
     - name: Armature
       parentName: PlayerModel(Clone)
-      position: {x: 0, y: 1.6270828, z: 0}
+      position: {x: 0, y: 0.008135414, z: 0}
       rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
       scale: {x: 57.806046, y: 57.806046, z: 57.806046}
     - name: Bone
@@ -258,72 +258,72 @@ ModelImporter:
       scale: {x: 1, y: 0.9999998, z: 0.9999998}
     - name: Bone.001
       parentName: Bone
-      position: {x: -0, y: 0.0061954847, z: 0}
+      position: {x: -0, y: 0.000030977422, z: 0}
       rotation: {x: -0, y: -0.0000001192093, z: -0, w: 1}
       scale: {x: 1, y: 0.9999999, z: 0.9999999}
     - name: Bone.002
       parentName: Bone.001
-      position: {x: -0, y: 0.0064102677, z: 0}
+      position: {x: -0, y: 0.00003205134, z: 0}
       rotation: {x: -0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1.0000002, z: 1.0000002}
     - name: Bone.015
       parentName: Bone.002
-      position: {x: -0, y: 0.005541961, z: 0}
+      position: {x: -0, y: 0.000027709806, z: 0}
       rotation: {x: -0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.003
       parentName: Bone.015
-      position: {x: -0, y: 0.0061507607, z: 0}
+      position: {x: -0, y: 0.000030753803, z: 0}
       rotation: {x: 0.00000018138425, y: 0.00000004603325, z: 0.7715614, w: 0.63615483}
       scale: {x: 0.99999994, y: 1.0000001, z: 1}
     - name: Bone.004
       parentName: Bone.003
-      position: {x: 0.0000000019371509, y: 0.010689398, z: -6.217249e-17}
+      position: {x: 9.685754e-12, y: 0.000053446987, z: -3.1086244e-19}
       rotation: {x: 0.00000008762891, y: -0.000000118079214, z: -0.082803704, w: 0.9965659}
       scale: {x: 0.9999998, y: 0.99999994, z: 1}
     - name: Bone.005
       parentName: Bone.004
-      position: {x: -5.9604716e-10, y: 0.013695829, z: 1.4210854e-16}
+      position: {x: -2.9802356e-12, y: 0.000068479145, z: 7.105427e-19}
       rotation: {x: 0.00000006788348, y: -0.00000006000089, z: 0.028355349, w: 0.99959797}
       scale: {x: 0.9999999, y: 1.0000001, z: 1}
     - name: Bone.005_end
       parentName: Bone.005
-      position: {x: -0, y: 0.011978866, z: 0}
+      position: {x: -0, y: 0.00005989433, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.006
       parentName: Bone.015
-      position: {x: -0, y: 0.0061507607, z: 0}
+      position: {x: -0, y: 0.000030753803, z: 0}
       rotation: {x: -0.000000032221493, y: 0.0000001356232, z: -0.77029335, w: 0.6376898}
       scale: {x: 0.99999976, y: 0.9999999, z: 1}
     - name: Bone.007
       parentName: Bone.006
-      position: {x: 0.0000000013411044, y: 0.011458978, z: 2.2204459e-17}
+      position: {x: 6.705522e-12, y: 0.00005729489, z: 1.110223e-19}
       rotation: {x: -0.000000111097506, y: -0.00000009541284, z: -0.08169185, w: -0.99665767}
       scale: {x: 0.9999998, y: 1, z: 1}
     - name: Bone.008
       parentName: Bone.007
-      position: {x: 5.960465e-10, y: 0.014015131, z: 1.7763567e-16}
+      position: {x: 2.9802324e-12, y: 0.00007007565, z: 8.881784e-19}
       rotation: {x: -0.00000003762186, y: 0.000000038064734, z: -0.029272065, w: 0.9995715}
       scale: {x: 1.0000004, y: 1.0000002, z: 1}
     - name: Bone.008_end
       parentName: Bone.008
-      position: {x: -0, y: 0.011551445, z: 0}
+      position: {x: -0, y: 0.000057757225, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.016
       parentName: Bone.015
-      position: {x: -0, y: 0.0061507607, z: 0}
+      position: {x: -0, y: 0.000030753803, z: 0}
       rotation: {x: -0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.017
       parentName: Bone.016
-      position: {x: -0, y: 0.004204495, z: 0}
+      position: {x: -0, y: 0.000021022475, z: 0}
       rotation: {x: -0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.017_end
       parentName: Bone.017
-      position: {x: -0, y: 0.01602541, z: 0}
+      position: {x: -0, y: 0.00008012704, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.009
@@ -333,17 +333,17 @@ ModelImporter:
       scale: {x: 0.9999999, y: 0.9999998, z: 0.99999994}
     - name: Bone.011
       parentName: Bone.009
-      position: {x: -0, y: 0.005399519, z: 0}
+      position: {x: -0, y: 0.000026997595, z: 0}
       rotation: {x: -0.7071068, y: 0.00000010430813, z: -0.000000029802326, w: 0.7071067}
       scale: {x: 0.99999994, y: 1, z: 0.99999994}
     - name: Bone.013
       parentName: Bone.011
-      position: {x: -0, y: 0.014059124, z: 0}
+      position: {x: -0, y: 0.00007029562, z: 0}
       rotation: {x: -0, y: -0, z: -0, w: 1}
       scale: {x: 0.99999994, y: 1, z: 1.0000001}
     - name: Bone.013_end
       parentName: Bone.013
-      position: {x: -0, y: 0.010849976, z: 0}
+      position: {x: -0, y: 0.000054249882, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Bone.010
@@ -353,22 +353,22 @@ ModelImporter:
       scale: {x: 0.9999997, y: 0.9999999, z: 0.99999994}
     - name: Bone.012
       parentName: Bone.010
-      position: {x: -0, y: 0.0055370545, z: 0}
+      position: {x: -0, y: 0.000027685272, z: 0}
       rotation: {x: -0.7071068, y: -0.000000044703498, z: 0.00000007450582, w: 0.7071068}
       scale: {x: 0.9999999, y: 1, z: 0.9999999}
     - name: Bone.014
       parentName: Bone.012
-      position: {x: -0, y: 0.014059124, z: 5.9604643e-10}
+      position: {x: -0, y: 0.00007029562, z: 2.9802322e-12}
       rotation: {x: -0, y: 3.552714e-15, z: 3.552714e-15, w: 1}
       scale: {x: 1.0000002, y: 1, z: 1}
     - name: Bone.014_end
       parentName: Bone.014
-      position: {x: -0, y: 0.010849976, z: 0}
+      position: {x: -0, y: 0.000054249882, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Cube.001
       parentName: PlayerModel(Clone)
-      position: {x: -0, y: 0.000000059604645, z: 0}
+      position: {x: -0, y: 2.9802322e-10, z: 0}
       rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071067}
       scale: {x: 100.00002, y: 100.00002, z: 100.00002}
     armTwist: 0.5
@@ -378,7 +378,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 1
+    globalScale: 0.005
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 1

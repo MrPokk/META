@@ -39,5 +39,11 @@ public class UIReconnectScreen : UIScreen
     private void OnGoToGameplayButtOnClicked()
     {
         Container.Resolve<EntryPointClient>().SetupConnection();
+        SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
+
+        if (NetworkUtility.IsClientActive())
+        {
+            Close();
+        }
     }
 }

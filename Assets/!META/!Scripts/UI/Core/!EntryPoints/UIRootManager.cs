@@ -3,7 +3,22 @@ using UnityEngine;
 public class UIRootManager : MonoBehaviour
 {
     private static UIRootManager s_instance;
-    public static UIRootManager Instance => s_instance;
+    public static UIRootManager Instance
+    {
+        get
+        {
+            if (s_instance == null)
+            {
+                s_instance = FindFirstObjectByType<UIRootManager>();
+                if (s_instance == null)
+                {
+                    var singletonObject = new GameObject(typeof(UIRootManager).Name);
+                    s_instance = singletonObject.AddComponent<UIRootManager>();
+                }
+            }
+            return s_instance;
+        }
+    }
 
     private WindowsContainer _windowsContainer;
 
@@ -11,6 +26,16 @@ public class UIRootManager : MonoBehaviour
     {
         _windowsContainer = windowsContainer;
         s_instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (s_instance == this)
+        {
+            _windowsContainer.OpenedScreenBinder = null;
+            _windowsContainer?.OpenedBinders?.Clear();
+            s_instance = null;
+        }
     }
 
     public static void OpenScreen<T>() where T : WindowBinder
@@ -62,16 +87,16 @@ public class UIRootManager : MonoBehaviour
     {
         var binder = Binding<T>();
 
-        _windowsContainer.OpenedBinders.TryAdd(typeof(T), binder);
-        binder.Open();
+        _windowsContainer.OpenedBinders?.TryAdd(typeof(T), binder);
+        binder?.Open();
     }
 
     private void ClosePopupInstance<T>() where T : WindowBinder
     {
-        if (_windowsContainer.OpenedBinders.TryGetValue(typeof(T), out var binder))
+        if (_windowsContainer.OpenedBinders != null && _windowsContainer.OpenedBinders.TryGetValue(typeof(T), out var binder))
         {
-            binder.Close();
-            _windowsContainer.OpenedBinders.Remove(typeof(T));
+            binder?.Close();
+            _windowsContainer.OpenedBinders?.Remove(typeof(T));
         }
     }
 
@@ -79,9 +104,9 @@ public class UIRootManager : MonoBehaviour
     {
         foreach (var binder in _windowsContainer.OpenedBinders.Values)
         {
-            binder?.Close();
+            binder.Close();
         }
-        _windowsContainer.OpenedBinders.Clear();
+        _windowsContainer.OpenedBinders?.Clear();
     }
 
     private IWindowBinder Binding<T>() where T : WindowBinder
@@ -93,13 +118,15 @@ public class UIRootManager : MonoBehaviour
         }
 
         var parent = typeof(T).IsSubclassOf(typeof(UIScreen))
-            ? _windowsContainer.ScreensContainer
-            : _windowsContainer.PopupsContainer;
+            ? _windowsContainer?.ScreensContainer
+            : _windowsContainer?.PopupsContainer;
 
         var windowObject = Instantiate(binderPrefab.gameObject, parent);
         var binder = windowObject.GetComponent<IWindowBinder>();
-        binder.Bind(_windowsContainer.RootContainer);
+        binder?.Bind(_windowsContainer.RootContainer);
 
         return binder;
     }
+
 }
+
