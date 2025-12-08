@@ -10,10 +10,7 @@ public class UIEntryPoint : IStartable
     private readonly IObjectResolver _container;
 
     [Inject]
-    public UIEntryPoint(IObjectResolver container)
-    {
-        _container = container;
-    }
+    public UIEntryPoint(IObjectResolver container) => _container = container;
 
     public void Start()
     {
@@ -22,11 +19,10 @@ public class UIEntryPoint : IStartable
 
         foreach (var prefab in allPrefabs)
         {
-            var container = prefab.GetComponent<WindowBinder>();
-            if (container != null)
+            if (prefab.TryGetComponent<WindowBinder>(out var binder))
             {
-                var type = container.GetType();
-                allBinders.TryAdd(type, container);
+                var type = binder.GetType();
+                allBinders.TryAdd(type, binder);
             }
         }
 

@@ -6,7 +6,7 @@ public class TeleportService
 {
     public event Action<TeleportPoint> OnTeleport;
 
-    private readonly HashSet<TeleportPoint> _teleports = new();
+    private readonly List<TeleportPoint> _teleports = new();
 
     public void RegisterTeleport(TeleportPoint teleportPoint)
     {

@@ -43,11 +43,6 @@ public class UITeleportPopup : UIPopup
         Cursor.lockState = CursorLockMode.Locked;
         _teleportService.OnTeleport -= OnTeleportExecuted;
 
-        UIAnimationComponent
-        .UsingAnimation(gameObject)
-        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayCloseAnimation();
-
         base.Close();
     }
 

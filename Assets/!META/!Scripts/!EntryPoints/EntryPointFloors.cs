@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -19,7 +18,19 @@ public abstract class EntryPointFloors : LifetimeScope
         }
     }
 
+    protected override void Awake()
+    {
+        parentReference = ParentReference.Create<EntryPointProject>();
+
+        base.Awake();
+    }
+
     protected override void Configure(IContainerBuilder builder)
+    {
+        InjectToCallback(builder);
+    }
+
+    private void InjectToCallback(IContainerBuilder builder)
     {
         builder.RegisterBuildCallback(container =>
         {

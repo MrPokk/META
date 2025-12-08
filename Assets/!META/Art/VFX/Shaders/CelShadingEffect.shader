@@ -1,4 +1,4 @@
-Shader "Custom/CharacterCelShadingFixed"
+Shader "Custom/CelShadingEffect"
 {
     Properties
     {

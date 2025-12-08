@@ -299,6 +299,32 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.34215465, y: 0.16970722, z: 0.39992073}
   m_Center: {x: 0.15238388, y: -0.000000021674424, z: 0.16013493}
+--- !u!1 &467166825 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -4133703932355585839, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
+  m_PrefabInstance: {fileID: 1523856325}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &467166826
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 467166825}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.09616835, y: 0.052343708, z: 0.04279049}
+  m_Center: {x: -0.066136084, y: 0.0012230325, z: 0.00046712876}
 --- !u!1 &1009126059
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,8 +465,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.09982952, y: 0.01266906, z: 0.053648498}
-  m_Center: {x: 0.15698752, y: 0.044295307, z: 0.10908187}
+  m_Size: {x: 0.09982952, y: 0.012837879, z: 0.053648498}
+  m_Center: {x: 0.15698752, y: 0.044379715, z: 0.10908231}
 --- !u!1 &1103135624
 GameObject:
   m_ObjectHideFlags: 0
@@ -737,6 +763,10 @@ PrefabInstance:
     - target: {fileID: -4149331553498817516, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: -4133703932355585839, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
+      propertyPath: m_TagString
+      value: Collider
       objectReference: {fileID: 0}
     - target: {fileID: -4133703932355585839, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -1207,6 +1237,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -2764512629625626004, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 230807308}
+    - targetCorrespondingSourceObject: {fileID: -4133703932355585839, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 467166826}
     - targetCorrespondingSourceObject: {fileID: -8455728280606582528, guid: 05cbaddd406013ac5a558e15f6e708ff, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1834154856}
@@ -1606,11 +1639,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4142680196280295703, guid: 8d8ff0ba45648169aac9be47a0dfcf1a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 21.19
+      value: 18.968
       objectReference: {fileID: 0}
     - target: {fileID: 4142680196280295703, guid: 8d8ff0ba45648169aac9be47a0dfcf1a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 17.087
+      value: 16.969
       objectReference: {fileID: 0}
     - target: {fileID: 4142680196280295703, guid: 8d8ff0ba45648169aac9be47a0dfcf1a, type: 3}
       propertyPath: m_LocalPosition.z

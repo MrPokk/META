@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using VContainer;
-using Object = UnityEngine.Object;
 
 public static class UIFactory
 {
@@ -15,48 +14,44 @@ public static class UIFactory
         var screens = CreateUIContainer("UIScreens", canvas);
         var popups = CreateUIContainer("UIPopups", canvas);
 
-        rootManager.Initialize(new(container, popups, screens, binders));
-        Object.DontDestroyOnLoad(rootManager);
+        rootManager.Initialize(new WindowsContainer(container, popups, screens, binders));
+        UnityEngine.Object.DontDestroyOnLoad(rootManager);
 
         return rootManager;
     }
 
     private static Transform CreateCanvas(Transform parent)
     {
-        var canvas = new GameObject("UIRootCanvas",
-        typeof(Canvas),
-        typeof(CanvasScaler),
-        typeof(GraphicRaycaster)).transform;
+        var canvasObject = new GameObject("UIRootCanvas");
+        canvasObject.transform.SetParent(parent);
 
-        canvas.SetParent(parent);
-        var c = canvas.GetComponent<Canvas>();
-        c.renderMode = RenderMode.ScreenSpaceOverlay;
+        var canvas = canvasObject.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
 
-        canvas.GetComponent<CanvasScaler>()
-            .SetupScaleMode(CanvasScaler.ScaleMode.ScaleWithScreenSize, new Vector2(960, 540));
+        var scaler = canvasObject.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(960, 540);
+        scaler.matchWidthOrHeight = 0.5f;
 
-        return canvas;
+        canvasObject.AddComponent<GraphicRaycaster>();
+
+        return canvasObject.transform;
     }
 
     private static Transform CreateUIContainer(string name, Transform parent)
     {
         var container = new GameObject(name).AddComponent<RectTransform>();
         container.SetParent(parent);
-        container.FullStretch();
+        SetupFullStretch(container);
         return container;
     }
 
-    private static void FullStretch(this RectTransform rt)
+    private static void SetupFullStretch(RectTransform rt)
     {
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.sizeDelta = Vector2.zero;
         rt.localPosition = Vector3.zero;
-    }
-
-    private static void SetupScaleMode(this CanvasScaler scaler, CanvasScaler.ScaleMode mode, Vector2 resolution)
-    {
-        scaler.uiScaleMode = mode;
-        scaler.referenceResolution = resolution;
+        rt.localScale = Vector3.one;
     }
 }

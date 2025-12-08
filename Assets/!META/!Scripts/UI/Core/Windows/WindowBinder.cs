@@ -5,31 +5,27 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
 {
     protected IObjectResolver Container { get; private set; }
 
-    public void Bind(IObjectResolver resolver)
+    public IWindowBinder Bind(IObjectResolver resolver)
     {
         Container = resolver;
         Container.Inject(this);
+        return this;
     }
 
     public virtual void Open()
     {
-        if (this == null || gameObject == null)
-        {
-            return;
-        }
-
+        if (!this || !gameObject) return;
         gameObject.SetActive(true);
     }
 
     public virtual void Close()
     {
-        if (this == null || gameObject == null) return;
+        if (!this || !gameObject) return;
         gameObject.SetActive(false);
 
-        if (this != null && gameObject != null)
+        if (this && gameObject && !gameObject.activeSelf)
         {
             Destroy(gameObject);
         }
     }
 }
-
