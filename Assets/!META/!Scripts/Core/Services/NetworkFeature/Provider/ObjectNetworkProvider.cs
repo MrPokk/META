@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using System;
 using Object = UnityEngine.Object;
+using BitterECS.Core;
+using R3;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
@@ -21,13 +23,17 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnClientSync(SyncObjectSpawn spawn)
     {
-        if (NetworkClient.spawned.TryGetValue(spawn.netId, out var clientGameObject))
+        if (!NetworkClient.spawned.TryGetValue(spawn.netId, out var clientGameObject))
         {
-            if (clientGameObject.TryGetComponent<MonoProvider>(out var provider))
-            {
-                provider.Entity.Add<ControllableComponent>(new());
-            }
+            return;
         }
+
+        if (!clientGameObject.TryGetComponent<MonoProvider>(out var provider))
+        {
+            return;
+        }
+
+        provider.Entity.Add<ControllableComponent>(new());
     }
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
@@ -97,7 +103,7 @@ public class ObjectNetworkProvider : IProviderHandler
         {
             return;
         }
-        
+
         SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
     }
 

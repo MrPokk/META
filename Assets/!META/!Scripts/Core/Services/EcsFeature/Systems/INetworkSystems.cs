@@ -13,6 +13,11 @@ public interface IClientConnected : IEcsAutoImplement
     public void Connect();
 }
 
+public interface IClientSpawn : IEcsAutoImplement
+{
+    public void Spawn();
+}
+
 public interface IClientDisconnected : IEcsAutoImplement
 {
     public void Disconnect();

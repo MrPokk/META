@@ -7,6 +7,7 @@ using static StateComponent;
 public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsingQuestions
 {
     public CharacterController CharacterController { get; private set; }
+    [field: SerializeField] public CameraObjectComponent CameraObjectComponent { get; private set; }
     public Animator animator;
 
     protected override void Registration()
@@ -14,7 +15,10 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
         Entity.Add<StateComponent>(new(State.Idle));
 
         CharacterController = GetComponent<CharacterController>();
+        CameraObjectComponent ??= GetComponentInChildren<CameraObjectComponent>();
         animator ??= GetComponent<Animator>();
+
+
     }
 
 

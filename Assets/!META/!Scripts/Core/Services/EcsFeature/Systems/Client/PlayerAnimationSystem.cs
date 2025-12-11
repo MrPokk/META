@@ -4,16 +4,17 @@ public class PlayerAnimationSystem : IEcsFixedRunSystem
 {
     public Priority PrioritySystem => Priority.Medium;
 
+    private EcsFilter _ecsFilter = EcsWorld.Get<PlayerPresenter>().Filter()
+            .Include<ControllableComponent>()
+            .Include<MovingComponent>()
+            .Include<StateComponent>();
+
     private string _isWalk = "IsWalk";
     private string _isIdle = "IsIdle";
 
     public void FixedRun()
     {
-        var query = EcsWorld.Get<PlayerPresenter>().Filter()
-            .Include<ControllableComponent>()
-            .Include<MovingComponent>()
-            .Include<StateComponent>()
-            .Collect();
+        var query = _ecsFilter.Collect();
 
         foreach (var player in query)
         {
