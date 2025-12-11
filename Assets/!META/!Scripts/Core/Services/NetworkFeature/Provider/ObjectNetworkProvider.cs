@@ -59,15 +59,15 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private bool IsHavePlayerIdentity(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
     {
-        if (ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerId))
+        if (!ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerId))
         {
-            RegisterPlayerForConnection(conn, playerId.gameObject);
-            SendSpawnConfirmation(conn, spawn, playerId);
-            TrackClientEntity(conn, playerId);
-            return true;
+            return false;
         }
 
-        return false;
+        RegisterPlayerForConnection(conn, playerId.gameObject);
+        SendSpawnConfirmation(conn, spawn, playerId);
+        TrackClientEntity(conn, playerId);
+        return true;
     }
 
     private GameObject FindEntityPrefab(Type entityType)
@@ -93,10 +93,12 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void MoveEntityToClientScene(GameObject entity, NetworkConnectionToClient conn)
     {
-        if (ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
+        if (!ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
         {
-            SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
+            return;
         }
+        
+        SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
     }
 
     private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject)

@@ -1,8 +1,6 @@
-using System.Linq;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VContainer.Unity;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
@@ -65,16 +63,15 @@ public partial class SceneNetworkProvider : IProviderHandler
             return;
         }
 
-
         NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
         SceneManager.MoveGameObjectToScene(playerEntity.gameObject, scene);
-        SetPositionPlayerToSpawnPoint(playerEntity, scene, out var entryPointPosition);
+        SetPositionPlayerToSpawnPoint(playerEntity, scene);
         NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
 
         SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId));
     }
 
-    private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene, out Vector3 position)
+    private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene)
     {
         EntryPointFloors entryPoint = null;
 
@@ -91,13 +88,38 @@ public partial class SceneNetworkProvider : IProviderHandler
         if (entryPoint == null)
         {
             LoggerUtility.Error($"No entry point found in scene {scene.name}");
-            position = default;
-            return;
+            return; // TODO make disconnect
         }
 
-        player.transform.position = entryPoint.PlayerSpawnPoint;
-        position = entryPoint.PlayerSpawnPoint;
+        player.transform.position = FindPositionToSpawn(player, entryPoint);
+    }
+
+    private static Vector3 FindPositionToSpawn(NetworkIdentity player, EntryPointFloors entryPoint)
+    {
+        Vector3 position;
+        var ray = new Ray(entryPoint.PlayerSpawnPoint, Vector3.down);
+        if (Physics.Raycast(ray, out var hit))
+        {
+            var playerController = player.GetComponent<CharacterController>();
+
+            var playerHeight = playerController.height;
+            var playerCenter = playerController.center;
+
+            position = hit.point;
+            position.y -= playerCenter.y;
+            position.y += playerHeight / 2f;
+
+            position.y += 0.1f;
+        }
+        else
+        {
+            LoggerUtility.Error($"No floor found below entry point in scene");
+            position = entryPoint.PlayerSpawnPoint;
+        }
+
+        return position;
     }
 
     private void SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn) => NetworkUtility.SendMessage(spawn, client);
 }
+

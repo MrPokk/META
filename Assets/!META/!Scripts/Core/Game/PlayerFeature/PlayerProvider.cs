@@ -14,8 +14,9 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
         Entity.Add<StateComponent>(new(State.Idle));
 
         CharacterController = GetComponent<CharacterController>();
-        animator = animator != null ? animator : GetComponent<Animator>();
+        animator ??= GetComponent<Animator>();
     }
+
 
     public void EnterQuestion(QuestionPoint questionPoint)
     {
@@ -49,3 +50,4 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
         }
     }
 }
+

@@ -26,10 +26,10 @@ public class UITeleportPopup : UIPopup
 
     public override void Open()
     {
-        base.Open();
-
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+
+        base.Open();
 
         UIAnimationComponent
         .UsingAnimation(gameObject)

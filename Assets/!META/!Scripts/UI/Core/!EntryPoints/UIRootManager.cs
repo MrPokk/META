@@ -12,16 +12,23 @@ public class UIRootManager : MonoBehaviour
     private static UIRootManager FindOrCreateInstance()
     {
         var found = FindFirstObjectByType<UIRootManager>();
-        if (found) return found;
-        
+        if (found)
+        {
+            return found;
+        }
+
         var go = new GameObject(nameof(UIRootManager));
         return go.AddComponent<UIRootManager>();
     }
 
     public void Initialize(WindowsContainer windowsContainer)
     {
-        if (_isInitialized) return;
-        
+        if (_isInitialized)
+        {
+            return;
+        }
+
+
         _uiContainer = windowsContainer;
         _instance = this;
         _isInitialized = true;
@@ -32,8 +39,11 @@ public class UIRootManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_instance != this) return;
-        
+        if (_instance != this)
+        {
+            return;
+        }
+
         CloseAllPopupsInstance();
         CloseScreenInstance();
         _instance = null;
@@ -47,13 +57,14 @@ public class UIRootManager : MonoBehaviour
 
     private void OpenScreenInstance<T>() where T : WindowBinder
     {
-        if (_uiContainer?.OpenedScreenBinder?.GetType() == typeof(T)) return;
-        
         CloseScreenInstance();
-        
+
         var binder = CreateAndBindWindow<T>(isScreen: true);
-        if (binder == null) return;
-        
+        if (binder == null)
+        {
+            return;
+        }
+
         _uiContainer.OpenedScreenBinder = binder;
         binder.Open();
     }
@@ -66,23 +77,15 @@ public class UIRootManager : MonoBehaviour
 
     private void OpenPopupInstance<T>() where T : WindowBinder
     {
-        if (_uiContainer?.PopupsContainer == null) return;
-        
         CloseExistingPopup<T>();
-        
+
         var binder = CreateAndBindWindow<T>(isScreen: false);
-        if (binder == null) return;
-        
-        if (_uiContainer.TryAddOpenedBinder(typeof(T), binder))
-        {
-            binder.Open();
-        }
+        _uiContainer.TryAddOpenedBinder(typeof(T), binder);
+        binder?.Open();
     }
 
     private void ClosePopupInstance<T>() where T : WindowBinder
     {
-        if (_uiContainer == null) return;
-        
         if (TryFindPopupInContainer<T>(out var existingPopup))
         {
             existingPopup.Close();
@@ -97,21 +100,26 @@ public class UIRootManager : MonoBehaviour
 
     private void CloseAllPopupsInstance()
     {
-        if (_uiContainer == null) return;
-        
+
         foreach (var binder in _uiContainer.OpenedBinders.Values.ToList())
         {
             binder?.Close();
         }
-        
+
         _uiContainer.ClearOpenedBinders();
-        
-        if (_uiContainer.PopupsContainer)
+
+        if (!_uiContainer.PopupsContainer)
         {
-            for (int i = _uiContainer.PopupsContainer.childCount - 1; i >= 0; i--)
+            return;
+        }
+
+        var countPopups = _uiContainer.PopupsContainer.childCount;
+        for (int i = 0; i < countPopups; i++)
+        {
+            var child = _uiContainer.PopupsContainer.GetChild(i);
+            if (child)
             {
-                var child = _uiContainer.PopupsContainer.GetChild(i);
-                if (child) Destroy(child.gameObject);
+                Destroy(child.gameObject);
             }
         }
     }
@@ -124,11 +132,14 @@ public class UIRootManager : MonoBehaviour
 
     private void CloseExistingPopup<T>() where T : WindowBinder
     {
-        if (TryFindPopupInContainer<T>(out var existingPopup))
+        if (!TryFindPopupInContainer<T>(out var existingPopup))
         {
-            existingPopup.Close();
-            _uiContainer.TryRemoveOpenedBinder(typeof(T));
+            return;
+            
         }
+
+        existingPopup.Close();
+        _uiContainer.TryRemoveOpenedBinder(typeof(T));
     }
 
     private IWindowBinder CreateAndBindWindow<T>(bool isScreen) where T : WindowBinder
@@ -139,7 +150,9 @@ public class UIRootManager : MonoBehaviour
             return null;
         }
 
-        var parent = isScreen ? _uiContainer.ScreensContainer : _uiContainer.PopupsContainer;
+        var parent = isScreen
+        ? _uiContainer.ScreensContainer
+        : _uiContainer.PopupsContainer;
         if (parent == null)
         {
             Debug.LogError($"Parent container for {(isScreen ? "screen" : "popup")} is null");
