@@ -14,9 +14,9 @@ public class EcsNetworkUnity : EcsUnityRoot
     [Inject]
     private NetworkConfig _networkConfig;
 
-    public override void Run()
+    protected override void Update()
     {
-        base.Run();
+        base.Update();
 
 #if UNITY_EDITOR
         RunHandlingInEditor();
@@ -25,9 +25,9 @@ public class EcsNetworkUnity : EcsUnityRoot
 #endif
     }
 
-    public override void FixedRun()
+    protected override void FixedUpdate()
     {
-        base.FixedRun();
+        base.FixedUpdate();
 
 #if UNITY_EDITOR
         FixedRunHandlingInEditor();
@@ -76,7 +76,7 @@ public class EcsNetworkUnity : EcsUnityRoot
 
     private void RunHandlingInBuild()
     {
-        switch (_networkConfig.networkType)
+        switch (_networkConfig.NetworkType)
         {
             case NetworkType.Server:
                 EcsSystems.Run<IServerConnectedRun>(system => system.Run());
@@ -85,13 +85,13 @@ public class EcsNetworkUnity : EcsUnityRoot
                 EcsSystems.Run<IClientConnectedRun>(system => system.Run());
                 break;
             default:
-                throw new Exception($"Invalid network type: {_networkConfig.networkType}");
+                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
         }
     }
 
     private void FixedRunHandlingInBuild()
     {
-        switch (_networkConfig.networkType)
+        switch (_networkConfig.NetworkType)
         {
             case NetworkType.Server:
                 EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
@@ -100,7 +100,7 @@ public class EcsNetworkUnity : EcsUnityRoot
                 EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
                 break;
             default:
-                throw new Exception($"Invalid network type: {_networkConfig.networkType}");
+                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
         }
     }
 }

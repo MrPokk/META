@@ -17,6 +17,7 @@ namespace BitterECS.Core
         private void LoadAllSystems()
         {
             _systems.Clear();
+            _cachedInstanceSystems.Clear();
 
             var systemTypes = ReflectionUtility.FindAllAssignments<IEcsAutoImplement>();
             foreach (var type in systemTypes)
@@ -32,8 +33,6 @@ namespace BitterECS.Core
                     AddToSystemInternal(system);
                 }
             }
-
-            _cachedInstanceSystems.Clear();
         }
 
         public void AddSystemInternal(IEcsSystem system)
@@ -125,7 +124,6 @@ namespace BitterECS.Core
 
             _systems.Clear();
             _cachedInstanceSystems.Clear();
-            GC.SuppressFinalize(this);
             s_instance = null;
         }
 

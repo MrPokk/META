@@ -7,7 +7,6 @@ public static class LoggerUtility
     private static LoggerConfig s_config;
     private static string s_logPath;
     private static readonly object s_lock = new();
-    private static string s_lastMessage;
     private const string TIME_FORMAT = "HH:mm:ss";
 
     public enum LogLevel { Info, Warning, Error, Critical }
@@ -19,9 +18,9 @@ public static class LoggerUtility
             try
             {
                 s_config = config;
-                s_logPath = config.GetFullLogFilePath();
+                s_logPath = config.GetFullLogFilePath();    
 
-                if (!s_config.isLoggingEnabled)
+                if (!s_config.IsLoggingEnabled)
                     return;
 
                 Directory.CreateDirectory(Path.GetDirectoryName(s_logPath));
@@ -43,6 +42,7 @@ public static class LoggerUtility
             default: Debug.LogError(logEntry); return;
         }
 #else
+
         if (level < s_config?.minimumLogLevel) return;
         if (message == s_lastMessage) return;
 

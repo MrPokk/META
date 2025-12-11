@@ -33,13 +33,11 @@ public class ColliderTagSynchronizer : MonoBehaviour
     [Tooltip("Show only when selected")]
     private bool _onlyDrawWhenSelected = true;
 
-    // Кэшированные данные для оптимизации
     private List<Transform> _taggedChildren = null;
     private List<Collider> _allTaggedColliders = null;
     private Transform _cachedTransform = null;
     private bool _isDirty = true;
 
-    // Свойство для доступа к списку объектов из UI
     public IReadOnlyList<Transform> TaggedChildren
     {
         get

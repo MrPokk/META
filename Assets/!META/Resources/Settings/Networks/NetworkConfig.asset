@@ -12,23 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 793ddad4101d497d1947d9270d90d2a3, type: 3}
   m_Name: NetworkConfig
   m_EditorClassIdentifier: 
-  networkAddress: 127.0.0.1
-  networkType: 1
-  kcpPort: 5050
-  kcpNoDelay: 1
-  kcpInterval: 10
-  webSocketPort: 5050
-  webSocketSecure: 0
-  webSocketSslCertJson: 
-  webSocketMaxMessageSize: 16384
-  webSocketSendTimeout: 5000
-  webSocketReceiveTimeout: 20000
-  authenticator: {fileID: 0}
-  playerPrefab: {fileID: 0}
-  autoCreatePlayer: 0
-  playerSpawnMethod: 0
-  exceptionsDisconnect: 1
-  snapshotInterval: 0.1
-  snapshotMinRate: 0.01
-  snapshotMaxRate: 0.5
-  evaluationInterval: 1
+  _networkAddress: localhost
+  _networkType: 0
+  _kcpPort: 7777
+  _kcpNoDelay: 1
+  _kcpInterval: 10
+  _webSocketPort: 8888
+  _webSocketSecure: 0
+  _webSocketSslCertJson: 
+  _webSocketMaxMessageSize: 16384
+  _webSocketSendTimeout: 5000
+  _webSocketReceiveTimeout: 20000
+  _authenticator: {fileID: 0}
+  _playerPrefab: {fileID: 0}
+  _autoCreatePlayer: 0
+  _playerSpawnMethod: 1
+  _exceptionsDisconnect: 1
+  _snapshotInterval: 0.1
+  _snapshotMinRate: 0.01
+  _snapshotMaxRate: 0.5
+  _evaluationInterval: 1

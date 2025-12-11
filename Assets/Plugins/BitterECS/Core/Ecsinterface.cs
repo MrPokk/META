@@ -100,11 +100,13 @@ namespace BitterECS.Core
     {
         public EcsPresenter Presenter { get; }
         public ushort Id { get; }
+        public int Count;
 
         public EcsEntityProperty(EcsPresenter presenter, ushort id = 0)
         {
             Presenter = presenter;
             Id = id;
+            Count = 0;
         }
     }
 

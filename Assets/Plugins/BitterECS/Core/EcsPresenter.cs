@@ -155,7 +155,7 @@ namespace BitterECS.Core
         public EcsEntity Get(ILinkableProvider provider) =>
             _linkedEntities.FirstOrDefault(kvp => kvp.Value == provider).Key;
 
-        public EcsEntity Get(ushort id) => _entities[id];
+        public EcsEntity Get(int id) => id >= _entities.Length && id < ushort.MaxValue ? null : _entities[id];
         public EcsEntity[] GetAll() => _entities.Where(x => x != null).ToArray();
         public EcsFilter Filter() => new(this);
 
@@ -177,8 +177,11 @@ namespace BitterECS.Core
             _pools.Clear();
             _allowedTypes.Clear();
             _linkedEntities.Clear();
+        }
 
-            GC.SuppressFinalize(this);
+        internal object TryGetPool<T>() where T : struct
+        {
+            throw new NotImplementedException();
         }
     }
 }

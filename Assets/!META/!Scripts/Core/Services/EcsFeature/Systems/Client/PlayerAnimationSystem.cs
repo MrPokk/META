@@ -1,12 +1,10 @@
 using BitterECS.Core;
 
-public class PlayerAnimationSystem : IEcsFixedRunSystem
+public class PlayerAnimationSystem : IClientConnectedFixedRun
 {
     public Priority PrioritySystem => Priority.Medium;
 
     private EcsFilter _ecsFilter = EcsWorld.Get<PlayerPresenter>().Filter()
-            .Include<ControllableComponent>()
-            .Include<MovingComponent>()
             .Include<StateComponent>();
 
     private string _isWalk = "IsWalk";
@@ -18,16 +16,19 @@ public class PlayerAnimationSystem : IEcsFixedRunSystem
 
         foreach (var player in query)
         {
-            ref var state = ref player.Get<StateComponent>();
             if (player.Provider is not PlayerProvider monoProvider)
+            {
                 continue;
-
+            }
 
             if (monoProvider == null || monoProvider.gameObject == null)
+            {
                 continue;
+            }
+
+            ref var state = ref player.Get<StateComponent>();
 
             SetSpeedAnimation(monoProvider);
-
             switch (state.state)
             {
                 case StateComponent.State.Idle:
@@ -44,10 +45,6 @@ public class PlayerAnimationSystem : IEcsFixedRunSystem
 
     private static void SetSpeedAnimation(PlayerProvider monoProvider)
     {
-
-        if (monoProvider == null || monoProvider.gameObject == null)
-            return;
-
         if (monoProvider.CharacterController == null)
             return;
 

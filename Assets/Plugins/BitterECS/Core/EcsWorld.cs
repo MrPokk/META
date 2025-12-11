@@ -85,7 +85,6 @@ namespace BitterECS.Core
             }
 
             _ecsPresenters.Clear();
-            GC.SuppressFinalize(this);
             s_instance = null;
         }
 

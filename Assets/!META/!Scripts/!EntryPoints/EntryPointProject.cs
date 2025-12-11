@@ -232,7 +232,7 @@ public class EntryPointProject : LifetimeScope
 
     private void ConfigureBuildMode(IContainerBuilder builder)
     {
-        var isClient = _networkConfig.networkType == NetworkType.Client;
+        var isClient = _networkConfig.NetworkType == NetworkType.Client;
         var mode = isClient ? "Client" : "Server";
         LoggerUtility.Info($"<color=yellow>[Network] Build mode: <color=white>{mode}</color></color>");
 

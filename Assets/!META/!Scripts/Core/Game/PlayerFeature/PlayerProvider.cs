@@ -1,4 +1,5 @@
 using BitterECS.Integration;
+using Mirror;
 using UnityEngine;
 using static StateComponent;
 
@@ -10,17 +11,32 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
     [field: SerializeField] public CameraObjectComponent CameraObjectComponent { get; private set; }
     public Animator animator;
 
+    private NetworkIdentity _networkIdentity;
+
     protected override void Registration()
     {
         Entity.Add<StateComponent>(new(State.Idle));
 
         CharacterController = GetComponent<CharacterController>();
         CameraObjectComponent ??= GetComponentInChildren<CameraObjectComponent>();
+        _networkIdentity ??= GetComponent<NetworkIdentity>();
         animator ??= GetComponent<Animator>();
-
-
     }
 
+    private void Start()
+    {
+        DeleteComponent();
+    }
+
+    private void DeleteComponent()
+    {
+        if (Entity.Has<ControllableComponent>())
+        {
+            return;
+        }
+
+        Destroy(CameraObjectComponent.gameObject);
+    }
 
     public void EnterQuestion(QuestionPoint questionPoint)
     {

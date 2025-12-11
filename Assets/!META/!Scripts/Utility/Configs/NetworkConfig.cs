@@ -9,73 +9,66 @@ public class NetworkConfig : ScriptableObject
     [Header("<size=18>Network Settings </size>")]
 
     [Header("<size=16> Common Settings </size>")]
-    public string networkAddress = "localhost";
-    public NetworkType networkType;
+    [SerializeField] private string _networkAddress = "localhost";
+    [SerializeField] private NetworkType _networkType;
 
     [Header("<size=16>Transport Settings </size>")]
 
     [Header("KCP Server Settings")]
-    public ushort kcpPort = 7777;
-    public bool kcpNoDelay = true;
-    public uint kcpInterval = 10;
+    [SerializeField] private ushort _kcpPort = 7777;
+    [SerializeField] private bool _kcpNoDelay = true;
+    [SerializeField] private uint _kcpInterval = 10;
 
     [Header("WebSocket Server Settings")]
-    public ushort webSocketPort = 8888;
-    public bool webSocketSecure = false;
-    [TextArea] public string webSocketSslCertJson = "";
-    public int webSocketMaxMessageSize = 16384;
-    public int webSocketSendTimeout = 5000;
-    public int webSocketReceiveTimeout = 20000;
+    [SerializeField] private ushort _webSocketPort = 8888;
+    [SerializeField] private bool _webSocketSecure = false;
+    [SerializeField] [TextArea] private string _webSocketSslCertJson = "";
+    [SerializeField] private int _webSocketMaxMessageSize = 16384;
+    [SerializeField] private int _webSocketSendTimeout = 5000;
+    [SerializeField] private int _webSocketReceiveTimeout = 20000;
 
     [Header("<size=16>About Settings </size>")]
 
     [Header("Authentication")]
-    public NetworkAuthenticator authenticator;
+    [SerializeField] private NetworkAuthenticator _authenticator;
 
     [Header("Player Settings")]
-    public GameObject playerPrefab;
-    public bool autoCreatePlayer = true;
-    public PlayerSpawnMethod playerSpawnMethod = PlayerSpawnMethod.RoundRobin;
+    [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private bool _autoCreatePlayer = true;
+    [SerializeField] private PlayerSpawnMethod _playerSpawnMethod = PlayerSpawnMethod.RoundRobin;
 
     [Header("Security")]
-    public bool exceptionsDisconnect = true;
+    [SerializeField] private bool _exceptionsDisconnect = true;
 
-    [Header("Snapshot Interpolation")]
-    public float snapshotInterval = 0.1f;
-    public float snapshotMinRate = 0.01f;
-    public float snapshotMaxRate = 0.5f;
-
-    [Header("Connection Quality")]
-    public float evaluationInterval = 1f;
+    public NetworkType NetworkType => _networkType;
 
     public void Configure(NetworkManager manager)
     {
-        manager.networkAddress = networkAddress;
-        manager.authenticator = authenticator;
-        manager.playerPrefab = playerPrefab;
-        manager.autoCreatePlayer = autoCreatePlayer;
-        manager.playerSpawnMethod = playerSpawnMethod;
+        manager.networkAddress = _networkAddress;
+        manager.authenticator = _authenticator;
+        manager.playerPrefab = _playerPrefab;
+        manager.autoCreatePlayer = _autoCreatePlayer;
+        manager.playerSpawnMethod = _playerSpawnMethod;
 
-        NetworkServer.exceptionsDisconnect = exceptionsDisconnect;   
-        
+        NetworkServer.exceptionsDisconnect = _exceptionsDisconnect;
 
         // Настройки транспорта KCP
         if (manager.TryGetComponent<KcpTransport>(out var kcp))
         {
-            kcp.Port = kcpPort;
-            kcp.NoDelay = kcpNoDelay;
-            kcp.Interval = kcpInterval;
+            kcp.Port = _kcpPort;
+            kcp.NoDelay = _kcpNoDelay;
+            kcp.Interval = _kcpInterval;
         }
 
         // Настройки WebSocket транспорта
         if (manager.TryGetComponent<SimpleWebTransport>(out var websocket))
         {
-            websocket.port = webSocketPort;
-            websocket.sslEnabled = webSocketSecure;
-            websocket.sslCertJson = webSocketSslCertJson;
-            websocket.maxMessageSize = webSocketMaxMessageSize;
-            websocket.sendTimeout = webSocketSendTimeout;
-            websocket.receiveTimeout = webSocketReceiveTimeout;
+            websocket.port = _webSocketPort;
+            websocket.sslEnabled = _webSocketSecure;
+            websocket.sslCertJson = _webSocketSslCertJson;
+            websocket.maxMessageSize = _webSocketMaxMessageSize;
+            websocket.sendTimeout = _webSocketSendTimeout;
+            websocket.receiveTimeout = _webSocketReceiveTimeout;
         }
     }
 }
