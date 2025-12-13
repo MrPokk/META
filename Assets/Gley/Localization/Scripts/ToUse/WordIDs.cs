@@ -5,6 +5,7 @@ namespace Gley.Localization
 		BackID = 7,
 		EnterID = 0,
 		ExitID = 2,
+		FloorID = 10,
 		LanguageID = 6,
 		MasterVolumeID = 8,
 		ReconnectID = 3,
@@ -12,6 +13,7 @@ namespace Gley.Localization
 		SoundID = 5,
 		SoundVolumeID = 9,
 		VideoID = 4,
-		FloorID = 10,
+		IDLanguageRussian = 11,
+		IDLanguageEnglish = 12,
 	}
 }

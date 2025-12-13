@@ -2,7 +2,6 @@
 using UnityEditor;
 using System;
 using BitterECS.Core;
-using BitterECS.Utility;
 
 namespace BitterECS.Integration.Editor
 {

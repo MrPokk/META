@@ -178,10 +178,5 @@ namespace BitterECS.Core
             _allowedTypes.Clear();
             _linkedEntities.Clear();
         }
-
-        internal object TryGetPool<T>() where T : struct
-        {
-            throw new NotImplementedException();
-        }
     }
 }

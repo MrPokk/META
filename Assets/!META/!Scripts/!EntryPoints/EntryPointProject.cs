@@ -6,7 +6,7 @@ using Mirror.SimpleWeb;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
-using BitterECS.Utility;
+using BitterECS.Core;
 using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using BitterECS.Extra;
@@ -33,11 +33,6 @@ public class EntryPointProject : LifetimeScope
     }
 
     #region Core Initialization
-
-    private void InitializeLogger()
-    {
-        LoggerUtility.Initialize(_loggerConfig);
-    }
 
     private void RegisterCoreDependencies(IContainerBuilder builder)
     {
@@ -113,6 +108,11 @@ public class EntryPointProject : LifetimeScope
     #endregion
 
     #region Component Creation
+
+    private void InitializeLogger()
+    {
+        LoggerUtility.Initialize(_loggerConfig);
+    }
 
     private SceneLoader CreateSceneLoader()
     {

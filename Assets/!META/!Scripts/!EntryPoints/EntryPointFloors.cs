@@ -42,4 +42,11 @@ public abstract class EntryPointFloors : LifetimeScope
             }
         });
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        var ray = new Ray(_playerSpawnPoint.transform.position, Vector3.down);
+        Gizmos.DrawRay(ray);
+    }
 }

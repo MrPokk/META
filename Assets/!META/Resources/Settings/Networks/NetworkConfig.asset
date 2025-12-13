@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: NetworkConfig
   m_EditorClassIdentifier: 
   _networkAddress: localhost
-  _networkType: 0
+  _networkType: 1
   _kcpPort: 7777
   _kcpNoDelay: 1
   _kcpInterval: 10
@@ -28,7 +28,3 @@ MonoBehaviour:
   _autoCreatePlayer: 0
   _playerSpawnMethod: 1
   _exceptionsDisconnect: 1
-  _snapshotInterval: 0.1
-  _snapshotMinRate: 0.01
-  _snapshotMaxRate: 0.5
-  _evaluationInterval: 1

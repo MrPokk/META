@@ -97,8 +97,12 @@ public partial class SceneNetworkProvider : IProviderHandler
     private static Vector3 FindPositionToSpawn(NetworkIdentity player, EntryPointFloors entryPoint)
     {
         Vector3 position;
-        var ray = new Ray(entryPoint.PlayerSpawnPoint, Vector3.down);
-        if (Physics.Raycast(ray, out var hit))
+        var rayOrigin = entryPoint.PlayerSpawnPoint;
+        var ray = new Ray(rayOrigin, Vector3.down);
+
+        var layerMask = ~(1 << 2); // Все слои кроме IgnoreRaycast
+
+        if (Physics.Raycast(ray, out var hit, Mathf.Infinity, layerMask))
         {
             var playerController = player.GetComponent<CharacterController>();
 
@@ -113,7 +117,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         }
         else
         {
-            LoggerUtility.Error($"No floor found below entry point in scene");
+            LoggerUtility.Error($"No floor found below entry point at {rayOrigin}. Using spawn point.");
             position = entryPoint.PlayerSpawnPoint;
         }
 

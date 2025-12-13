@@ -7,8 +7,15 @@ public abstract class LocalizedUIElement : MonoBehaviour
 
     protected virtual void Awake()
     {
+        UIUpdateLocalized.OnUpdateLocalized += UpdateLocalization;
+
         InitializeComponents();
         UpdateLocalization();
+    }
+
+    private void OnDisable()
+    {
+        UIUpdateLocalized.OnUpdateLocalized -= UpdateLocalization;
     }
 
     protected virtual void OnValidate()

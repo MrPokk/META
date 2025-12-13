@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Gley.Localization;
-using Michsky.MUIP;
 using UnityEngine;
 
 public class UISettingLanguageScreen : UIScreen
@@ -20,11 +18,13 @@ public class UISettingLanguageScreen : UIScreen
 
     private void AddListener()
     {
+        _slLanguage.AddListener(OnLanguageChanged);
         _btnGoToBack.AddListener(OnGoToBackButton);
     }
 
     private void RemoveListener()
     {
+        _slLanguage.RemoveListener(OnLanguageChanged);
         _btnGoToBack.RemoveListener(OnGoToBackButton);
     }
 
@@ -39,34 +39,5 @@ public class UISettingLanguageScreen : UIScreen
 
     private void OnGoToBackButton() => UIRootManager.OpenScreen<UISettingScreen>();
 
-}
-
-[RequireComponent(typeof(HorizontalSelector))]
-public class UISelectorProvider : LocalizedUIElement
-{
-    [SerializeField] HorizontalSelector _horizontalSelector;
-
-    [SerializeField] List<WordIDs> _wordIDs;
-
-    protected override void InitializeComponents()
-    {
-        _horizontalSelector ??= GetComponent<HorizontalSelector>();
-        _horizontalSelector.items.Clear();
-
-    }
-
-    private void OnSelection()
-    {
-       
-    }
-
-    public override void SetText(string text)
-    {
-        foreach (var word in _wordIDs)
-        {
-            _horizontalSelector.CreateNewItem(API.GetText(word));
-        }
-        _horizontalSelector.UpdateUI();
-    }
-
+    private void OnLanguageChanged(int arg0) => UIUpdateLocalized.SetLanguage(_slLanguage.GetSelectedLanguage());
 }

@@ -44,8 +44,8 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 
     public void Destroy()
     {
-        _inputs.Disable();
         _inputs.Playable.Move.performed -= MovePressingSystem;
         _inputs.Playable.Move.canceled -= MoveUnPressingSystem;
+        _inputs.Disable();
     }
 }
