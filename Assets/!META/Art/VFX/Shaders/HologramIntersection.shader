@@ -1,4 +1,4 @@
-Shader "Custom/HologramIntersection"
+Shader "VFX-GAME/General/HologramIntersection"
 {
     Properties
     {
