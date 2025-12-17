@@ -36,31 +36,67 @@ public class ObjectNetworkProvider : IProviderHandler
         provider.Entity.Add<ControllableComponent>(new());
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок синхронизации объектов на сервере
+    // Включает проверки на null соединение, префаб, экземпляр и компоненты
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
     {
-        if (IsHavePlayerIdentity(conn)) return;
-
-        var entityPrefab = FindEntityPrefab(spawn.entity.Type);
-        if (entityPrefab == null) return;
-
-        var goInstance = CreateEntityInstance(spawn, entityPrefab, conn);
-        MoveEntityToClientScene(goInstance, conn);
-
-        var identity = goInstance.GetComponent<NetworkIdentity>();
-
-        if (identity.TryGetComponent<PlayerProvider>(out var _))
+        try
         {
-            LoggerUtility.Info($"Registering player for connection {conn}");
-            RegisterPlayerForConnection(conn, goInstance);
-        }
-        else
-        {
-            LoggerUtility.Info("Registering object for connection");
-            RegisterObjectForConnection(conn, goInstance);
-        }
+            // Проверка на null соединение
+            if (conn == null)
+            {
+                LoggerUtility.Error("OnServerSync called with null connection");
+                return;
+            }
 
-        SendSpawnConfirmation(conn, spawn, identity);
-        TrackClientEntity(conn, identity);
+            if (IsHavePlayerIdentity(conn)) return;
+
+            var entityPrefab = FindEntityPrefab(spawn.entity.Type);
+            // Проверка на null префаб
+            if (entityPrefab == null)
+            {
+                LoggerUtility.Error($"Failed to find entity prefab for type: {spawn.entity.Type}");
+                return;
+            }
+
+            var goInstance = CreateEntityInstance(spawn, entityPrefab, conn);
+            // Проверка на null экземпляр
+            if (goInstance == null)
+            {
+                LoggerUtility.Error("Failed to create entity instance");
+                return;
+            }
+
+            MoveEntityToClientScene(goInstance, conn);
+
+            var identity = goInstance.GetComponent<NetworkIdentity>();
+            // Проверка на наличие NetworkIdentity компонента
+            if (identity == null)
+            {
+                LoggerUtility.Error($"GameObject {goInstance.name} does not have NetworkIdentity component");
+                return;
+            }
+
+            if (identity.TryGetComponent<PlayerProvider>(out var _))
+            {
+                LoggerUtility.Info($"Registering player for connection {conn.connectionId}");
+                RegisterPlayerForConnection(conn, goInstance);
+            }
+            else
+            {
+                LoggerUtility.Info("Registering object for connection");
+                RegisterObjectForConnection(conn, goInstance);
+            }
+
+            SendSpawnConfirmation(conn, spawn, identity);
+            TrackClientEntity(conn, identity);
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку синхронизации объекта
+            LoggerUtility.Error($"Error in OnServerSync: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     private bool IsHavePlayerIdentity(NetworkConnectionToClient conn)
@@ -87,11 +123,37 @@ public class ObjectNetworkProvider : IProviderHandler
         return entityPrefab.gameObject;
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок создания экземпляра объекта
+    // Включает проверки на null префаб и результат инстанцирования
     private GameObject CreateEntityInstance(in SyncObjectSpawn spawn, GameObject prefab, NetworkConnectionToClient conn)
     {
-        var instance = Object.Instantiate(prefab, spawn.position, spawn.rotation);
-        instance.name = $"{prefab.name} [{conn.connectionId}]";
-        return instance;
+        try
+        {
+            // Проверка на null префаб перед инстанцированием
+            if (prefab == null)
+            {
+                LoggerUtility.Error("Cannot instantiate null prefab");
+                return null;
+            }
+
+            var instance = Object.Instantiate(prefab, spawn.position, spawn.rotation);
+            // Проверка на null результат инстанцирования
+            if (instance == null)
+            {
+                LoggerUtility.Error($"Failed to instantiate prefab: {prefab.name}");
+                return null;
+            }
+
+            instance.name = $"{prefab.name} [{conn.connectionId}]";
+            return instance;
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку создания экземпляра
+            LoggerUtility.Error($"Error creating entity instance: {ex.Message}\n{ex.StackTrace}");
+            return null;
+        }
     }
 
     private void MoveEntityToClientScene(GameObject entity, NetworkConnectionToClient conn)
@@ -104,10 +166,42 @@ public class ObjectNetworkProvider : IProviderHandler
         SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок регистрации игрока для соединения
+    // Включает проверки на null соединение, объект игрока и NetworkIdentity компонент
     private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject)
     {
-        NetworkServer.AddPlayerForConnection(conn, playerObject);
-        ConnectionInfo.PlayerEntityId[conn] = playerObject.GetComponent<NetworkIdentity>();
+        try
+        {
+            // Проверка на null соединение
+            if (conn == null)
+            {
+                LoggerUtility.Error("Cannot register player for null connection");
+                return;
+            }
+
+            // Проверка на null объект игрока
+            if (playerObject == null)
+            {
+                LoggerUtility.Error("Cannot register null player object");
+                return;
+            }
+
+            NetworkServer.AddPlayerForConnection(conn, playerObject);
+            var identity = playerObject.GetComponent<NetworkIdentity>();
+            // Проверка на наличие NetworkIdentity компонента
+            if (identity == null)
+            {
+                LoggerUtility.Error($"Player object {playerObject.name} does not have NetworkIdentity");
+                return;
+            }
+            ConnectionInfo.PlayerEntityId[conn] = identity;
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку регистрации игрока
+            LoggerUtility.Error($"Error registering player for connection: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) => NetworkServer.Spawn(networkObject, conn);

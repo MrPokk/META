@@ -109,39 +109,102 @@ public class EntryPointProject : LifetimeScope
 
     #region Component Creation
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок инициализации логгера
+    // Критично, так как без логгера мы не сможем отслеживать другие ошибки
     private void InitializeLogger()
     {
-        LoggerUtility.Initialize(_loggerConfig);
+        try
+        {
+            LoggerUtility.Initialize(_loggerConfig);
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку инициализации логгера
+            LoggerUtility.Critical($"Failed to initialize logger: {ex.Message}\n{ex.StackTrace}");
+            Debug.LogError($"Failed to initialize logger: {ex.Message}");
+        }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок создания загрузчика сцен
+    // Может возникнуть при проблемах с конфигурацией сцен или загрузкой
     private SceneLoader CreateSceneLoader()
     {
-        var loader = new SceneLoader();
-        loader.Initialize(_sceneConfig);
-        SceneLoader.LoadScene(SceneTypes.EntryPoint);
-        return loader;
+        try
+        {
+            var loader = new SceneLoader();
+            loader.Initialize(_sceneConfig);
+            SceneLoader.LoadScene(SceneTypes.EntryPoint);
+            return loader;
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку создания загрузчика сцен
+            LoggerUtility.Critical($"Failed to create scene loader: {ex.Message}\n{ex.StackTrace}");
+            throw;
+        }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок создания ECS менеджера
+    // Включает проверку на null после создания компонента
     private EcsNetworkUnity CreateEcsManager()
     {
-        var ecsManager = new GameObject("[EcsManager]", typeof(EcsNetworkUnity))
-            .GetComponent<EcsNetworkUnity>();
-        DontDestroyOnLoad(ecsManager.gameObject);
-        return ecsManager;
+        try
+        {
+            var ecsManager = new GameObject("[EcsManager]", typeof(EcsNetworkUnity))
+                .GetComponent<EcsNetworkUnity>();
+            
+            // Проверка на null - компонент может не создаться
+            if (ecsManager == null)
+            {
+                LoggerUtility.Error("Failed to create EcsNetworkUnity component");
+                throw new NullReferenceException("EcsNetworkUnity component is null");
+            }
+            
+            DontDestroyOnLoad(ecsManager.gameObject);
+            return ecsManager;
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку создания ECS менеджера
+            LoggerUtility.Critical($"Failed to create ECS manager: {ex.Message}\n{ex.StackTrace}");
+            throw;
+        }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок создания сетевого менеджера
+    // Включает проверку на null после создания компонента
     private NetworkManager CreateNetworkManager()
     {
-        var manager = new GameObject("[NetworkManager]",
-                typeof(KcpTransport),
-                typeof(SimpleWebTransport),
-                typeof(SceneInterestManagement),
-                typeof(NetworkManager))
-            .GetComponent<NetworkManager>();
+        try
+        {
+            var manager = new GameObject("[NetworkManager]",
+                    typeof(KcpTransport),
+                    typeof(SimpleWebTransport),
+                    typeof(SceneInterestManagement),
+                    typeof(NetworkManager))
+                .GetComponent<NetworkManager>();
 
-        ConfigureNetworkManager(manager);
-        DontDestroyOnLoad(manager.gameObject);
-        return manager;
+            // Проверка на null - компонент может не создаться
+            if (manager == null)
+            {
+                LoggerUtility.Error("Failed to create NetworkManager component");
+                throw new NullReferenceException("NetworkManager component is null");
+            }
+
+            ConfigureNetworkManager(manager);
+            DontDestroyOnLoad(manager.gameObject);
+            return manager;
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку создания сетевого менеджера
+            LoggerUtility.Critical($"Failed to create network manager: {ex.Message}\n{ex.StackTrace}");
+            throw;
+        }
     }
 
     private void ConfigureNetworkManager(NetworkManager manager)
@@ -151,16 +214,42 @@ public class EntryPointProject : LifetimeScope
         LoadServerScenes();
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок регистрации префабов для спавна
+    // Включает проверки на пустые коллекции и null префабы
     private void RegisterSpawnPrefabs(NetworkManager manager)
     {
-        var entityPrefabs = Resources.LoadAll<GameObject>(PathProject.ENTITIES);
-        foreach (var prefab in entityPrefabs)
+        try
         {
-            var hasNetworkIdentity = prefab.TryGetComponent<NetworkIdentity>(out var _);
-            var hasMonoProvider = prefab.TryGetComponent<MonoProvider>(out var _);
+            var entityPrefabs = Resources.LoadAll<GameObject>(PathProject.ENTITIES);
+            
+            // Проверка на пустую коллекцию префабов
+            if (entityPrefabs == null || entityPrefabs.Length == 0)
+            {
+                LoggerUtility.Warning($"No entity prefabs found at path: {PathProject.ENTITIES}");
+                return;
+            }
 
-            if (hasNetworkIdentity && hasMonoProvider)
-                manager.spawnPrefabs.Add(prefab.gameObject);
+            foreach (var prefab in entityPrefabs)
+            {
+                // Проверка на null префаб в коллекции
+                if (prefab == null)
+                {
+                    LoggerUtility.Warning("Null prefab found in Resources.LoadAll result");
+                    continue;
+                }
+
+                var hasNetworkIdentity = prefab.TryGetComponent<NetworkIdentity>(out var _);
+                var hasMonoProvider = prefab.TryGetComponent<MonoProvider>(out var _);
+
+                if (hasNetworkIdentity && hasMonoProvider)
+                    manager.spawnPrefabs.Add(prefab.gameObject);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку регистрации префабов
+            LoggerUtility.Error($"Failed to register spawn prefabs: {ex.Message}\n{ex.StackTrace}");
         }
     }
 
@@ -171,16 +260,44 @@ public class EntryPointProject : LifetimeScope
             : manager.GetComponent<KcpTransport>();
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок загрузки серверных сцен
+    // Включает проверку на пустую коллекцию и обработку ошибок для каждой сцены отдельно
     private void LoadServerScenes()
     {
-        var serverScenes = _sceneConfig.GetServerLoadScenes();
-        foreach (var scene in serverScenes)
+        try
         {
-            var sceneToServer = SceneLoader.LoadScene(scene, new LoadSceneParameters
+            var serverScenes = _sceneConfig.GetServerLoadScenes();
+            
+            // Проверка на пустую коллекцию сцен
+            if (serverScenes == null || serverScenes.Count == 0)
             {
-                loadSceneMode = LoadSceneMode.Additive
-            });
-            SceneLoader.AddServerScene(scene, sceneToServer);
+                LoggerUtility.Warning("No server scenes configured");
+                return;
+            }
+
+            // Обрабатываем каждую сцену отдельно, чтобы одна ошибка не блокировала остальные
+            foreach (var scene in serverScenes)
+            {
+                try
+                {
+                    var sceneToServer = SceneLoader.LoadScene(scene, new LoadSceneParameters
+                    {
+                        loadSceneMode = LoadSceneMode.Additive
+                    });
+                    SceneLoader.AddServerScene(scene, sceneToServer);
+                }
+                catch (Exception ex)
+                {
+                    // Логируем ошибку загрузки конкретной сцены, но продолжаем загрузку остальных
+                    LoggerUtility.Error($"Failed to load server scene {scene}: {ex.Message}\n{ex.StackTrace}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Логируем общую ошибку загрузки серверных сцен
+            LoggerUtility.Error($"Failed to load server scenes: {ex.Message}\n{ex.StackTrace}");
         }
     }
 

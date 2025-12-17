@@ -1,3 +1,4 @@
+using System;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,9 +12,38 @@ public partial class SceneNetworkProvider : IProviderHandler
         NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок обработки запроса смены сцены на клиенте
+    // Включает проверку на null сообщение и обработку ошибок в callback загрузки сцены
     private async void OnClientRequest(SceneChangeRequestMessage message)
     {
-        await SceneLoader.LoadSceneAsync(message.sceneType, () => { NetworkUtility.SendMessage(new SceneTransitionCompleteMessage()); });
+        try
+        {
+            // Проверка на null сообщение
+            if (message == null)
+            {
+                LoggerUtility.Error("OnClientRequest received null message");
+                return;
+            }
+
+            await SceneLoader.LoadSceneAsync(message.sceneType, () => 
+            {
+                try
+                {
+                    NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
+                }
+                catch (Exception ex)
+                {
+                    // Логируем ошибку отправки сообщения о завершении перехода
+                    LoggerUtility.Error($"Error sending SceneTransitionCompleteMessage: {ex.Message}\n{ex.StackTrace}");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку обработки запроса смены сцены
+            LoggerUtility.Error($"Error in OnClientRequest: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     public void HandlersServer()
@@ -48,27 +78,54 @@ public partial class SceneNetworkProvider : IProviderHandler
         }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок перемещения объектов клиента между сценами
+    // Включает проверки на null клиента, валидность сцены, наличие игрока и null сущность
     private void MoveClientObjectsToScene(NetworkConnectionToClient client, SceneTypes sceneType)
     {
-        var scene = SceneConfig.GetSceneToType(sceneType);
-        if (!scene.IsValid())
+        try
         {
-            LoggerUtility.Error($"Scene {sceneType} is not valid!");
-            return;
-        }
+            // Проверка на null клиента
+            if (client == null)
+            {
+                LoggerUtility.Error("MoveClientObjectsToScene called with null client");
+                return;
+            }
 
-        if (!ConnectionInfo.PlayerEntityId.TryGetValue(client, out var playerEntity))
+            var scene = SceneConfig.GetSceneToType(sceneType);
+            // Проверка валидности сцены
+            if (!scene.IsValid())
+            {
+                LoggerUtility.Error($"Scene {sceneType} is not valid!");
+                return;
+            }
+
+            // Проверка наличия игрока для соединения
+            if (!ConnectionInfo.PlayerEntityId.TryGetValue(client, out var playerEntity))
+            {
+                LoggerUtility.Warning($"No player entity id found for connection {client.connectionId}");
+                return;
+            }
+
+            // Проверка на null сущность игрока
+            if (playerEntity == null)
+            {
+                LoggerUtility.Error($"Player entity is null for connection {client.connectionId}");
+                return;
+            }
+
+            NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
+            SceneManager.MoveGameObjectToScene(playerEntity.gameObject, scene);
+            SetPositionPlayerToSpawnPoint(playerEntity, scene);
+            NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
+
+            SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId));
+        }
+        catch (Exception ex)
         {
-            LoggerUtility.Warning($"No player entity id found for connection {client.connectionId}");
-            return;
+            // Логируем ошибку перемещения объектов между сценами
+            LoggerUtility.Error($"Error in MoveClientObjectsToScene: {ex.Message}\n{ex.StackTrace}");
         }
-
-        NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
-        SceneManager.MoveGameObjectToScene(playerEntity.gameObject, scene);
-        SetPositionPlayerToSpawnPoint(playerEntity, scene);
-        NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
-
-        SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId));
     }
 
     private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene)

@@ -19,6 +19,9 @@ public struct SerializedType : IEquatable<SerializedType>
         _typeCached = true;
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок получения типа из строки
+    // Критично для десериализации типов из сети - может возникнуть при несовпадении версий
     public Type Type
     {
         get
@@ -33,9 +36,25 @@ public struct SerializedType : IEquatable<SerializedType>
                 return null;
             }
 
-            _cachedType = Type.GetType(_assemblyQualifiedName);
-            _typeCached = true;
-            return _cachedType;
+            try
+            {
+                _cachedType = Type.GetType(_assemblyQualifiedName);
+                // Проверка на null тип - может быть если тип не найден в текущей сборке
+                if (_cachedType == null)
+                {
+                    LoggerUtility.Warning($"Failed to get type from assembly qualified name: {_assemblyQualifiedName}");
+                }
+                _typeCached = true;
+                return _cachedType;
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку получения типа - может быть при проблемах с загрузкой сборок
+                LoggerUtility.Error($"Error getting type from {_assemblyQualifiedName}: {ex.Message}\n{ex.StackTrace}");
+                _cachedType = null;
+                _typeCached = true;
+                return null;
+            }
         }
     }
 
@@ -65,10 +84,24 @@ public struct SerializedType : IEquatable<SerializedType>
         writer.WriteString(_assemblyQualifiedName ?? string.Empty);
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок десериализации типа из сети
+    // Критично для сетевой синхронизации - может возникнуть при поврежденных данных
     public void Deserialize(NetworkReader reader)
     {
-        _assemblyQualifiedName = reader.ReadString();
-        _cachedType = null;
-        _typeCached = false;
+        try
+        {
+            _assemblyQualifiedName = reader.ReadString();
+            _cachedType = null;
+            _typeCached = false;
+        }
+        catch (Exception ex)
+        {
+            // Логируем ошибку десериализации - может быть при поврежденных сетевых данных
+            LoggerUtility.Error($"Error deserializing SerializedType: {ex.Message}\n{ex.StackTrace}");
+            _assemblyQualifiedName = string.Empty;
+            _cachedType = null;
+            _typeCached = false;
+        }
     }
 }

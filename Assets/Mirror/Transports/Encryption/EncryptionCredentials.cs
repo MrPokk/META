@@ -80,33 +80,106 @@ namespace Mirror.Transports.Encryption
             return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
         }
 
+        // ========== [LOGGING ADDED] ==========
+        // Добавлено логирование ошибок сохранения ключей шифрования в файл
+        // Критично для безопасности - проблемы с сохранением ключей могут привести к потере доступа
         public void SaveToFile(string path)
         {
-            string json = JsonUtility.ToJson(new SerializedPair
+            try
             {
-                PublicKeyFingerprint = PublicKeyFingerprint,
-                PublicKey = Convert.ToBase64String(PublicKeySerialized),
-                PrivateKey= Convert.ToBase64String(SerializePrivateKey(PrivateKey))
-            });
-            File.WriteAllText(path, json);
+                // Проверка на пустой путь
+                if (string.IsNullOrEmpty(path))
+                {
+                    LoggerUtility.Error("Cannot save encryption credentials: path is null or empty");
+                    throw new ArgumentException("Path cannot be null or empty", nameof(path));
+                }
+
+                string json = JsonUtility.ToJson(new SerializedPair
+                {
+                    PublicKeyFingerprint = PublicKeyFingerprint,
+                    PublicKey = Convert.ToBase64String(PublicKeySerialized),
+                    PrivateKey= Convert.ToBase64String(SerializePrivateKey(PrivateKey))
+                });
+
+                // Создание директории если её нет
+                var directory = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+
+                File.WriteAllText(path, json);
+                LoggerUtility.Info($"Encryption credentials saved to: {path}");
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку сохранения ключей шифрования
+                LoggerUtility.Error($"Failed to save encryption credentials to {path}: {ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
         }
 
+        // ========== [LOGGING ADDED] ==========
+        // Добавлено логирование ошибок загрузки ключей шифрования из файла
+        // Критично для безопасности - проблемы с загрузкой ключей могут привести к потере доступа
         public static EncryptionCredentials LoadFromFile(string path)
         {
-            string json = File.ReadAllText(path);
-            SerializedPair serializedPair = JsonUtility.FromJson<SerializedPair>(json);
-
-            byte[] publicKeyBytes =  Convert.FromBase64String(serializedPair.PublicKey);
-            byte[] privateKeyBytes = Convert.FromBase64String(serializedPair.PrivateKey);
-
-            if (serializedPair.PublicKeyFingerprint != PubKeyFingerprint(new ArraySegment<byte>(publicKeyBytes)))
-                throw new Exception("Saved public key fingerprint does not match public key.");
-            return new EncryptionCredentials
+            try
             {
-                PublicKeySerialized = publicKeyBytes,
-                PublicKeyFingerprint = serializedPair.PublicKeyFingerprint,
-                PrivateKey = (ECPrivateKeyParameters) DeserializePrivateKey(new ArraySegment<byte>(privateKeyBytes))
-            };
+                // Проверка на пустой путь
+                if (string.IsNullOrEmpty(path))
+                {
+                    LoggerUtility.Error("Cannot load encryption credentials: path is null or empty");
+                    throw new ArgumentException("Path cannot be null or empty", nameof(path));
+                }
+
+                // Проверка существования файла
+                if (!File.Exists(path))
+                {
+                    LoggerUtility.Error($"Encryption credentials file not found: {path}");
+                    throw new FileNotFoundException($"File not found: {path}", path);
+                }
+
+                string json = File.ReadAllText(path);
+                // Проверка на пустой файл
+                if (string.IsNullOrEmpty(json))
+                {
+                    LoggerUtility.Error($"Encryption credentials file is empty: {path}");
+                    throw new InvalidDataException($"File is empty: {path}");
+                }
+
+                SerializedPair serializedPair = JsonUtility.FromJson<SerializedPair>(json);
+                // Проверка на null результат десериализации
+                if (serializedPair == null)
+                {
+                    LoggerUtility.Error($"Failed to deserialize encryption credentials from: {path}");
+                    throw new InvalidDataException($"Failed to deserialize JSON from: {path}");
+                }
+
+                byte[] publicKeyBytes = Convert.FromBase64String(serializedPair.PublicKey);
+                byte[] privateKeyBytes = Convert.FromBase64String(serializedPair.PrivateKey);
+
+                // Проверка целостности ключа по отпечатку
+                if (serializedPair.PublicKeyFingerprint != PubKeyFingerprint(new ArraySegment<byte>(publicKeyBytes)))
+                {
+                    LoggerUtility.Error($"Public key fingerprint mismatch in file: {path}");
+                    throw new Exception("Saved public key fingerprint does not match public key.");
+                }
+
+                LoggerUtility.Info($"Encryption credentials loaded from: {path}");
+                return new EncryptionCredentials
+                {
+                    PublicKeySerialized = publicKeyBytes,
+                    PublicKeyFingerprint = serializedPair.PublicKeyFingerprint,
+                    PrivateKey = (ECPrivateKeyParameters) DeserializePrivateKey(new ArraySegment<byte>(privateKeyBytes))
+                };
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку загрузки ключей шифрования
+                LoggerUtility.Error($"Failed to load encryption credentials from {path}: {ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
         }
 
         class SerializedPair

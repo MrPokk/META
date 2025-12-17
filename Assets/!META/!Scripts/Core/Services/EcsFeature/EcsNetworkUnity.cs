@@ -37,70 +37,206 @@ public class EcsNetworkUnity : EcsUnityRoot
     }
 
 #if UNITY_EDITOR
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок выполнения ECS систем в редакторе
+    // Защищает от падения при ошибках в отдельных системах - каждая система обрабатывается отдельно
     private void RunHandlingInEditor()
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
+        try
+        {
+            var tags = CurrentPlayer.ReadOnlyTags();
 
-        if (tags.Contains("Server"))
-        {
-            EcsSystems.Run<IServerConnectedRun>(system => system.Run());
+            if (tags.Contains("Server"))
+            {
+                EcsSystems.Run<IServerConnectedRun>(system => 
+                {
+                    try
+                    {
+                        system.Run();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                        LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.Run(): {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            else if (tags.Contains("Client"))
+            {
+                EcsSystems.Run<IClientConnectedRun>(system => 
+                {
+                    try
+                    {
+                        system.Run();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                        LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.Run(): {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            else
+            {
+                RunHandlingInBuild();
+            }
         }
-        else if (tags.Contains("Client"))
+        catch (Exception ex)
         {
-            EcsSystems.Run<IClientConnectedRun>(system => system.Run());
-        }
-        else
-        {
-            RunHandlingInBuild();
+            // Логируем общую ошибку в обработке редактора
+            LoggerUtility.Error($"Error in RunHandlingInEditor: {ex.Message}\n{ex.StackTrace}");
         }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок выполнения ECS систем в FixedUpdate редактора
+    // Защищает от падения при ошибках в отдельных системах - каждая система обрабатывается отдельно
     private void FixedRunHandlingInEditor()
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
+        try
+        {
+            var tags = CurrentPlayer.ReadOnlyTags();
 
-        if (tags.Contains("Server"))
-        {
-            EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
+            if (tags.Contains("Server"))
+            {
+                EcsSystems.Run<IServerConnectedFixedRun>(system => 
+                {
+                    try
+                    {
+                        system.FixedRun();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                        LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.FixedRun(): {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            else if (tags.Contains("Client"))
+            {
+                EcsSystems.Run<IClientConnectedFixedRun>(system => 
+                {
+                    try
+                    {
+                        system.FixedRun();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                        LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.FixedRun(): {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            else
+            {
+                FixedRunHandlingInBuild();
+            }
         }
-        else if (tags.Contains("Client"))
+        catch (Exception ex)
         {
-            EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
-        }
-        else
-        {
-            FixedRunHandlingInBuild();
+            // Логируем общую ошибку в обработке FixedUpdate редактора
+            LoggerUtility.Error($"Error in FixedRunHandlingInEditor: {ex.Message}\n{ex.StackTrace}");
         }
     }
 #endif
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок выполнения ECS систем в билде
+    // Защищает от падения при ошибках в отдельных системах - каждая система обрабатывается отдельно
     private void RunHandlingInBuild()
     {
-        switch (_networkConfig.NetworkType)
+        try
         {
-            case NetworkType.Server:
-                EcsSystems.Run<IServerConnectedRun>(system => system.Run());
-                break;
-            case NetworkType.Client:
-                EcsSystems.Run<IClientConnectedRun>(system => system.Run());
-                break;
-            default:
-                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            switch (_networkConfig.NetworkType)
+            {
+                case NetworkType.Server:
+                    EcsSystems.Run<IServerConnectedRun>(system => 
+                    {
+                        try
+                        {
+                            system.Run();
+                        }
+                        catch (Exception ex)
+                        {
+                            // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                            LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.Run(): {ex.Message}\n{ex.StackTrace}");
+                        }
+                    });
+                    break;
+                case NetworkType.Client:
+                    EcsSystems.Run<IClientConnectedRun>(system => 
+                    {
+                        try
+                        {
+                            system.Run();
+                        }
+                        catch (Exception ex)
+                        {
+                            // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                            LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.Run(): {ex.Message}\n{ex.StackTrace}");
+                        }
+                    });
+                    break;
+                default:
+                    // Логируем ошибку неверного типа сети
+                    LoggerUtility.Error($"Invalid network type: {_networkConfig.NetworkType}");
+                    throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку в обработке билда
+            LoggerUtility.Critical($"Error in RunHandlingInBuild: {ex.Message}\n{ex.StackTrace}");
         }
     }
 
+    // ========== [LOGGING ADDED] ==========
+    // Добавлено логирование ошибок выполнения ECS систем в FixedUpdate билда
+    // Защищает от падения при ошибках в отдельных системах - каждая система обрабатывается отдельно
     private void FixedRunHandlingInBuild()
     {
-        switch (_networkConfig.NetworkType)
+        try
         {
-            case NetworkType.Server:
-                EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
-                break;
-            case NetworkType.Client:
-                EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
-                break;
-            default:
-                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            switch (_networkConfig.NetworkType)
+            {
+                case NetworkType.Server:
+                    EcsSystems.Run<IServerConnectedFixedRun>(system => 
+                    {
+                        try
+                        {
+                            system.FixedRun();
+                        }
+                        catch (Exception ex)
+                        {
+                            // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                            LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.FixedRun(): {ex.Message}\n{ex.StackTrace}");
+                        }
+                    });
+                    break;
+                case NetworkType.Client:
+                    EcsSystems.Run<IClientConnectedFixedRun>(system => 
+                    {
+                        try
+                        {
+                            system.FixedRun();
+                        }
+                        catch (Exception ex)
+                        {
+                            // Логируем ошибку в конкретной ECS системе, но продолжаем выполнение остальных
+                            LoggerUtility.Error($"Error in ECS system {system.GetType().Name}.FixedRun(): {ex.Message}\n{ex.StackTrace}");
+                        }
+                    });
+                    break;
+                default:
+                    // Логируем ошибку неверного типа сети
+                    LoggerUtility.Error($"Invalid network type: {_networkConfig.NetworkType}");
+                    throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Логируем критическую ошибку в обработке FixedUpdate билда
+            LoggerUtility.Critical($"Error in FixedRunHandlingInBuild: {ex.Message}\n{ex.StackTrace}");
         }
     }
 }
