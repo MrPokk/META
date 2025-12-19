@@ -7,9 +7,11 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
     public Priority PrioritySystem => Priority.High;
     public Camera mainCamera;
 
-    private EcsFilter _ecsFilter = EcsWorld.Get<PlayerPresenter>().Filter()
-        .Include<ControllableComponent>()
-        .Include<MovingComponent>();
+    private EcsFilter _ecsFilter = 
+    Build.For<PlayerPresenter>()
+         .Filter()
+         .Include<ControllableComponent>()
+         .Include<MovingComponent>();
 
     public void Start()
     {
@@ -18,9 +20,7 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
 
     public void FixedRun()
     {
-        var query = _ecsFilter.Collect();
-
-        foreach (var player in query)
+        foreach (var player in _ecsFilter)
         {
             if (player.Provider is not PlayerProvider monoProvider)
                 continue;

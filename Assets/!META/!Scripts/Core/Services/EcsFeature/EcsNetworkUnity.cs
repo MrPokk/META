@@ -6,7 +6,7 @@ using BitterECS.Integration;
 
 
 #if UNITY_EDITOR
-using Unity.Multiplayer.Playmode;
+
 #endif
 
 public class EcsNetworkUnity : EcsUnityRoot
@@ -39,7 +39,7 @@ public class EcsNetworkUnity : EcsUnityRoot
 #if UNITY_EDITOR
     private void RunHandlingInEditor()
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
 
         if (tags.Contains("Server"))
         {
@@ -57,7 +57,7 @@ public class EcsNetworkUnity : EcsUnityRoot
 
     private void FixedRunHandlingInEditor()
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
 
         if (tags.Contains("Server"))
         {

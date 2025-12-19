@@ -4,17 +4,17 @@ public class PlayerAnimationSystem : IClientConnectedFixedRun
 {
     public Priority PrioritySystem => Priority.Medium;
 
-    private EcsFilter _ecsFilter = EcsWorld.Get<PlayerPresenter>().Filter()
-            .Include<StateComponent>();
+    private EcsFilter _ecsFilter = 
+    Build.For<PlayerPresenter>()
+         .Filter()
+         .Include<StateComponent>();
 
     private string _isWalk = "IsWalk";
     private string _isIdle = "IsIdle";
 
     public void FixedRun()
     {
-        var query = _ecsFilter.Collect();
-
-        foreach (var player in query)
+        foreach (var player in _ecsFilter)
         {
             if (player.Provider is not PlayerProvider monoProvider)
             {

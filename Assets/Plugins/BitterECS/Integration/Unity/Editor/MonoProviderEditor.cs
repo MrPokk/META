@@ -15,7 +15,7 @@ namespace BitterECS.Integration.Editor
 
         private void OnEnable()
         {
-            _provider = (MonoProvider)target;
+            _provider = target as MonoProvider;
 
             _types = ReflectionUtility.FindAllImplement<EcsPresenter>();
             _typeNames = new string[_types.Length + 1];
@@ -56,6 +56,11 @@ namespace BitterECS.Integration.Editor
 
         private void UpdateSelectedIndexFromProvider()
         {
+            if (_provider == null)
+            {
+                return;
+            }
+
             if (_provider.PresenterType == null)
             {
                 _selectedIndex = 0;

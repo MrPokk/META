@@ -47,23 +47,19 @@ namespace BitterECS.Core
         public void PostDestroy();
     }
 
-    public interface IEcsIntegrationRoot :
-     IEcsPreInitSystem,
-     IEcsInitSystem,
-     IEcsRunSystem,
-     IEcsFixedRunSystem,
-     IEcsPostRunSystem,
-     IEcsDestroySystem,
-     IEcsPostDestroySystem
-    { }
+    internal interface IPoolDestroy
+    {
+        bool Has(int entityId);
+        void Remove(int entityId);
+    }
 
     #endregion
 
     #region Helper
 
-    public interface ILinkableProvider : IInitialize<EcsProviderProperty>, IDisposable
+    public interface ILinkableProvider : IInitialize<EcsProperty>, IDisposable
     {
-        public EcsEntity Entity => Properties?.Presenter?.Get(this);
+        public EcsEntity Entity { get; }
     }
 
     public interface IInitializeProperty { }
@@ -72,7 +68,7 @@ namespace BitterECS.Core
     {
         public T Properties { get; }
         public void Init(T property);
-        public T ValidateProperty(T property) { return property; }
+        public T ValidateProperty(T property) => property;
     }
 
     public enum Priority : int
@@ -84,29 +80,16 @@ namespace BitterECS.Core
         LAST_TASK = 10000,
     }
 
-    public record EcsProviderProperty : IInitializeProperty
+    public record EcsProperty : IInitializeProperty
     {
         public EcsPresenter Presenter { get; }
-        public ushort Id { get; }
+        public int Id { get; }
+        internal int CountComponents { get; set; }
 
-        public EcsProviderProperty(EcsPresenter presenter, ushort id)
+        public EcsProperty(EcsPresenter presenter, int id)
         {
             Presenter = presenter;
             Id = id;
-        }
-    }
-
-    public record EcsEntityProperty : IInitializeProperty
-    {
-        public EcsPresenter Presenter { get; }
-        public ushort Id { get; }
-        public int Count;
-
-        public EcsEntityProperty(EcsPresenter presenter, ushort id = 0)
-        {
-            Presenter = presenter;
-            Id = id;
-            Count = 0;
         }
     }
 

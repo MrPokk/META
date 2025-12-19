@@ -7,8 +7,6 @@ namespace BitterECS.Integration
     [DisallowMultipleComponent]
     public class EcsUnityRoot : MonoBehaviour
     {
-        public Priority PrioritySystem => Priority.FIRST_TASK;
-
         private static EcsUnityRoot s_instance;
         public static EcsUnityRoot Instance
         {
@@ -64,6 +62,9 @@ namespace BitterECS.Integration
         {
             EcsSystems.Run<IEcsDestroySystem>(system => system.Destroy());
             EcsSystems.Run<IEcsPostDestroySystem>(system => system.PostDestroy());
+
+            EcsWorld.Clear();
+            EcsSystems.Clear();
         }
     }
 }

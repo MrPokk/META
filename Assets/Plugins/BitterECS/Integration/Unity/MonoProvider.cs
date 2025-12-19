@@ -6,16 +6,14 @@ namespace BitterECS.Integration
 {
     public class MonoProvider : MonoBehaviour, ILinkableProvider
     {
-        [SerializeField]
         public SerializableType presenterType;
-        public Type PresenterType => presenterType.Type;
+        public virtual Type PresenterType => presenterType.Type;
 
-        public EcsProviderProperty Properties { get; protected set; }
+        public EcsProperty Properties { get; protected set; }
         public EcsPresenter Presenter => Properties?.Presenter;
         public EcsEntity Entity => Properties?.Presenter?.Get(Properties.Id);
-        public ushort Id => Properties?.Id ?? 0;
+        public int Id => Properties?.Id ?? 0;
 
-        private ILinkableProvider _linkableProvider;
         private ITypedComponentProvider[] _componentProviders;
 
         protected virtual void Registration() { }
@@ -28,16 +26,15 @@ namespace BitterECS.Integration
             }
 
             _componentProviders = GetComponents<ITypedComponentProvider>();
-            _linkableProvider = this;
 
             try
             {
-                EcsWorld.Get(PresenterType)
-                    .AddTo<EcsEntity>()
-                    .WithPreInitCallback(ApplyComponent)
-                    .WithLink(_linkableProvider)
-                    .WithForce()
-                    .Create();
+                Build.For(PresenterType)
+                   .Add<EcsEntity>()
+                   .WithPreInitCallback(ApplyComponent)
+                   .WithLink(this)
+                   .WithForce()
+                   .Create();
             }
             catch (Exception ex)
             {
@@ -63,7 +60,7 @@ namespace BitterECS.Integration
             }
         }
 
-        public void Init(EcsProviderProperty property) => Properties ??= property;
+        public void Init(EcsProperty property) => Properties ??= property;
 
         public void Dispose()
         {
@@ -97,10 +94,6 @@ namespace BitterECS.Integration
 
     public class MonoProvider<T> : MonoProvider where T : EcsPresenter
     {
-        protected override void Awake()
-        {
-            presenterType = new SerializableType(typeof(T));
-            base.Awake();
-        }
+        public override Type PresenterType => typeof(T);
     }
 }

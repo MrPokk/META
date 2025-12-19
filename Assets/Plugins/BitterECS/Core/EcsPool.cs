@@ -4,12 +4,6 @@ using System.Runtime.CompilerServices;
 
 namespace BitterECS.Core
 {
-    public interface IPoolDestroy
-    {
-        bool Has(int entityId);
-        void Remove(int entityId);
-    }
-
     public class EcsPool<T> : IDisposable, IPoolDestroy where T : struct
     {
         private T[] _components;
@@ -17,7 +11,7 @@ namespace BitterECS.Core
         private int[] _dataIndexToEntity;
         private bool[] _isFree;
         private int _count;
-        private Stack<int> _freeIndices;
+        private readonly Stack<int> _freeIndices;
         private readonly int _initialCapacity;
 
         public int Count => _count - _freeIndices.Count;
@@ -26,11 +20,6 @@ namespace BitterECS.Core
         public EcsPool(int initialCapacity = -1)
         {
             _initialCapacity = initialCapacity > 0 ? initialCapacity : EcsConfig.InitialPoolCapacity;
-            InitializeArrays();
-        }
-
-        private void InitializeArrays()
-        {
             _components = Array.Empty<T>();
             _entityToDataIndex = Array.Empty<int>();
             _dataIndexToEntity = Array.Empty<int>();
@@ -39,15 +28,16 @@ namespace BitterECS.Core
             _count = 0;
         }
 
-        public void Add(int entityId, in T component)
+        public virtual void Add(int entityId, in T component)
         {
             EnsureEntityCapacity(entityId);
-            
+
             if (HasComponentForEntity(entityId))
                 return;
 
-            int dataIndex = GetOrCreateDataIndex();
+            var dataIndex = GetOrCreateDataIndex();
             AssignComponentToEntity(entityId, dataIndex, component);
+            EcsWorld.IncreaseVersion();
         }
 
         private void EnsureEntityCapacity(int entityId)
@@ -62,7 +52,7 @@ namespace BitterECS.Core
         {
             var oldLength = _entityToDataIndex.Length;
             var newSize = CalculateNewSize(oldLength, requiredSize);
-            
+
             Array.Resize(ref _entityToDataIndex, newSize);
             InitializeNewEntitySlots(oldLength, newSize);
         }
@@ -71,13 +61,13 @@ namespace BitterECS.Core
         {
             if (oldSize == 0)
                 return Math.Max(requiredSize, _initialCapacity);
-            
+
             return Math.Max(requiredSize, oldSize * EcsConfig.PoolGrowthFactor);
         }
 
         private void InitializeNewEntitySlots(int start, int end)
         {
-            for (int i = start; i < end; i++)
+            for (var i = start; i < end; i++)
             {
                 _entityToDataIndex[i] = -1;
             }
@@ -92,14 +82,14 @@ namespace BitterECS.Core
         {
             if (_freeIndices.Count > 0)
                 return GetRecycledIndex();
-            
+
             EnsureComponentCapacity();
             return CreateNewIndex();
         }
 
         private int GetRecycledIndex()
         {
-            int index = _freeIndices.Pop();
+            var index = _freeIndices.Pop();
             _isFree[index] = false;
             return index;
         }
@@ -114,10 +104,10 @@ namespace BitterECS.Core
 
         private void ResizeComponentArrays()
         {
-            var newCapacity = _components.Length == 0 
-                ? _initialCapacity 
+            var newCapacity = _components.Length == 0
+                ? _initialCapacity
                 : _components.Length * EcsConfig.PoolGrowthFactor;
-            
+
             Array.Resize(ref _components, newCapacity);
             Array.Resize(ref _dataIndexToEntity, newCapacity);
             Array.Resize(ref _isFree, newCapacity);
@@ -125,7 +115,7 @@ namespace BitterECS.Core
 
         private int CreateNewIndex()
         {
-            int index = _count++;
+            var index = _count++;
             _isFree[index] = false;
             return index;
         }
@@ -171,20 +161,20 @@ namespace BitterECS.Core
             return false;
         }
 
-        public void Remove(int entityId)
+        public virtual void Remove(int entityId)
         {
             if (!CanRemove(entityId))
                 return;
 
-            int dataIndex = _entityToDataIndex[entityId];
+            var dataIndex = _entityToDataIndex[entityId];
             _entityToDataIndex[entityId] = -1;
 
             if (dataIndex < _count - 1)
                 SwapWithLastElement(dataIndex);
             else
                 ClearLastElement(dataIndex);
-
             MarkIndexAsFree(dataIndex);
+            EcsWorld.IncreaseVersion();
         }
 
         private bool CanRemove(int entityId)
@@ -194,19 +184,19 @@ namespace BitterECS.Core
 
         private void SwapWithLastElement(int dataIndex)
         {
-            int lastIndex = _count - 1;
-            
+            var lastIndex = _count - 1;
+
             _components[dataIndex] = _components[lastIndex];
             _dataIndexToEntity[dataIndex] = _dataIndexToEntity[lastIndex];
-            
+
             UpdateEntityMappingForSwappedElement(dataIndex);
-            
+
             ClearElement(lastIndex);
         }
 
         private void UpdateEntityMappingForSwappedElement(int newDataIndex)
         {
-            int movedEntityId = _dataIndexToEntity[newDataIndex];
+            var movedEntityId = _dataIndexToEntity[newDataIndex];
             _entityToDataIndex[movedEntityId] = newDataIndex;
         }
 
@@ -240,7 +230,7 @@ namespace BitterECS.Core
 
         private void ResizeToCapacity(int capacity)
         {
-            int newCapacity = Math.Max(capacity, _components.Length * EcsConfig.PoolGrowthFactor);
+            var newCapacity = Math.Max(capacity, _components.Length * EcsConfig.PoolGrowthFactor);
             Array.Resize(ref _components, newCapacity);
             Array.Resize(ref _dataIndexToEntity, newCapacity);
             Array.Resize(ref _isFree, newCapacity);
@@ -264,7 +254,7 @@ namespace BitterECS.Core
         {
             var occupiedCount = _count - _freeIndices.Count;
             var newArrays = CreateCompactArrays(occupiedCount);
-            
+
             CopyUsedElementsToNewArrays(newArrays);
             ReplaceArrays(newArrays, occupiedCount);
         }
@@ -280,8 +270,8 @@ namespace BitterECS.Core
 
         private void CopyUsedElementsToNewArrays((T[] components, int[] indexToEntity, bool[] isFree) newArrays)
         {
-            int newIndex = 0;
-            for (int i = 0; i < _count; i++)
+            var newIndex = 0;
+            for (var i = 0; i < _count; i++)
             {
                 if (!_isFree[i])
                 {
@@ -313,7 +303,7 @@ namespace BitterECS.Core
 
         public IEnumerable<int> GetEntityIds()
         {
-            for (int i = 0; i < _count; i++)
+            for (var i = 0; i < _count; i++)
             {
                 if (!_isFree[i])
                 {
@@ -322,7 +312,7 @@ namespace BitterECS.Core
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ClearAllData();
         }
@@ -346,7 +336,7 @@ namespace BitterECS.Core
 
         private void ResetEntityMappings()
         {
-            for (int i = 0; i < _entityToDataIndex.Length; i++)
+            for (var i = 0; i < _entityToDataIndex.Length; i++)
             {
                 _entityToDataIndex[i] = -1;
             }

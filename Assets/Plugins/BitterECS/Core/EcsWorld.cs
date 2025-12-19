@@ -3,11 +3,38 @@ using System.Collections.Generic;
 
 namespace BitterECS.Core
 {
+    public readonly struct RefWorldVersion
+    {
+        private readonly int _version;
+
+        public int Version => _version;
+
+        internal RefWorldVersion(int version = -1)
+        {
+            _version = version;
+        }
+
+        public RefWorldVersion Increment() => new(_version + 1);
+
+        public bool Equals(RefWorldVersion other) => _version == other._version;
+        public override bool Equals(object obj) => obj is RefWorldVersion other && Equals(other);
+        public override int GetHashCode() => _version;
+        public override string ToString() => $"World(v{_version})";
+
+        public static bool operator ==(RefWorldVersion left, RefWorldVersion right) => left.Equals(right);
+
+        public static bool operator !=(RefWorldVersion left, RefWorldVersion right) => !left.Equals(right);
+
+        public static RefWorldVersion operator ++(RefWorldVersion world) => world.Increment();
+    }
+
     public sealed class EcsWorld : IDisposable
     {
         private static EcsWorld s_instance;
         public static EcsWorld Instance => s_instance ??= new EcsWorld();
         private readonly Dictionary<Type, EcsPresenter> _ecsPresenters = new(EcsConfig.InitialPresentersCapacity);
+
+        private RefWorldVersion _world = new(0);
 
         private EcsWorld() => LoadAllPresenters();
 
@@ -25,7 +52,7 @@ namespace BitterECS.Core
             }
         }
 
-        public EcsPresenter GetInternal(Type type)
+        internal EcsPresenter GetInternal(Type type)
         {
             if (_ecsPresenters.TryGetValue(type, out var value))
             {
@@ -35,7 +62,7 @@ namespace BitterECS.Core
             throw new Exception($"Presenter not found");
         }
 
-        public T GetInternal<T>() where T : EcsPresenter, new()
+        internal T GetInternal<T>() where T : EcsPresenter, new()
         {
             if (_ecsPresenters.TryGetValue(typeof(T), out var value))
             {
@@ -45,7 +72,7 @@ namespace BitterECS.Core
             throw new Exception($"Presenter not found: {typeof(T)} count: {_ecsPresenters.Count}");
         }
 
-        public EcsPresenter GetToEntityTypeInternal(Type type)
+        internal EcsPresenter GetToEntityTypeInternal(Type type)
         {
             foreach (var presenter in _ecsPresenters.Values)
             {
@@ -58,7 +85,7 @@ namespace BitterECS.Core
             throw new Exception($"No presenter found that can handle type: {type} count: {_ecsPresenters.Count}");
         }
 
-        public EcsPresenter GetToEntityTypeInternal<T>() where T : EcsEntity
+        internal EcsPresenter GetToEntityTypeInternal<T>() where T : EcsEntity
         {
             foreach (var presenter in _ecsPresenters.Values)
             {
@@ -71,10 +98,10 @@ namespace BitterECS.Core
             throw new Exception($"No presenter found that can handle type: {typeof(T)} count: {_ecsPresenters.Count}");
         }
 
-        public ICollection<EcsPresenter> GetAllInternal()
-        {
-            return _ecsPresenters.Values;
-        }
+        internal ICollection<EcsPresenter> GetAllInternal() => _ecsPresenters.Values;
+
+        public RefWorldVersion GetWorld() => _world;
+        public RefWorldVersion IncreaseWorldVersion() => _world = _world.Increment();
 
         public void Dispose()
         {
@@ -87,10 +114,13 @@ namespace BitterECS.Core
             s_instance = null;
         }
 
+        public static void Clear() => Instance.Dispose();
         public static EcsPresenter Get(Type type) => Instance.GetInternal(type);
         public static T Get<T>() where T : EcsPresenter, new() => Instance.GetInternal<T>();
         public static EcsPresenter GetToEntityType(Type type) => Instance.GetToEntityTypeInternal(type);
         public static EcsPresenter GetToEntityType<T>() where T : EcsEntity => Instance.GetToEntityTypeInternal<T>();
         public static ICollection<EcsPresenter> GetAll() => Instance.GetAllInternal();
+        public static RefWorldVersion GetRefWorld() => Instance.GetWorld();
+        public static RefWorldVersion IncreaseVersion() => Instance.IncreaseWorldVersion();
     }
 }

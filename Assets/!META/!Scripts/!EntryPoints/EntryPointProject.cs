@@ -14,7 +14,7 @@ using UnityEngine.InputSystem.UI;
 
 
 #if UNITY_EDITOR
-using Unity.Multiplayer.Playmode;
+
 #endif
 
 public class EntryPointProject : LifetimeScope
@@ -213,7 +213,7 @@ public class EntryPointProject : LifetimeScope
 #if UNITY_EDITOR
     private void ConfigureEditorMode(IContainerBuilder builder)
     {
-        var tags = CurrentPlayer.ReadOnlyTags();
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
 
         if (tags.Contains("Server") || tags.Contains("Client"))
         {

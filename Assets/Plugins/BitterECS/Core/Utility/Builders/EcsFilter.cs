@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace BitterECS.Core
@@ -12,21 +11,25 @@ namespace BitterECS.Core
         private int _includeCount;
         private int _excludeCount;
 
-        private readonly Dictionary<EcsEntity, int> _filteredCache;
+        private RefWorldVersion _refWorld;
+        private EcsEntity[] _filteredCache;
+        private int _filteredLength;
 
         public readonly ReadOnlySpan<ICondition> IncludeSpan => new(_includeConditions, 0, _includeCount);
         public readonly ReadOnlySpan<ICondition> ExcludeSpan => new(_excludeConditions, 0, _excludeCount);
-        public readonly ReadOnlySpan<EcsEntity> Entities => _presenter.GetAll();
 
         public EcsFilter(EcsPresenter presenter)
         {
-            _presenter = presenter;
+            _presenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
             _includeConditions = new ICondition[EcsConfig.FilterConditionInclude];
             _excludeConditions = new ICondition[EcsConfig.FilterConditionExclude];
             _includeCount = 0;
             _excludeCount = 0;
 
-            _filteredCache = new(EcsConfig.FilterCacheCapacity);
+            _refWorld = new();
+
+            _filteredCache = new EcsEntity[GetRequiredCapacity(presenter)];
+            _filteredLength = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,7 +47,7 @@ namespace BitterECS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsFilter Where<T>(Func<T, bool> predicate) where T : struct
+        public EcsFilter Where<T>(Predicate<T> predicate) where T : struct
         {
             AddCondition(_includeConditions, new ComponentPredicateCondition<T>(predicate), ref _includeCount);
             return this;
@@ -56,9 +59,13 @@ namespace BitterECS.Core
             {
                 Array.Resize(ref conditions, conditions.Length * 2);
                 if (conditions == _includeConditions)
+                {
                     _includeConditions = conditions;
+                }
                 else
+                {
                     _excludeConditions = conditions;
+                }
             }
 
             conditions[count] = newCondition;
@@ -68,50 +75,92 @@ namespace BitterECS.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private readonly bool MatchesAllConditions(EcsEntity entity)
         {
-            for (int i = 0; i < IncludeSpan.Length; i++)
+            for (var i = 0; i < IncludeSpan.Length; i++)
             {
                 if (!IncludeSpan[i].Check(entity))
+                {
                     return false;
+                }
             }
 
-            for (int i = 0; i < ExcludeSpan.Length; i++)
+            for (var i = 0; i < ExcludeSpan.Length; i++)
             {
                 if (!ExcludeSpan[i].Check(entity))
+                {
                     return false;
+                }
             }
 
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private readonly IReadOnlyCollection<EcsEntity> ValidationOnFilter()
-        {
-            foreach (var entity in Entities)
-            {
-                _filteredCache.TryGetValue(entity, out var cachedCount);
+        private static int GetRequiredCapacity(EcsPresenter presenter) => presenter.CountEntity + (presenter.CountEntity / 4);
 
-                if (cachedCount == entity.Properties.Count)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureCacheCapacity()
+        {
+            var requiredCapacity = GetRequiredCapacity(_presenter);
+            var requiredCapacityMax = requiredCapacity + (requiredCapacity / 2);
+            if (_filteredCache.Length >= requiredCapacity && _filteredCache.Length < requiredCapacityMax)
+            {
+                return;
+            }
+
+            Array.Resize(ref _filteredCache, requiredCapacity);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ReadOnlySpan<EcsEntity> ValidationCacheOnFilter()
+        {
+            EnsureCacheCapacity();
+
+            if (_refWorld != EcsWorld.GetRefWorld())
+            {
+                RebuildCache();
+                _refWorld = EcsWorld.GetRefWorld();
+            }
+
+            var filteringSpan = new ReadOnlySpan<EcsEntity>(_filteredCache, 0, _filteredLength);
+            return filteringSpan;
+        }
+
+        private void RebuildCache()
+        {
+            var aliveEntities = _presenter.GetAliveEntities();
+            ResetFilteredCache();
+
+            for (var i = 0; i < aliveEntities.Length; i++)
+            {
+                var entity = aliveEntities[i];
+                if (!MatchesAllConditions(entity))
                 {
                     continue;
                 }
 
-                if (MatchesAllConditions(entity))
-                {
-                    _filteredCache.TryAdd(entity, entity.Properties.Count);
-                }
-                else
-                {
-                    _filteredCache.Remove(entity);
-                }
+                AddToFilteredCache(entity);
             }
-
-            return _filteredCache.Keys;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly IReadOnlyCollection<EcsEntity> Collect()
+        private void ResetFilteredCache() => _filteredLength = 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AddToFilteredCache(EcsEntity entity = default)
         {
-            return ValidationOnFilter();
+            _filteredCache[_filteredLength] = entity;
+            _filteredLength++;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly FilterEnumerator Collect() => new(this);
+        public ReadOnlySpan<EcsEntity>.Enumerator GetEnumerator() => ValidationCacheOnFilter().GetEnumerator();
+
+
+        public ref struct FilterEnumerator
+        {
+            private EcsFilter _filter;
+            public FilterEnumerator(in EcsFilter filter) => _filter = filter;
+            public ReadOnlySpan<EcsEntity>.Enumerator GetEnumerator() => _filter.ValidationCacheOnFilter().GetEnumerator();
         }
     }
 
@@ -135,17 +184,11 @@ namespace BitterECS.Core
 
     public readonly struct ComponentPredicateCondition<T> : ICondition where T : struct
     {
-        private readonly Func<T, bool> _predicate;
+        private readonly Predicate<T> _predicate;
 
-        public ComponentPredicateCondition(Func<T, bool> predicate)
-        {
-            _predicate = predicate;
-        }
+        public ComponentPredicateCondition(Predicate<T> predicate) => _predicate = predicate;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Check(EcsEntity entity)
-        {
-            return entity.Has<T>() && _predicate(entity.Get<T>());
-        }
+        public bool Check(EcsEntity entity) => entity.Has<T>() && _predicate(entity.Get<T>());
     }
 }

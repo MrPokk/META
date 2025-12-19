@@ -17,7 +17,8 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 
     private void MoveUnPressingSystem(InputAction.CallbackContext context)
     {
-        var controllableEntity = EcsWorld.Get<PlayerPresenter>().Filter()
+        var controllableEntity = Build.For<PlayerPresenter>()
+        .Filter()
         .Include<ControllableComponent>()
         .Collect();
 
@@ -31,7 +32,8 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
     private void MovePressingSystem(InputAction.CallbackContext context)
     {
         var direction = context.ReadValue<Vector2>();
-        var controllableEntity = EcsWorld.Get<PlayerPresenter>().Filter()
+        var controllableEntity = Build.For<PlayerPresenter>()
+        .Filter()
         .Include<ControllableComponent>()
         .Collect();
 

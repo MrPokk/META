@@ -8,16 +8,17 @@ public partial class PlayableMoveSystem : IClientConnectedFixedRun
     public Priority PrioritySystem => Priority.High;
 
     private EcsFilter _ecsFilter =
-        EcsWorld.Get<PlayerPresenter>().Filter()
-                .Include<MovingComponent>()
-                .Include<StateComponent>();
+    Build.For<PlayerPresenter>()
+        .Filter()
+        .Include<MovingComponent>()
+        .Include<StateComponent>();
 
     public void FixedRun()
     {
-        MovePlayer(_ecsFilter.Collect());
+        MovePlayer(ref _ecsFilter);
     }
 
-    private void MovePlayer(IReadOnlyCollection<EcsEntity> query)
+    private void MovePlayer(ref EcsFilter query)
     {
         foreach (var entity in query)
         {
