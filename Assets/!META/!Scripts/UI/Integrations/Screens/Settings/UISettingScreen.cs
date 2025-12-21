@@ -11,10 +11,20 @@ public class UISettingScreen : UIScreen
     public override void Open()
     {
         AddListener();
+
+        UINavigationComponent
+            .UsingNavigation(gameObject)
+            .ApplyNavigation(
+                _btnGoToVideo,
+                _btnGoToSound,
+                _btnGoToLanguage,
+                _btnGoToBack);
+
         UIAnimationComponent
-        .UsingAnimation(gameObject)
-        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayOpenAnimation();
+            .UsingAnimation(gameObject)
+            .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+            .PlayOpenAnimation();
+
         base.Open();
     }
 

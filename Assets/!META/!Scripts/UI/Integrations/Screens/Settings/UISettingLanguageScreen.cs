@@ -10,9 +10,15 @@ public class UISettingLanguageScreen : UIScreen
     public override void Open()
     {
         AddListener();
+
+        UINavigationComponent
+            .UsingNavigation(gameObject)
+            .ApplyNavigation(
+                _btnGoToBack);
+
         UIAnimationComponent.UsingAnimation(gameObject)
-        .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayOpenAnimation();
+            .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
+            .PlayOpenAnimation();
         base.Open();
     }
 

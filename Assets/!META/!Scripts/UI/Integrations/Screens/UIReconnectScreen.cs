@@ -10,6 +10,13 @@ public class UIReconnectScreen : UIScreen
     public override void Open()
     {
         AddListener();
+
+        UINavigationComponent
+            .UsingNavigation(gameObject)
+            .ApplyNavigation(
+                _btnGoToReconnect,
+                _btnGoToExit);
+
         base.Open();
     }
 

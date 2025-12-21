@@ -145,7 +145,9 @@ public class UIAnimationComponent : MonoBehaviour
     }
 
     public static UIAnimationComponent UsingAnimation(GameObject gameObject) =>
-    gameObject.TryGetComponent(out UIAnimationComponent component) ? component : gameObject.AddComponent<UIAnimationComponent>();
+    gameObject.TryGetComponent(out UIAnimationComponent component) 
+    ? component 
+    : gameObject.AddComponent<UIAnimationComponent>();
 
     public UIAnimationComponent ApplyCanvasGroup(CanvasGroup canvasGroup)
     {

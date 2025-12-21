@@ -10,20 +10,25 @@ public class UIMainScreen : UIScreen
     public override void Open()
     {
         AddListener();
+
+        UINavigationComponent
+            .UsingNavigation(gameObject)
+            .ApplyNavigation(
+                _btnGoToGameplay,
+                _btnGoToSettings, 
+                _btnGoToExit);
+
         UIAnimationComponent
-        .UsingAnimation(gameObject)
-        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayOpenAnimation();
+            .UsingAnimation(gameObject)
+            .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+            .PlayOpenAnimation();
+            
         base.Open();
     }
 
     public override void Close()
     {
         RemoveListener();
-        //UIAnimationComponent
-        //.UsingAnimation(gameObject)
-        //.ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
-        //.PlayCloseAnimation();
         base.Close();
     }
 
@@ -58,4 +63,3 @@ public class UIMainScreen : UIScreen
         Close();
     }
 }
-

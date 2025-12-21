@@ -49,5 +49,6 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
         _inputs.Playable.Move.performed -= MovePressingSystem;
         _inputs.Playable.Move.canceled -= MoveUnPressingSystem;
         _inputs.Disable();
+        _inputs.Dispose();
     }
 }
