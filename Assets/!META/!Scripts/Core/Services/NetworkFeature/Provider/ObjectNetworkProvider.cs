@@ -4,8 +4,6 @@ using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using System;
 using Object = UnityEngine.Object;
-using BitterECS.Core;
-using R3;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
@@ -76,7 +74,7 @@ public class ObjectNetworkProvider : IProviderHandler
     private GameObject FindEntityPrefab(Type entityType)
     {
         var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
-        var entityPrefab = spawnToPrefab.Find(e => e.gameObject.TryGetComponent(entityType, out var entity));
+        var entityPrefab = spawnToPrefab.Find(e => e.TryGetComponent(entityType, out var entity));
 
         if (entityPrefab == null)
         {
@@ -84,7 +82,7 @@ public class ObjectNetworkProvider : IProviderHandler
             return null;
         }
 
-        return entityPrefab.gameObject;
+        return entityPrefab;
     }
 
     private GameObject CreateEntityInstance(in SyncObjectSpawn spawn, GameObject prefab, NetworkConnectionToClient conn)

@@ -24,7 +24,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 18580d875c62dac4a91b47baef943a62, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _OUTLINE_ON
   m_InvalidKeywords:
   - _EMISSION
   - _OUTLINEENABLED_ON
@@ -470,7 +471,7 @@ Material:
     - _OutlineSmoothness: 1
     - _OutlineUseVertexColor: 0
     - _OutlineVisible: 1
-    - _OutlineWidth: 0.0336
+    - _OutlineWidth: 2
     - _Outline_Width: 0
     - _OutlinesStencilLayer: 1
     - _OverrideRamp: 0

@@ -9,14 +9,8 @@ public abstract class EntryPointFloors : LifetimeScope
     [SerializeField] protected List<InjectorToChildren> _injectorToChildren;
     [SerializeField] protected IsPlayerSpawnPoint _playerSpawnPoint;
 
-    public Vector3 PlayerSpawnPoint
-    {
-        get
-        {
-            if (_playerSpawnPoint == null) throw new NullReferenceException("PlayerSpawnPoint is null");
-            return _playerSpawnPoint.transform.position;
-        }
-    }
+    public Vector3 PlayerSpawnPoint => _playerSpawnPoint.transform.position;
+    public Vector3 PlayerSpawnRotationForward => _playerSpawnPoint.transform.forward;
 
     protected override void Awake()
     {
@@ -45,8 +39,15 @@ public abstract class EntryPointFloors : LifetimeScope
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
         var ray = new Ray(_playerSpawnPoint.transform.position, Vector3.down);
+        var position = _playerSpawnPoint.transform.position;
+        var forward = _playerSpawnPoint.transform.forward;
+        var rayForwardRotation = new Ray(position, forward);
+        Gizmos.color = Color.white;
         Gizmos.DrawRay(ray);
+        Gizmos.color = Color.white;
+        Gizmos.DrawRay(rayForwardRotation);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(position, 0.5f);
     }
 }

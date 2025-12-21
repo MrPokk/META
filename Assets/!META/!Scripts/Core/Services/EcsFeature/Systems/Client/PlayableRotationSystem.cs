@@ -1,5 +1,4 @@
 using BitterECS.Core;
-using BitterECS.Integration;
 using UnityEngine;
 
 public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
@@ -23,13 +22,19 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
         foreach (var player in _ecsFilter)
         {
             if (player.Provider is not PlayerProvider monoProvider)
+            {
                 continue;
+            }
 
             if (monoProvider == null || monoProvider.gameObject == null)
+            {
                 continue;
+            }
 
             if (mainCamera == null)
+            {
                 continue;
+            }
 
             var cameraForward = mainCamera.transform.forward;
             cameraForward.y = 0;

@@ -39,8 +39,7 @@ public class EcsNetworkUnity : EcsUnityRoot
 #if UNITY_EDITOR
     private void RunHandlingInEditor()
     {
-        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
-
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.Tags;
         if (tags.Contains("Server"))
         {
             EcsSystems.Run<IServerConnectedRun>(system => system.Run());
@@ -57,8 +56,7 @@ public class EcsNetworkUnity : EcsUnityRoot
 
     private void FixedRunHandlingInEditor()
     {
-        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
-
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.Tags;
         if (tags.Contains("Server"))
         {
             EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());

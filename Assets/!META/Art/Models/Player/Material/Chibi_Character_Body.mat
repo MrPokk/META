@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: f440d9a51b900c4d49742c33ca71b1d3, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _OUTLINE_ON
   m_InvalidKeywords:
   - _OUTLINEENABLED_ON
   m_LightmapFlags: 4
@@ -129,7 +130,7 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Brightness: 0.64
+    - _Brightness: 1.5
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -157,7 +158,7 @@ Material:
     - _OutlineEnabled: 1
     - _OutlineSmoothness: 0.5
     - _OutlineUseVertexColor: 0
-    - _OutlineWidth: 0.03
+    - _OutlineWidth: 1.5
     - _OutlineZOffset: 0.0495
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -169,9 +170,9 @@ Material:
     - _SPECULAR_IOR: 1.5
     - _SPECULAR_ROUGHNESS: 0
     - _Saturation: 1
-    - _ShadowIntensity: 0.094
+    - _ShadowIntensity: 0.3
     - _ShadowSmoothness: 0.0586
-    - _ShadowStep: -0
+    - _ShadowStep: 0.5
     - _ShadowThreshold: 0.193
     - _ShowOutlineOnly: 0
     - _Smoothness: 0.5

@@ -20,6 +20,13 @@ public class SceneLoader
         SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
+    public static void LoadScene(SceneTypes sceneType, Action onComplete)
+    {
+        var sceneName = SceneConfig.GetSceneName(sceneType);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        onComplete?.Invoke();
+    }
+
     public static Scene LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
@@ -42,7 +49,7 @@ public class SceneLoader
         await asyncOp.ToUniTask();
     }
 
-    public static async UniTask LoadSceneAsync(SceneTypes sceneType, System.Action onComplete = null)
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType, Action onComplete = null)
     {
         var sceneName = SceneConfig.GetSceneName(sceneType);
         var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);

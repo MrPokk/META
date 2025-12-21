@@ -12,18 +12,18 @@ using BitterECS.Integration;
 using BitterECS.Extra;
 using UnityEngine.InputSystem.UI;
 
-
-#if UNITY_EDITOR
-
-#endif
-
 public class EntryPointProject : LifetimeScope
 {
     [Header("Configurations")]
     [SerializeField] private LoggerConfig _loggerConfig;
     [SerializeField] private NetworkConfig _networkConfig;
     [SerializeField] private SceneConfig _sceneConfig;
+
+    [Header("UI")]
     [SerializeField] private InputSystemUIInputModule _inputSystemUIInputModule;
+
+    [Header("Services")]
+    [SerializeField] private VFXService _visualEffectService;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -87,7 +87,7 @@ public class EntryPointProject : LifetimeScope
         var providerTypes = ReflectionUtility.FindAllAssignments<IProviderHandler>();
         foreach (var type in providerTypes)
         {
-            builder.Register(type, Lifetime.Singleton).As(type).AsImplementedInterfaces();
+            builder.Register(type, Lifetime.Singleton).AsSelf().AsImplementedInterfaces();
         }
 
         builder.Register<ConnectionInfo>(Lifetime.Singleton);
@@ -97,6 +97,7 @@ public class EntryPointProject : LifetimeScope
     {
         builder.Register<TeleportService>(Lifetime.Singleton);
         builder.Register<QuestionService>(Lifetime.Singleton);
+        builder.RegisterInstance(CreateVFXService(_visualEffectService)).AsSelf();
     }
 
     private void RegisterUIEntryPoint(IContainerBuilder builder)
@@ -112,6 +113,13 @@ public class EntryPointProject : LifetimeScope
     private void InitializeLogger()
     {
         LoggerUtility.Initialize(_loggerConfig);
+    }
+
+    private VFXService CreateVFXService(VFXService prefabVfx)
+    {
+        var vfxService = Instantiate(prefabVfx);
+        DontDestroyOnLoad(vfxService.gameObject);
+        return vfxService;
     }
 
     private SceneLoader CreateSceneLoader()
@@ -213,7 +221,7 @@ public class EntryPointProject : LifetimeScope
 #if UNITY_EDITOR
     private void ConfigureEditorMode(IContainerBuilder builder)
     {
-        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.ReadOnlyTags();
+        var tags = Unity.Multiplayer.PlayMode.CurrentPlayer.Tags;
 
         if (tags.Contains("Server") || tags.Contains("Client"))
         {

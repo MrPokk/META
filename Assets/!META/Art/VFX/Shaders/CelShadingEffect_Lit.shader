@@ -2,132 +2,102 @@ Shader "VFX-GAME/CelShading/CelShadingEffect_Lit"
 {
     Properties
     {
+        [Header(Base)]
         _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
         _BaseMap ("Base Map", 2D) = "white" {}
+        
+        [Header(Lighting)]
         _ShadowColor ("Shadow Color", Color) = (0.4, 0.4, 0.4, 1)
         _ShadowStep ("Shadow Step", Range(-1, 1)) = 0.1
+        _ShadowSmoothness ("Shadow Smoothness", Range(0, 0.5)) = 0.02
+        _ShadowIntensity ("Shadow Intensity", Range(0, 1)) = 0.8
+        
+        [Header(Rim Light)]
         _RimColor ("Rim Color", Color) = (1, 1, 1, 1)
         _RimPower ("Rim Power", Range(0.1, 10)) = 3
         _RimThreshold ("Rim Threshold", Range(0, 1)) = 0.5
-        
-        _Brightness ("Brightness", Range(0, 2)) = 1
-        _Contrast ("Contrast", Range(0, 2)) = 1
-        _ShadowIntensity ("Shadow Intensity", Range(0, 1)) = 0.8
 
         [Header(Outline)]
         _OutlineColor ("Outline Color", Color) = (0, 0, 0, 1)
-        _OutlineWidth ("Outline Width", Range(0, 0.1)) = 0.03
-        _OutlineSmoothness ("Outline Smoothness", Range(0, 1)) = 0.5
-        [Toggle]_OutlineUseVertexColor ("Use Vertex Color Alpha", Float) = 0
-        [Toggle]_OutlineEnabled ("Outline Enabled", Float) = 1
-        
-        [Toggle]_DebugNormals ("Debug Normals", Float) = 0
-        [Toggle]_InvertNormals ("Invert Normals", Float) = 0
+        _OutlineWidth ("Outline Width", Range(1, 5)) = 1
+        [Toggle(_OUTLINE_ON)] _OutlineEnabled ("Enable Outline", Float) = 1
     }
     
     SubShader
     {
-        Tags 
-        { 
-            "RenderType" = "Opaque"
-            "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Geometry"
-        }
+        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry" }
 
-        // ========== ПРОХОД КОНТУРА ==========
+        HLSLINCLUDE
+        #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+        CBUFFER_START(UnityPerMaterial)
+            float4 _BaseMap_ST;
+            half4 _BaseColor;
+            half4 _ShadowColor;
+            half _ShadowStep;
+            half _ShadowSmoothness;
+            half _ShadowIntensity;
+            half4 _RimColor;
+            half _RimPower;
+            half _RimThreshold;
+            half4 _OutlineColor;
+            half _OutlineWidth;
+            half _OutlineEnabled; 
+        CBUFFER_END
+        ENDHLSL
+
+        // 1. OUTLINE PASS
         Pass
         {
             Name "Outline"
             Tags { "LightMode" = "SRPDefaultUnlit" }
-            
             Cull Front
-            ZWrite On
-            ZTest LEqual
-            
+            Offset 1, 1
+
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature_local _OUTLINE_ON
             
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            
-            struct Attributes
-            {
+            struct Attributes {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
-                float4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
-            
-            struct Varyings
-            {
+
+            struct Varyings {
                 float4 positionCS : SV_POSITION;
-                float4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
-            
-            CBUFFER_START(UnityPerMaterial)
-                half4 _OutlineColor;
-                half _OutlineWidth;
-                half _OutlineSmoothness;
-                half _OutlineUseVertexColor;
-                half _OutlineEnabled;
-            CBUFFER_END
-            
-            // Основной метод контура
-            Varyings vert(Attributes input)
-            {
+
+            Varyings vert(Attributes input) {
                 Varyings output;
-                
-                // Если контур отключен, просто передаем позицию
-                if (_OutlineEnabled < 0.5)
-                {
-                    VertexPositionInputs positionInputs = GetVertexPositionInputs(input.positionOS.xyz);
-                    output.positionCS = positionInputs.positionCS;
-                    output.color = input.color;
-                    return output;
-                }
-                
-                // Получаем позицию в мировом пространстве
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                
-                // Получаем нормаль в мировом пространстве
-                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
-                normalWS = normalize(normalWS);
-                
-                // Смещаем позицию вдоль нормали
-                positionWS += normalWS * _OutlineWidth;
-                
-                // Преобразуем в пространство камеры
-                output.positionCS = TransformWorldToHClip(positionWS);
-                
-                output.color = input.color;
-                
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                #if _OUTLINE_ON
+                    float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                    float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+                    
+                    float dist = distance(positionWS, _WorldSpaceCameraPos);
+                    float width = _OutlineWidth * 0.01 * sqrt(dist);
+                    positionWS += normalWS * width;
+                    
+                    output.positionCS = TransformWorldToHClip(positionWS);
+                #else
+                    output.positionCS = float4(0,0,0,0);
+                #endif
                 return output;
             }
-            
-            half4 frag(Varyings input) : SV_Target
-            {
-                // Если контур отключен, возвращаем прозрачный цвет
-                if (_OutlineEnabled < 0.5)
-                {
-                    return half4(0, 0, 0, 0);
-                }
-                
-                half4 outlineColor = _OutlineColor;
-                
-                // Если используем альфа-канал цвета вершины для контроля контура
-                if (_OutlineUseVertexColor > 0.5)
-                {
-                    outlineColor.a *= input.color.a;
-                }
-                
-                // Добавляем небольшую плавность краям
-                outlineColor.a *= _OutlineSmoothness;
-                
-                return outlineColor;
+
+            half4 frag(Varyings input) : SV_Target {
+                UNITY_SETUP_INSTANCE_ID(input);
+                return _OutlineColor;
             }
             ENDHLSL
         }
 
-        // ========== ОСНОВНОЙ ПРОХОД ==========
+        // 2. MAIN PASS
         Pass
         {
             Name "ForwardLit"
@@ -136,242 +106,105 @@ Shader "VFX-GAME/CelShading/CelShadingEffect_Lit"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS_CASCADE
-            
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile_instancing
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            
-            struct Attributes
-            {
+
+            struct Attributes {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
-                float2 texcoord : TEXCOORD0;
-            };
-            
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float3 normalWS : TEXCOORD1;
-                float3 positionWS : TEXCOORD2;
-                float3 viewDirWS : TEXCOORD3;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
-            
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
-            
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseMap_ST;
-                half4 _BaseColor;
-                half4 _ShadowColor;
-                half _ShadowStep;
-                half4 _RimColor;
-                half _RimPower;
-                half _RimThreshold;
-                half _Brightness;
-                half _Contrast;
-                half _ShadowIntensity;
-                half _DebugNormals;
-                half _InvertNormals;
-            CBUFFER_END
-            
-            Varyings vert(Attributes input)
-            {
+
+            struct Varyings {
+                float4 positionCS : SV_POSITION;
+                float3 normalWS : TEXCOORD0;
+                float3 viewDirWS : TEXCOORD1;
+                float2 uv : TEXCOORD3;
+                float4 shadowCoord : TEXCOORD4;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+
+            Varyings vert(Attributes input) {
                 Varyings output;
-                
-                VertexPositionInputs positionInputs = GetVertexPositionInputs(input.positionOS.xyz);
-                output.positionCS = positionInputs.positionCS;
-                output.positionWS = positionInputs.positionWS;
-                
-                VertexNormalInputs normalInputs = GetVertexNormalInputs(input.normalOS);
-                output.normalWS = normalInputs.normalWS;
-                
-                // Инвертируем нормали если нужно
-                if (_InvertNormals > 0.5)
-                {
-                    output.normalWS = -output.normalWS;
-                }
-                
-                output.viewDirWS = GetWorldSpaceNormalizeViewDir(output.positionWS);
-                output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
-                
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+
+                VertexPositionInputs posInputs = GetVertexPositionInputs(input.positionOS.xyz);
+                output.positionCS = posInputs.positionCS;
+                output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.viewDirWS = GetWorldSpaceNormalizeViewDir(posInputs.positionWS);
+                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                output.shadowCoord = GetShadowCoord(posInputs);
+
                 return output;
             }
-            
-            half4 frag(Varyings input) : SV_Target
-            {
-                // Sample texture
-                half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
-                
-                // Если включена отладка нормалей, показываем их цветом
-                if (_DebugNormals > 0.5)
-                {
-                    float3 normal = normalize(input.normalWS);
-                    return half4(normal * 0.5 + 0.5, 1.0);
-                }
-                
-                // Получаем направление света
-                Light mainLight = GetMainLight();
-                float3 lightDir = normalize(mainLight.direction);
-                
-                // Нормализуем нормаль
+
+            half4 frag(Varyings input) : SV_Target {
+                UNITY_SETUP_INSTANCE_ID(input);
+
+                half4 texColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
                 float3 normal = normalize(input.normalWS);
                 float3 viewDir = normalize(input.viewDirWS);
+
+                Light light = GetMainLight(input.shadowCoord);
                 
-                // ========== ИСПРАВЛЕНИЕ ДЛЯ ЧЕРНОЙ ПЕРЕДНЕЙ ЧАСТИ ==========
-                // ВАЖНО: Проблема в том, что dot(normal, lightDir) может быть отрицательным
-                // когда нормаль смотрит от источника света
+                float NdotL = dot(normal, light.direction);
+                float v = (NdotL + 1.0) * 0.5;
+                float lightIntensity = smoothstep(_ShadowStep - _ShadowSmoothness, _ShadowStep + _ShadowSmoothness, v);
+                lightIntensity *= light.shadowAttenuation;
+
+                half3 shadowRGB = texColor.rgb * _ShadowColor.rgb * _ShadowIntensity;
+                half3 finalRGB = lerp(shadowRGB, texColor.rgb, lightIntensity);
                 
-                // Способ 1: Используем только положительные значения (стандартный подход)
-                // float NdotL = max(0, dot(normal, lightDir));
+                float rim = pow(1.0 - saturate(dot(normal, viewDir)), _RimPower);
+                rim = smoothstep(_RimThreshold - 0.05, _RimThreshold + 0.05, rim);
+                finalRGB += rim * _RimColor.rgb * lightIntensity;
                 
-                // Способ 2: Преобразуем [-1, 1] в [0, 1] и добавляем ambient
-                float NdotL = dot(normal, lightDir);
-                
-                // Преобразуем NdotL из [-1, 1] в [0, 1]
-                float adjustedNdotL = (NdotL + 1.0) * 0.5;
-                
-                // Добавляем небольшую ambient составляющую, чтобы избежать полной темноты
-                adjustedNdotL = max(adjustedNdotL, 0.2);
-                
-                // Применяем контраст и яркость
-                adjustedNdotL = saturate((adjustedNdotL - 0.5) * _Contrast + 0.5) * _Brightness;
-                
-                // Cel shading с учетом ShadowStep
-                float shadowThreshold = (_ShadowStep + 1.0) * 0.5;
-                float shadowSmoothness = 0.05;
-                float lightIntensity = smoothstep(
-                    shadowThreshold - shadowSmoothness, 
-                    shadowThreshold + shadowSmoothness, 
-                    adjustedNdotL
-                );
-                
-                // Базовый цвет с тенью
-                half3 shadedColor = lerp(
-                    baseColor.rgb * _ShadowColor.rgb * _ShadowIntensity, 
-                    baseColor.rgb, 
-                    lightIntensity
-                );
-                
-                // Rim lighting (ободочное освещение)
-                float rimDot = 1.0 - saturate(dot(normal, viewDir));
-                float rim = pow(rimDot, _RimPower);
-                rim = smoothstep(_RimThreshold - 0.1, _RimThreshold + 0.1, rim);
-                shadedColor += rim * _RimColor.rgb;
-                
-                // Применяем цвет основного света
-                shadedColor *= mainLight.color;
-                
-                // Добавляем ambient освещение (важно для задней части!)
-                half3 ambient = SampleSH(normal) * 0.5;
-                shadedColor += ambient * baseColor.rgb;
-                
-                // Тени (если есть)
-                #if _MAIN_LIGHT_SHADOWS
-                float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS);
-                float shadowAtten = MainLightRealtimeShadow(shadowCoord);
-                shadedColor *= lerp(0.6, 1.0, shadowAtten);
-                #endif
-                
-                return half4(shadedColor, baseColor.a);
+                finalRGB *= light.color;
+                finalRGB += SampleSH(normal) * texColor.rgb * 0.2;
+
+                return half4(finalRGB, texColor.a);
             }
             ENDHLSL
         }
-        
-        // ========== Shadow caster pass ==========
+
+        // 3. SHADOW CASTER
         Pass
         {
             Name "ShadowCaster"
             Tags { "LightMode" = "ShadowCaster" }
-            
-            ZWrite On
-            ZTest LEqual
+            ZWrite On ZTest LEqual
             ColorMask 0
-            Cull Back
-            
+
             HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            
-            struct Attributes
-            {
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            struct Attributes {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
             };
-            
-            struct Varyings
-            {
+
+            struct Varyings {
                 float4 positionCS : SV_POSITION;
             };
-            
-            // Простая версия без сложного shadow bias
-            Varyings vert(Attributes input)
-            {
+
+            Varyings ShadowPassVertex(Attributes input) {
                 Varyings output;
-                
-                // Просто преобразуем позицию без сложных вычислений
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
-                output.positionCS = TransformWorldToHClip(positionWS);
-                
-                // Простой bias чтобы избежать z-fighting
-                #if UNITY_REVERSED_Z
-                    output.positionCS.z -= 0.0001;
-                #else
-                    output.positionCS.z += 0.0001;
-                #endif
-                
+                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+                output.positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _MainLightPosition.xyz));
                 return output;
             }
-            
-            half4 frag(Varyings input) : SV_Target
-            {
-                return 0;
-            }
-            ENDHLSL
-        }
-        
-        // ========== Depth only pass ==========
-        Pass
-        {
-            Name "DepthOnly"
-            Tags { "LightMode" = "DepthOnly" }
-            
-            ZWrite On
-            ColorMask 0
-            
-            HLSLPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-            };
-            
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-            };
-            
-            Varyings vert(Attributes input)
-            {
-                Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                return output;
-            }
-            
-            half4 frag(Varyings input) : SV_Target
-            {
-                return 0;
-            }
+
+            half4 ShadowPassFragment(Varyings input) : SV_Target { return 0; }
             ENDHLSL
         }
     }
-    
-    FallBack "Universal Render Pipeline/Simple Lit"
 }

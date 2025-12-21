@@ -1,19 +1,25 @@
+using Cysharp.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
     public static void ChangeScene(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
-    public void HandlersClient()
-    {
-        NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
-    }
+    private VFXService _vfxService;
+
+    [Inject]
+    public void Inject(VFXService vfxService) => _vfxService = vfxService;
+
+    public void HandlersClient() => NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
 
     private async void OnClientRequest(SceneChangeRequestMessage message)
     {
-        await SceneLoader.LoadSceneAsync(message.sceneType, () => { NetworkUtility.SendMessage(new SceneTransitionCompleteMessage()); });
+        OnClientSceneTransitionStart();
+        await SceneLoader.LoadSceneAsync(message.sceneType, OnClientSceneTransitionResponse);
+        OnClientSceneTransitionComplete();
     }
 
     public void HandlersServer()
@@ -21,6 +27,10 @@ public partial class SceneNetworkProvider : IProviderHandler
         NetworkServer.RegisterHandler<SceneChangeRequestMessage>(OnServerRequest);
         NetworkServer.RegisterHandler<SceneTransitionCompleteMessage>(OnServerTransitionComplete);
     }
+
+    private void OnClientSceneTransitionStart() => _vfxService.DissolveFullScreen.DissolveAmount = 1f;
+    private void OnClientSceneTransitionResponse() => NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
+    private void OnClientSceneTransitionComplete() => _vfxService.DissolveFullScreen.StartDissolve(0f).Forget();
 
     private void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
     {
@@ -91,7 +101,16 @@ public partial class SceneNetworkProvider : IProviderHandler
             return; // TODO make disconnect
         }
 
-        player.transform.position = FindPositionToSpawn(player, entryPoint);
+        player.transform.SetPositionAndRotation(
+            FindPositionToSpawn(player, entryPoint),
+            FindRotationToSpawn(entryPoint));
+
+        Debug.Log($"Player {player.netId} spawned at {player.transform.position} with rotation {player.transform.rotation}");
+    }
+
+    private static Quaternion FindRotationToSpawn(EntryPointFloors entryPoint)
+    {
+        return Quaternion.LookRotation(entryPoint.PlayerSpawnRotationForward);
     }
 
     private static Vector3 FindPositionToSpawn(NetworkIdentity player, EntryPointFloors entryPoint)
@@ -100,20 +119,11 @@ public partial class SceneNetworkProvider : IProviderHandler
         var rayOrigin = entryPoint.PlayerSpawnPoint;
         var ray = new Ray(rayOrigin, Vector3.down);
 
-        var layerMask = ~(1 << 2); // Все слои кроме IgnoreRaycast
+        var layerMask = ~(1 << 2); //IgnoreRaycast
 
         if (Physics.Raycast(ray, out var hit, Mathf.Infinity, layerMask))
         {
-            var playerController = player.GetComponent<CharacterController>();
-
-            var playerHeight = playerController.height;
-            var playerCenter = playerController.center;
-
-            position = hit.point;
-            position.y -= playerCenter.y;
-            position.y += playerHeight / 2f;
-
-            position.y += 0.1f;
+            position = GetPosition(player, hit);
         }
         else
         {
@@ -121,6 +131,22 @@ public partial class SceneNetworkProvider : IProviderHandler
             position = entryPoint.PlayerSpawnPoint;
         }
 
+        return position;
+    }
+
+    private static Vector3 GetPosition(NetworkIdentity player, RaycastHit hit)
+    {
+        Vector3 position;
+        var playerController = player.GetComponent<CharacterController>();
+
+        var playerHeight = playerController.height;
+        var playerCenter = playerController.center;
+
+        position = hit.point;
+        position.y -= playerCenter.y;
+        position.y += playerHeight / 2f;
+
+        position.y += 0.1f;
         return position;
     }
 
