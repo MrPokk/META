@@ -6,8 +6,17 @@ public class UIPopup : WindowBinder
     [SerializeField] private Button _btnClose;
     [SerializeField] private Button _btnAlternativeClose;
 
-    private void OnEnable() => AddListeners();
-    private void OnDisable() => RemoveListeners();
+    public override void Open()
+    {
+        AddListeners();
+        base.Open();
+    }
+
+    public override void Close()
+    {
+        RemoveListeners();
+        base.Close();
+    }
 
     private void AddListeners()
     {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -48,6 +49,9 @@ public class UIRootManager : MonoBehaviour
         CloseScreenInstance();
         _instance = null;
     }
+
+    public static IWindowBinder GetCurrentScreen => Instance?._uiContainer.OpenedScreenBinder;
+    public static IReadOnlyList<IWindowBinder> GetCurrentPopups => Instance?._uiContainer.OpenedBinders.Values.ToList();
 
     public static void OpenScreen<T>() where T : WindowBinder => Instance?.OpenScreenInstance<T>();
     public static void CloseScreen() => Instance?.CloseScreenInstance();

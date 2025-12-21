@@ -29,12 +29,9 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
         }
 
         var monoProvider = entity.Provider as PlayerProvider;
-        var brain = Camera.main.GetComponent<CinemachineBrain>();
-        brain.enabled = false;
         var cameraPosition = monoProvider.CameraObjectComponent.CinemachineCamera.transform.position;
         var cameraRotation = monoProvider.transform.rotation;
         monoProvider.CameraObjectComponent.CinemachineCamera.ForceCameraPosition(cameraPosition, cameraRotation);
-        brain.enabled = true;
         entity.Remove<CameraEventComponent>();
     }
 

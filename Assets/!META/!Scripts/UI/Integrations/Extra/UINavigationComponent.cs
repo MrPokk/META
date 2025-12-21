@@ -5,57 +5,73 @@ using UnityEngine.EventSystems;
 
 public class UINavigationComponent : MonoBehaviour
 {
-    public void SetupNavigation(IList<UIButtonProvider> btnSelectables, bool circularNavigation)
+    private IList<UIButtonProvider> _buttonProviders;
+    private bool _isFirstSelected;
+
+
+    private void SetupNavigation(IList<UIButtonProvider> btnSelectable, bool circularNavigation)
     {
-        if (!btnSelectables.Any())
+        if (!btnSelectable.Any())
         {
             return;
         }
 
-        if (btnSelectables.Count == 1)
-        {
-            SetFirstSelectedButton(btnSelectables[0].gameObject);
-            return;
-        }
+        FindButtonSelected(btnSelectable, circularNavigation);
 
-        for (var i = 0; i < btnSelectables.Count; i++)
+        if (_isFirstSelected)
+        {
+            SetSelectedButton(_buttonProviders[0].gameObject);
+        }
+    }
+
+    private void FindButtonSelected(IList<UIButtonProvider> btnSelectable, bool circularNavigation)
+    {
+        _buttonProviders = btnSelectable;
+        for (var i = 0; i < btnSelectable.Count; i++)
         {
             GameObject upNeighbour = null;
             GameObject downNeighbour = null;
 
-            if (btnSelectables.Count > 1)
+            if (btnSelectable.Count > 1)
             {
                 if (circularNavigation)
                 {
-                    var prevIndex = (i - 1 + btnSelectables.Count) % btnSelectables.Count;
-                    var nextIndex = (i + 1) % btnSelectables.Count;
+                    var prevIndex = (i - 1 + btnSelectable.Count) % btnSelectable.Count;
+                    var nextIndex = (i + 1) % btnSelectable.Count;
 
-                    upNeighbour = btnSelectables[prevIndex].gameObject;
-                    downNeighbour = btnSelectables[nextIndex].gameObject;
+                    upNeighbour = btnSelectable[prevIndex].gameObject;
+                    downNeighbour = btnSelectable[nextIndex].gameObject;
                 }
                 else
                 {
                     if (i > 0)
                     {
-                        upNeighbour = btnSelectables[i - 1].gameObject;
+                        upNeighbour = btnSelectable[i - 1].gameObject;
                     }
 
-                    if (i < btnSelectables.Count - 1)
+                    if (i < btnSelectable.Count - 1)
                     {
-                        downNeighbour = btnSelectables[i + 1].gameObject;
+                        downNeighbour = btnSelectable[i + 1].gameObject;
                     }
                 }
+                btnSelectable[i].SetSelectNeighbours(upNeighbour, downNeighbour);
             }
-
-            btnSelectables[i].SetSelectNeighbours(upNeighbour, downNeighbour);
         }
 
-        SetFirstSelectedButton(btnSelectables[0].gameObject);
+        foreach (var btn in _buttonProviders)
+        {
+            btn.UpdateUI();
+        }
     }
 
-    public void SetFirstSelectedButton(GameObject btnSelectables)
+    private void SetSelectedButton(GameObject btnSelectable)
     {
-        EventSystem.current.SetSelectedGameObject(btnSelectables);
+        EventSystem.current.SetSelectedGameObject(btnSelectable);
+    }
+
+    public void SetFirstSelectedButton()
+    {
+        SetSelectedButton(_buttonProviders[0].gameObject);
     }
 
     public static UINavigationComponent UsingNavigation(GameObject gameObject) =>
@@ -63,16 +79,26 @@ public class UINavigationComponent : MonoBehaviour
     ? component
     : gameObject.AddComponent<UINavigationComponent>();
 
-
-    public UINavigationComponent ApplyNavigation(params UIButtonProvider[] btnSelectables)
+    public UINavigationComponent ApplySelected(int index)
     {
-        SetupNavigation(btnSelectables, true);
+        _isFirstSelected = false;
+        SetSelectedButton(_buttonProviders[index].gameObject);
         return this;
     }
 
-    public UINavigationComponent ApplyNavigation(List<UIButtonProvider> btnSelectables, bool circularNavigation)
+    public UINavigationComponent ApplyFirstSelected()
     {
-        SetupNavigation(btnSelectables, circularNavigation);
+        _isFirstSelected = true;
         return this;
+    }
+
+    public void ApplyNavigation(params UIButtonProvider[] btnSelectable)
+    {
+        SetupNavigation(btnSelectable, true);
+    }
+
+    public void ApplyNavigation(List<UIButtonProvider> btnSelectable, bool circularNavigation)
+    {
+        SetupNavigation(btnSelectable, circularNavigation);
     }
 }

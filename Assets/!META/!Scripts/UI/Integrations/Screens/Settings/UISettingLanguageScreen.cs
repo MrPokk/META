@@ -19,6 +19,7 @@ public class UISettingLanguageScreen : UIScreen
         UIAnimationComponent.UsingAnimation(gameObject)
             .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
             .PlayOpenAnimation();
+            
         base.Open();
     }
 

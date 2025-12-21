@@ -13,6 +13,7 @@ public class UIReconnectScreen : UIScreen
 
         UINavigationComponent
             .UsingNavigation(gameObject)
+            .ApplyFirstSelected()
             .ApplyNavigation(
                 _btnGoToReconnect,
                 _btnGoToExit);

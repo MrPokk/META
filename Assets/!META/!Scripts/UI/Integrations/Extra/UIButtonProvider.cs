@@ -1,5 +1,7 @@
+using System;
 using Michsky.MUIP;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static UnityEngine.UI.Button;
@@ -15,8 +17,18 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
         _buttonManager ??= GetComponent<ButtonManager>();
         _onSubmit ??= new ButtonClickedEvent();
 
+        _buttonManager.onHover.AddListener(OnHover);
+
         _buttonManager.useUINavigation = true;
         _buttonManager.navigationMode = Navigation.Mode.Explicit;
+    }
+
+    private void OnHover()
+    {
+        if (EventSystem.current.currentSelectedGameObject != this.gameObject)
+        {
+            EventSystem.current.SetSelectedGameObject(this.gameObject);
+        }
     }
 
     public void SetSelectNeighbours(GameObject selectOnUp, GameObject selectOnDown)
@@ -25,12 +37,12 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
         _buttonManager.selectOnDown = selectOnDown;
     }
 
-    public void AddListener(UnityEngine.Events.UnityAction action)
+    public void AddListener(UnityAction action)
     {
         _onSubmit?.AddListener(action);
     }
 
-    public void RemoveListener(UnityEngine.Events.UnityAction action)
+    public void RemoveListener(UnityAction action)
     {
         _onSubmit?.RemoveListener(action);
     }
@@ -59,4 +71,14 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
         }
     }
 
+    public void UpdateUI()
+    {
+        _buttonManager.UpdateUI();
+    }
+
+    private void OnDestroy()
+    {
+        _onSubmit?.RemoveAllListeners();
+        _buttonManager.onHover.RemoveAllListeners();
+    }
 }

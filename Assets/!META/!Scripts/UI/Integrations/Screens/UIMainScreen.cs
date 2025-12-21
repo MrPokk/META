@@ -13,6 +13,7 @@ public class UIMainScreen : UIScreen
 
         UINavigationComponent
             .UsingNavigation(gameObject)
+            .ApplyFirstSelected()
             .ApplyNavigation(
                 _btnGoToGameplay,
                 _btnGoToSettings, 
@@ -22,7 +23,7 @@ public class UIMainScreen : UIScreen
             .UsingAnimation(gameObject)
             .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
             .PlayOpenAnimation();
-            
+
         base.Open();
     }
 

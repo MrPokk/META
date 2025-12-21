@@ -8,9 +8,11 @@ public class UISettingVideoScreen : UIScreen
     public override void Open()
     {
         AddListener();
+        
         UIAnimationComponent.UsingAnimation(gameObject)
         .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
         .PlayOpenAnimation();
+
         base.Open();
     }
 
@@ -27,9 +29,11 @@ public class UISettingVideoScreen : UIScreen
     public override void Close()
     {
         RemoveListener();
+        
         UIAnimationComponent.UsingAnimation(gameObject)
         .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
         .PlayCloseAnimation();
+
         base.Close();
     }
 

@@ -1,9 +1,12 @@
+using System.Collections.Generic;
 using Gley.Localization;
 using UnityEngine;
 using VContainer;
 
 public class UITeleportPopup : UIPopup
 {
+
+    private List<UIButtonProvider> _buttons = new();
     [SerializeField] private UIButtonProvider _buttonFloorPrefab;
     [SerializeField] private Transform _buttonContainer;
 
@@ -26,15 +29,21 @@ public class UITeleportPopup : UIPopup
 
     public override void Open()
     {
+        base.Open();
+        
+        UINavigationComponent
+              .UsingNavigation(gameObject)
+              .ApplyFirstSelected()
+              .ApplyNavigation(_buttons, true);
+
+
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        base.Open();
-
         UIAnimationComponent
-        .UsingAnimation(gameObject)
-        .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayOpenAnimation();
+             .UsingAnimation(gameObject)
+             .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+             .PlayOpenAnimation();
     }
 
     public override void Close()
@@ -57,6 +66,7 @@ public class UITeleportPopup : UIPopup
             var textTeleport = $"{API.GetText(WordIDs.FloorID)}: {teleportPoint.FloorNumber}";
             buttonObj.SetText(textTeleport);
             buttonObj.AddListener(() => _teleportService.ExecuteTeleport(teleportPoint));
+            _buttons.Add(buttonObj);
         }
     }
 }

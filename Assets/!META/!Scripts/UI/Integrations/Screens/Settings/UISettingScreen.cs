@@ -14,6 +14,7 @@ public class UISettingScreen : UIScreen
 
         UINavigationComponent
             .UsingNavigation(gameObject)
+            .ApplyFirstSelected()
             .ApplyNavigation(
                 _btnGoToVideo,
                 _btnGoToSound,
@@ -47,10 +48,12 @@ public class UISettingScreen : UIScreen
     public override void Close()
     {
         RemoveListener();
+       
         UIAnimationComponent
         .UsingAnimation(gameObject)
         .ApplyPresetClose(UIAnimationPresets.CreateSlideFromRightPreset())
         .PlayCloseAnimation();
+       
         base.Close();
     }
 
