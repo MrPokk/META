@@ -17,7 +17,9 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
     private EcsEvent _ecsEvent =
     Build.For<PlayerPresenter>()
          .Event()
-         .Subscribe<CameraEventComponent>(OnAddRotationCamera);
+         .SubscribeWhere<CameraEventComponent,ControllableComponent>(
+            EcsConditions.HasAll<CameraEventComponent,ControllableComponent>,
+            OnAddRotationCamera);
 
     private static void OnAddRotationCamera(EcsEntity entity)
     {
