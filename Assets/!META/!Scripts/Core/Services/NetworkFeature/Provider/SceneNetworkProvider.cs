@@ -75,13 +75,13 @@ public partial class SceneNetworkProvider : IProviderHandler
 
         NetworkServer.RemovePlayerForConnection(client, RemovePlayerOptions.Unspawn);
         SceneManager.MoveGameObjectToScene(playerEntity.gameObject, scene);
-        SetPositionPlayerToSpawnPoint(playerEntity, scene);
+        SetPositionPlayerToSpawnPoint(playerEntity, scene, out var position, out var rotation);
         NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
 
-        SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId));
+        SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId, position, rotation));
     }
 
-    private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene)
+    private static void SetPositionPlayerToSpawnPoint(NetworkIdentity player, Scene scene, out Vector3 position, out Quaternion rotation)
     {
         EntryPointFloors entryPoint = null;
 
@@ -98,6 +98,8 @@ public partial class SceneNetworkProvider : IProviderHandler
         if (entryPoint == null)
         {
             LoggerUtility.Error($"No entry point found in scene {scene.name}");
+            position = default;
+            rotation = default;
             return; // TODO make disconnect
         }
 
@@ -105,7 +107,8 @@ public partial class SceneNetworkProvider : IProviderHandler
             FindPositionToSpawn(player, entryPoint),
             FindRotationToSpawn(entryPoint));
 
-        Debug.Log($"Player {player.netId} spawned at {player.transform.position} with rotation {player.transform.rotation}");
+        position = player.transform.position;
+        rotation = player.transform.rotation;
     }
 
     private static Quaternion FindRotationToSpawn(EntryPointFloors entryPoint)

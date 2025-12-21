@@ -31,7 +31,10 @@ public class ObjectNetworkProvider : IProviderHandler
             return;
         }
 
+        provider.transform.SetPositionAndRotation(spawn.position, spawn.rotation);
+
         provider.Entity.Add<ControllableComponent>(new());
+        provider.Entity.Add<CameraEventComponent>(new());
     }
 
     private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
@@ -114,4 +117,8 @@ public class ObjectNetworkProvider : IProviderHandler
     NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), conn);
 
     private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
+}
+
+internal struct CameraEventComponent
+{
 }

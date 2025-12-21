@@ -1,4 +1,5 @@
 using BitterECS.Core;
+using Unity.Cinemachine;
 using UnityEngine;
 
 public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
@@ -6,11 +7,34 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
     public Priority PrioritySystem => Priority.High;
     public Camera mainCamera;
 
-    private EcsFilter _ecsFilter = 
+    private EcsFilter _ecsFilter =
     Build.For<PlayerPresenter>()
          .Filter()
          .Include<ControllableComponent>()
-         .Include<MovingComponent>();
+         .Include<MovingComponent>()
+         .Exclude<CameraEventComponent>();
+
+    private EcsEvent _ecsEvent =
+    Build.For<PlayerPresenter>()
+         .Event()
+         .Subscribe<CameraEventComponent>(OnAddRotationCamera);
+
+    private static void OnAddRotationCamera(EcsEntity entity)
+    {
+        if (!entity.Has<ControllableComponent>())
+        {
+            return;
+        }
+
+        var monoProvider = entity.Provider as PlayerProvider;
+        var brain = Camera.main.GetComponent<CinemachineBrain>();
+        brain.enabled = false;
+        var cameraPosition = monoProvider.CameraObjectComponent.CinemachineCamera.transform.position;
+        var cameraRotation = monoProvider.transform.rotation;
+        monoProvider.CameraObjectComponent.CinemachineCamera.ForceCameraPosition(cameraPosition, cameraRotation);
+        brain.enabled = true;
+        entity.Remove<CameraEventComponent>();
+    }
 
     public void Start()
     {
@@ -41,5 +65,4 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
             monoProvider.transform.rotation = Quaternion.LookRotation(cameraForward).normalized;
         }
     }
-
 }

@@ -15,6 +15,13 @@ public struct SyncObjectSpawn : NetworkMessage
         this.netId = netId;
     }
 
+    public SyncObjectSpawn(uint netId, Vector3 position, Quaternion rotation) : this()
+    {
+        this.netId = netId;
+        this.position = position;
+        this.rotation = rotation;
+    }
+
     public SyncObjectSpawn(SerializedType entityType, Vector3 position, Quaternion rotation) : this()
     {
         entity = entityType;
