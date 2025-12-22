@@ -4,6 +4,7 @@ using UnityEngine;
 public abstract class LocalizedUIElement : MonoBehaviour
 {
     [SerializeField] protected WordIDs _wordID;
+    protected string WordIDString => _wordID.ToString();
 
     protected virtual void Awake()
     {

@@ -23,11 +23,17 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
         _buttonManager.navigationMode = Navigation.Mode.Explicit;
     }
 
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+        gameObject.name = $"BtnUI_{WordIDString}";
+    }
+
     private void OnHover()
     {
-        if (EventSystem.current.currentSelectedGameObject != this.gameObject)
+        if (EventSystem.current.currentSelectedGameObject != gameObject)
         {
-            EventSystem.current.SetSelectedGameObject(this.gameObject);
+            EventSystem.current.SetSelectedGameObject(gameObject);
         }
     }
 
