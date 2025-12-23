@@ -64,20 +64,6 @@ public class DissolveFullScreen : MonoBehaviour
 
         _dissolveMaterial.SetFloat(_shaderPropertyName, target);
     }
-#if UNITY_EDITOR
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            StartDissolve(1f).Forget();
-        }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            StartDissolve(0f).Forget();
-        }
-    }
-#endif
 
     private void OnDestroy()
     {
