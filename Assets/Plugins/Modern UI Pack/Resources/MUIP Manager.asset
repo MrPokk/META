@@ -42,7 +42,7 @@ MonoBehaviour:
   modalWindowContentPanelColor: {r: 1, g: 1, b: 1, a: 0.039215688}
   notificationTitleFont: {fileID: 11400000, guid: 45a3242b2655a4ae098f7dfa1abe2291, type: 2}
   notificationTitleFontSize: 22.5
-  notificationDescriptionFont: {fileID: 11400000, guid: 056d92b560458851e9ec6c4b31625124, type: 2}
+  notificationDescriptionFont: {fileID: 11400000, guid: c1d2c599634f31d328e2875ee7a9d87f, type: 2}
   notificationDescriptionFontSize: 18
   notificationThemeType: 0
   notificationBackgroundColor: {r: 0.45622185, g: 0.5396142, b: 0.6230066, a: 1}

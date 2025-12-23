@@ -1,14 +1,13 @@
 using UnityEngine;
 using VContainer;
+using Gley.Localization;
 
-public class QuestionPoint : MonoBehaviour
+public class QuestionPoint : LocalizedUIElement
 {
     private QuestionService _questionService;
 
-    [SerializeField] private string _title = "NULL";
-    [SerializeField] private string _description = "NULL";
-    public string Title => _title;
-    public string Description => _description;
+    public string Title => GetLocalizedTitle();
+    public string Description => GetLocalizedDescription();
 
     [Inject]
     public void Construct(QuestionService questionService)
@@ -16,9 +15,22 @@ public class QuestionPoint : MonoBehaviour
         _questionService = questionService;
     }
 
-    private void Start()
+    protected override void OnValidate()
+    {
+        _useMultipleWord = true;
+        if (_wordIDs.Count >= 2)
+        {
+            return;
+        }
+        _wordIDs.Add(WordIDs.EnterID);
+        _wordIDs.Add(WordIDs.ExitID);
+        base.OnValidate();
+    }
+
+    protected override void InitializeComponents()
     {
         _questionService?.RegisterQuestion(this);
+        UpdateCurrentValues();
     }
 
     private void OnDestroy()
@@ -41,5 +53,26 @@ public class QuestionPoint : MonoBehaviour
         {
             questions.ExitQuestion(this);
         }
+    }
+
+    public override void SetText(string text)
+    {
+        UpdateCurrentValues();
+    }
+
+    private string GetLocalizedTitle()
+    {
+        return GetLocalizedTextSingle(0);
+    }
+
+    private string GetLocalizedDescription()
+    {
+        return GetLocalizedTextSingle(1);
+    }
+
+    private void UpdateCurrentValues()
+    {
+        GetLocalizedTitle();
+        GetLocalizedDescription();
     }
 }

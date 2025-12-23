@@ -1,4 +1,4 @@
-Shader "VFX-GAME/CelShading/CelShadingEffectMaterial_Unlit_Optimized"
+Shader "VFX-GAME/CelShading/CelShadingEffectMaterial_Unlit"
 {
     Properties
     {

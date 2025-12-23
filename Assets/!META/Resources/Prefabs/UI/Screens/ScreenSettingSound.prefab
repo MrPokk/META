@@ -398,7 +398,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cc5f2da2e05196ecbb87b53c972a8ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wordID: 9
+  _wordIDs: 
+  _separator: ' '
+  _useMultipleWord: 0
 --- !u!1 &1567466211535975819
 GameObject:
   m_ObjectHideFlags: 0
@@ -1903,7 +1905,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cc5f2da2e05196ecbb87b53c972a8ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _wordID: 8
+  _wordIDs: 
+  _separator: ' '
+  _useMultipleWord: 0
 --- !u!1 &8174740751468184392
 GameObject:
   m_ObjectHideFlags: 0
@@ -2266,7 +2270,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -374.17926
+      value: -400.67926
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2302,7 +2306,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 80.32
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2326,7 +2330,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 82.68
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y
@@ -2346,6 +2350,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4298049208270287875, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: _wordID
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4298049208270287875, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
+      propertyPath: '_wordIDs.Array.data[0]'
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7133976538823832953, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
@@ -2386,7 +2394,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 82.68
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y

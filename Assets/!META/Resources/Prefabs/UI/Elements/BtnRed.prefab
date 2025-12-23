@@ -39,7 +39,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
   m_SizeDelta: {x: 0, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &990448344187168595
@@ -225,8 +225,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
-  m_SizeDelta: {x: 90.18, y: 45}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
+  m_SizeDelta: {x: 90.21, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4671052045066968790
 CanvasRenderer:
@@ -790,8 +790,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
-  m_SizeDelta: {x: 90.18, y: 45}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
+  m_SizeDelta: {x: 90.21, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5075190677889426985
 CanvasRenderer:
@@ -1568,7 +1568,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09df02e7a07220478a1a1ae01f4b9eac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonProvider
-  _wordID: 0
+  _wordIDs: 00000000
+  _separator: ' '
+  _useMultipleIDs: 0
   _buttonManager: {fileID: 2360105628705923221}
 --- !u!1 &7231061839774942977
 GameObject:
@@ -2029,7 +2031,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
   m_SizeDelta: {x: 87.18, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6404476325326617507

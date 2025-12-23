@@ -39,7 +39,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
   m_SizeDelta: {x: 0, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &990448344187168595
@@ -225,8 +225,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
-  m_SizeDelta: {x: 90.18, y: 45}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
+  m_SizeDelta: {x: 90.21, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4671052045066968790
 CanvasRenderer:
@@ -256,7 +256,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: EnterID
+  m_text: NULLID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 45a3242b2655a4ae098f7dfa1abe2291, type: 2}
   m_sharedMaterial: {fileID: 2920091138191204645, guid: 45a3242b2655a4ae098f7dfa1abe2291, type: 2}
@@ -790,8 +790,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
-  m_SizeDelta: {x: 90.18, y: 45}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
+  m_SizeDelta: {x: 90.21, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5075190677889426985
 CanvasRenderer:
@@ -821,7 +821,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: EnterID
+  m_text: NULLID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 45a3242b2655a4ae098f7dfa1abe2291, type: 2}
   m_sharedMaterial: {fileID: 2920091138191204645, guid: 45a3242b2655a4ae098f7dfa1abe2291, type: 2}
@@ -1401,7 +1401,7 @@ GameObject:
   - component: {fileID: 3510167477396884267}
   - component: {fileID: 4298049208270287875}
   m_Layer: 5
-  m_Name: BtnUI_EnterID
+  m_Name: BtnUI_NULLID
   m_TagString: Untagged
   m_Icon: {fileID: 2800000, guid: 98d001ce6b3b53242911dcc3d1415f59, type: 3}
   m_NavMeshLayer: 0
@@ -1443,7 +1443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonIcon: {fileID: 21300000, guid: d58c56a572b8c424b977292054ceb745, type: 3}
-  buttonText: EnterID
+  buttonText: NULLID
   iconScale: 1
   textSize: 24
   autoFitContent: 1
@@ -1568,7 +1568,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09df02e7a07220478a1a1ae01f4b9eac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIButtonProvider
-  _wordID: 0
+  _wordIDs: 00000000
+  _separator: ' '
+  _useMultipleWord: 0
   _buttonManager: {fileID: 2360105628705923221}
 --- !u!1 &7231061839774942977
 GameObject:
@@ -2029,7 +2031,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65.09, y: -27.5}
+  m_AnchoredPosition: {x: 65.104996, y: -27.5}
   m_SizeDelta: {x: 87.18, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6404476325326617507
@@ -2060,7 +2062,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: EnterID
+  m_text: NULLID
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 84dd14695854bbc43a5faa24fcf93d0d, type: 2}
   m_sharedMaterial: {fileID: 21261991626553910, guid: 84dd14695854bbc43a5faa24fcf93d0d, type: 2}
