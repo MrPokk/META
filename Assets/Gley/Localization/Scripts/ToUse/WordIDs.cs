@@ -3,6 +3,7 @@ namespace Gley.Localization
 	public enum WordIDs
 	{
 		BackID = 7,
+		ControllableID = 14,
 		Description_Floor3_ID = 30,
 		Description_Floor4_5_ID = 31,
 		Description_Floor6_ID = 32,
@@ -23,6 +24,6 @@ namespace Gley.Localization
 		Title_Floor5_ID = 22,
 		Title_Floor6_ID = 23,
 		VideoID = 4,
-		ControllableID = 14,
+		MouseSensitivityID = 15,
 	}
 }

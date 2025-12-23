@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 5701276427036639742}
   - component: {fileID: 7791025323671088776}
   - component: {fileID: 4208406802535985207}
-  - component: {fileID: 8822858619717112019}
+  - component: {fileID: 3403290664854373136}
   m_Layer: 5
   m_Name: SliderOutlineWhite
   m_TagString: Untagged
@@ -361,7 +361,7 @@ MonoBehaviour:
   handle: {fileID: 5774212965918200769}
   label: {fileID: 3204676644820789855}
   popupLabel: {fileID: 0}
---- !u!114 &8822858619717112019
+--- !u!114 &3403290664854373136
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -370,15 +370,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3810502846682602928}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 609663e8a1c6407e4b7fa791e30d2b41, type: 3}
+  m_Script: {fileID: 11500000, guid: a56325c3101e800e49cbf90941fbecd0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SyncSliderShadows
-  target: {fileID: 0}
-  followMode: 0
-  positionOffset: {x: 0, y: 0, z: 0}
-  scaleOffset: {x: 1, y: 1, z: 1}
-  useLocalScale: 1
-  applyInitialOffset: 0
+  m_EditorClassIdentifier: Assembly-CSharp::UISliderProvider
 --- !u!1 &5066171831734458803
 GameObject:
   m_ObjectHideFlags: 0
