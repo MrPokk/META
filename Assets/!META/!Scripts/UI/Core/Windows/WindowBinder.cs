@@ -16,6 +16,7 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
     {
         if (!this || !gameObject) return;
         gameObject.SetActive(true);
+        CursorService.UnlockCursor();
     }
 
     public virtual void Close()
@@ -27,5 +28,6 @@ public abstract class WindowBinder : MonoBehaviour, IWindowBinder
         {
             Destroy(gameObject);
         }
+        CursorService.LockCursor();
     }
 }

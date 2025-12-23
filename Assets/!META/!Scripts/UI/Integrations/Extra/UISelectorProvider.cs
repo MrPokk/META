@@ -144,7 +144,7 @@ public class UISelectorProvider : MonoBehaviour
                 item.itemTitle = selection.translationName.ToString();
                 _horizontalSelector.items.Add(item);
             }
-            _horizontalSelector.UpdateUI();
+            //   _horizontalSelector.UpdateUI();
         }
     }
 #endif

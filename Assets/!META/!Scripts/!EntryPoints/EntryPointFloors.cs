@@ -16,6 +16,8 @@ public abstract class EntryPointFloors : LifetimeScope
     {
         parentReference = ParentReference.Create<EntryPointProject>();
 
+        CursorService.LockCursor();
+
         base.Awake();
     }
 

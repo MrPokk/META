@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class UISettingVideoScreen : UIScreen
+public class UISettingControllableScreen : UIScreen
 {
     [SerializeField] private UIButtonProvider _btnGoToBack;
 

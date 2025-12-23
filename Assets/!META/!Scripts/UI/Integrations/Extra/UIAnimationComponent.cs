@@ -2,7 +2,6 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using System;
-using System.Collections;
 
 [Serializable]
 public class UIAnimationPreset
@@ -26,7 +25,6 @@ public class UIAnimationComponent : MonoBehaviour
     [SerializeField] private RectTransform _rectTransform;
     [SerializeField] private GraphicRaycaster _raycast;
 
-    private Coroutine _currentCoroutine;
     private Sequence _currentAnimation;
 
     private void Awake()
@@ -52,23 +50,11 @@ public class UIAnimationComponent : MonoBehaviour
         }
     }
 
-    public Coroutine PlayOpenAnimationCoroutine(Action onComplete = null)
-    {
-        CancelCurrentCoroutine();
-        return _currentCoroutine = StartCoroutine(OpenAnimationRoutine(onComplete));
-    }
-
-    public Coroutine PlayCloseAnimationCoroutine(Action onComplete = null)
-    {
-        CancelCurrentCoroutine();
-        return _currentCoroutine = StartCoroutine(CloseAnimationRoutine(onComplete));
-    }
-
-    private IEnumerator OpenAnimationRoutine(Action onComplete = null)
+    public void PlayOpenAnimation()
     {
         if (this == null || gameObject == null)
         {
-            yield break;
+            return;
         }
 
         CancelCurrentAnimation();
@@ -94,28 +80,21 @@ public class UIAnimationComponent : MonoBehaviour
             );
         }
 
-        _currentAnimation.OnComplete(() =>
+        _currentAnimation?.OnComplete(() =>
         {
             if (_canvasGroup != null) _canvasGroup.blocksRaycasts = true;
             if (_raycast != null) _raycast.enabled = true;
+
         });
 
-        _currentAnimation.Play();
-
-        while (_currentAnimation != null && _currentAnimation.IsActive() && _currentAnimation.IsPlaying())
-        {
-            yield return null;
-        }
-
-        onComplete?.Invoke();
-        _currentCoroutine = null;
+        _currentAnimation?.Play();
     }
 
-    private IEnumerator CloseAnimationRoutine(Action onComplete = null)
+    public void PlayCloseAnimation()
     {
         if (this == null || gameObject == null)
         {
-            yield break;
+            return;
         }
 
         CancelCurrentAnimation();
@@ -141,16 +120,7 @@ public class UIAnimationComponent : MonoBehaviour
             );
         }
 
-        _currentAnimation.Play();
-
-        while (_currentAnimation != null && _currentAnimation.IsActive() && _currentAnimation.IsPlaying())
-        {
-            yield return null;
-        }
-
-        gameObject.SetActive(false);
-        onComplete?.Invoke();
-        _currentCoroutine = null;
+        _currentAnimation?.Play();
     }
 
     private void CancelCurrentAnimation()
@@ -164,41 +134,20 @@ public class UIAnimationComponent : MonoBehaviour
         }
     }
 
-    private void CancelCurrentCoroutine()
-    {
-        if (_currentCoroutine != null)
-        {
-            StopCoroutine(_currentCoroutine);
-            _currentCoroutine = null;
-        }
-    }
-
     private void OnEnable()
     {
         CancelCurrentAnimation();
-        CancelCurrentCoroutine();
     }
 
     private void OnDisable()
     {
         CancelCurrentAnimation();
-        CancelCurrentCoroutine();
-    }
-
-    public void PlayOpenAnimation()
-    {
-        PlayOpenAnimationCoroutine();
-    }
-
-    public void PlayCloseAnimation()
-    {
-        PlayCloseAnimationCoroutine();
     }
 
     public static UIAnimationComponent UsingAnimation(GameObject gameObject) =>
-        gameObject.TryGetComponent(out UIAnimationComponent component)
-            ? component
-            : gameObject.AddComponent<UIAnimationComponent>();
+    gameObject.TryGetComponent(out UIAnimationComponent component)
+    ? component
+    : gameObject.AddComponent<UIAnimationComponent>();
 
     public UIAnimationComponent ApplyCanvasGroup(CanvasGroup canvasGroup)
     {

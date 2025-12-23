@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 393109132781466839}
   - component: {fileID: 1388403425818763350}
   m_Layer: 5
-  m_Name: ScreenSettingVideo
+  m_Name: ScreenSettingControllable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -231,7 +231,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -296.5
+      value: -270
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -267,7 +267,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 80.32
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y
@@ -291,7 +291,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 82.68
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y
@@ -355,7 +355,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 82.68
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 8d3fb31e4569a609baf5582cddf4147a, type: 3}
       propertyPath: m_SizeDelta.y

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 15553712915438001}
   - component: {fileID: 6395300173993049825}
   - component: {fileID: 7284613897306740009}
-  - component: {fileID: 4874194266684945632}
+  - component: {fileID: 4683052094219936904}
   m_Layer: 0
   m_Name: '[CameraPlayer]'
   m_TagString: Untagged
@@ -210,7 +210,7 @@ MonoBehaviour:
     NearLimit: 5
     FarLimit: 30
     MaxQualityBoost: 0.2
---- !u!114 &4874194266684945632
+--- !u!114 &4683052094219936904
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -221,7 +221,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89875cdc57c54474a8a74efd9b2a3b5d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineInputAxisController
   ScanRecursively: 1
   SuppressInputWhileBlending: 1
   IgnoreTimeScale: 0
@@ -249,7 +249,7 @@ MonoBehaviour:
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: -0
+      InputValue: 0
       Driver:
         AccelTime: 0.2
         DecelTime: 0.2
@@ -262,7 +262,7 @@ MonoBehaviour:
         LegacyInput: 
         LegacyGain: 1
         CancelDeltaTime: 0
-      InputValue: -0
+      InputValue: 0
       Driver:
         AccelTime: 0
         DecelTime: 0
@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cinemachineCamera: {fileID: 3976248642310640504}
-  _cameraTarget: {fileID: 0}
+  _cameraTarget: {fileID: 1961176070444808639}
 --- !u!1 &7139237703505118340
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,6 +325,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6730684345612366462}
+  - component: {fileID: 1961176070444808639}
   m_Layer: 0
   m_Name: '[CameraTargetPoint]'
   m_TagString: Untagged
@@ -347,3 +348,15 @@ Transform:
   m_Children: []
   m_Father: {fileID: 349090233005243805}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1961176070444808639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7139237703505118340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab48b2e315d553d399f6489a8fc7c653, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraTargetComponent

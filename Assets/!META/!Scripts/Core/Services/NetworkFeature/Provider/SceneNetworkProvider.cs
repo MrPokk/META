@@ -1,24 +1,22 @@
-using Cysharp.Threading.Tasks;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VContainer;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
     public static void ChangeScene(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
-    private VFXService _vfxService;
+    private static void TransitionComplete() => NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
 
-    [Inject]
-    public void Inject(VFXService vfxService) => _vfxService = vfxService;
+    private static void OnClientSceneTransitionStart() => VFXService.OnClientSceneTransitionSet(1f);
+    private static void OnClientSceneTransitionComplete() => VFXService.OnClientSceneTransitionComplete();
 
     public void HandlersClient() => NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
 
     private async void OnClientRequest(SceneChangeRequestMessage message)
     {
         OnClientSceneTransitionStart();
-        await SceneLoader.LoadSceneAsync(message.sceneType, OnClientSceneTransitionResponse);
+        await SceneLoader.LoadSceneAsync(message.sceneType, TransitionComplete);
         OnClientSceneTransitionComplete();
     }
 
@@ -28,9 +26,6 @@ public partial class SceneNetworkProvider : IProviderHandler
         NetworkServer.RegisterHandler<SceneTransitionCompleteMessage>(OnServerTransitionComplete);
     }
 
-    private void OnClientSceneTransitionStart() => _vfxService.DissolveFullScreen.DissolveAmount = 1f;
-    private void OnClientSceneTransitionResponse() => NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
-    private void OnClientSceneTransitionComplete() => _vfxService.DissolveFullScreen.StartDissolve(0f).Forget();
 
     private void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
     {

@@ -18,7 +18,7 @@ public class QuestionPoint : LocalizedUIElement
     protected override void OnValidate()
     {
         _useMultipleWord = true;
-        if (_wordIDs.Count >= 2)
+        if (_wordIDs.Count == 2)
         {
             return;
         }

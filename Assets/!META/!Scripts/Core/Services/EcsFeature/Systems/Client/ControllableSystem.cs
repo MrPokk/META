@@ -133,6 +133,11 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 
     public void Destroy()
     {
+        if (_inputs == null)
+        {
+            return;
+        }
+
         _inputs.Playable.Move.performed -= MovePressingSystem;
         _inputs.Playable.Move.canceled -= MoveUnPressingSystem;
         _inputs.UI.Navigate.performed -= NavigatePressingSystem;

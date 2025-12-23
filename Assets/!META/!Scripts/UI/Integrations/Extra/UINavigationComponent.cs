@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class UINavigationComponent : MonoBehaviour
 {
-    private IList<UIButtonProvider> _buttonProviders;
+    private List<UIButtonProvider> _buttonProviders;
     private bool _isFirstSelected;
 
 
@@ -26,35 +26,36 @@ public class UINavigationComponent : MonoBehaviour
 
     private void FindButtonSelected(IList<UIButtonProvider> btnSelectable, bool circularNavigation)
     {
-        _buttonProviders = btnSelectable;
-        for (var i = 0; i < btnSelectable.Count; i++)
+        _buttonProviders = new List<UIButtonProvider>(btnSelectable);
+
+        for (var i = 0; i < _buttonProviders.Count; i++)
         {
             GameObject upNeighbour = null;
             GameObject downNeighbour = null;
 
-            if (btnSelectable.Count > 1)
+            if (_buttonProviders.Count > 1)
             {
                 if (circularNavigation)
                 {
-                    var prevIndex = (i - 1 + btnSelectable.Count) % btnSelectable.Count;
-                    var nextIndex = (i + 1) % btnSelectable.Count;
+                    var prevIndex = (i - 1 + _buttonProviders.Count) % btnSelectable.Count;
+                    var nextIndex = (i + 1) % _buttonProviders.Count;
 
-                    upNeighbour = btnSelectable[prevIndex].gameObject;
-                    downNeighbour = btnSelectable[nextIndex].gameObject;
+                    upNeighbour = _buttonProviders[prevIndex].gameObject;
+                    downNeighbour = _buttonProviders[nextIndex].gameObject;
                 }
                 else
                 {
                     if (i > 0)
                     {
-                        upNeighbour = btnSelectable[i - 1].gameObject;
+                        upNeighbour = _buttonProviders[i - 1].gameObject;
                     }
 
-                    if (i < btnSelectable.Count - 1)
+                    if (i < _buttonProviders.Count - 1)
                     {
-                        downNeighbour = btnSelectable[i + 1].gameObject;
+                        downNeighbour = _buttonProviders[i + 1].gameObject;
                     }
                 }
-                btnSelectable[i].SetSelectNeighbours(upNeighbour, downNeighbour);
+                _buttonProviders[i].SetSelectNeighbours(upNeighbour, downNeighbour);
             }
         }
 

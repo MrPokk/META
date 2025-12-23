@@ -31,7 +31,7 @@ public class UISettingScreen : UIScreen
 
     private void AddListener()
     {
-        _btnGoToVideo.AddListener(OnGoToVideoButton);
+        _btnGoToVideo.AddListener(OnGoToControllableButton);
         _btnGoToSound.AddListener(OnGoToSoundButton);
         _btnGoToLanguage.AddListener(OnGoToLanguageButton);
         _btnGoToBack.AddListener(OnGoToBackButton);
@@ -39,7 +39,7 @@ public class UISettingScreen : UIScreen
 
     private void RemoveListener()
     {
-        _btnGoToVideo.RemoveListener(OnGoToVideoButton);
+        _btnGoToVideo.RemoveListener(OnGoToControllableButton);
         _btnGoToSound.RemoveListener(OnGoToSoundButton);
         _btnGoToLanguage.RemoveListener(OnGoToLanguageButton);
         _btnGoToBack.RemoveListener(OnGoToBackButton);
@@ -60,5 +60,5 @@ public class UISettingScreen : UIScreen
     private void OnGoToBackButton() => UIRootManager.OpenScreen<UIMainScreen>();
     private void OnGoToLanguageButton() => UIRootManager.OpenScreen<UISettingLanguageScreen>();
     private void OnGoToSoundButton() => UIRootManager.OpenScreen<UISettingSoundScreen>();
-    private void OnGoToVideoButton() => UIRootManager.OpenScreen<UISettingVideoScreen>();
+    private void OnGoToControllableButton() => UIRootManager.OpenScreen<UISettingControllableScreen>();
 }

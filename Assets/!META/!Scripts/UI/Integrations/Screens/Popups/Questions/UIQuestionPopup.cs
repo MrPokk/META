@@ -35,15 +35,10 @@ public class UIQuestionPopup : UIPopup
     public override void Open()
     {
         base.Open();
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
     }
 
     public override void Close()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
         _questionService.OnQuestion -= OnQuestionExecuted;
 
         base.Close();

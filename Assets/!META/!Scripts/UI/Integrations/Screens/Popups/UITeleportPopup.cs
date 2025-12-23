@@ -36,10 +36,6 @@ public class UITeleportPopup : UIPopup
               .ApplyFirstSelected()
               .ApplyNavigation(_buttons, true);
 
-
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-
         UIAnimationComponent
              .UsingAnimation(gameObject)
              .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
@@ -48,8 +44,6 @@ public class UITeleportPopup : UIPopup
 
     public override void Close()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
         _teleportService.OnTeleport -= OnTeleportExecuted;
 
         base.Close();

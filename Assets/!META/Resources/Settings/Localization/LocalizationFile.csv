@@ -2,7 +2,7 @@ ID,EnumID,English,Russian
 BackID,7,Back,Назад
 Description_Floor3_ID,30,The main part of the administration and accounting departments is located there. Includes classrooms and teachers offices.,Основная часть администрации и бухгалтерии сосредоточена там. Включает учебные аудитории и кабинеты преподавателей
 Description_Floor4_5_ID,31,These floors are designed for effective learning and interaction between students and teachers.,Эти этажи созданы для эффективного обучения и взаимодействия студентов с преподавателями.
-Description_Floor6_ID,32,On the sixth floor are computer labs where students complete assignments on the institute's website and work on projects.,"На шестом этаже находятся компьютерные кабинеты{comma} где студенты выполняют задания на сайте института и работают над проектами. "
+Description_Floor6_ID,32,On the sixth floor are computer labs where students complete assignments on the institute's website and work on projects.,На шестом этаже находятся компьютерные кабинеты{comma} где студенты выполняют задания на сайте института и работают над проектами.
 EnterID,13,Enter game,Начать игру
 ExitID,2,Exit,Выйти
 FloorID,10,Floor,Этаж
