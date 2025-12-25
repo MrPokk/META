@@ -1,3 +1,5 @@
+using System;
+using BitterECS.Core;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,18 +8,25 @@ public partial class SceneNetworkProvider : IProviderHandler
 {
     public static void ChangeScene(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
-    private static void TransitionComplete() => NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
-
-    private static void OnClientSceneTransitionStart() => VFXService.OnClientSceneTransitionSet(1f);
-    private static void OnClientSceneTransitionComplete() => VFXService.OnClientSceneTransitionComplete();
-
-    public void HandlersClient() => NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
+    public void HandlersClient()
+    {
+        NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
+    }
 
     private async void OnClientRequest(SceneChangeRequestMessage message)
     {
-        OnClientSceneTransitionStart();
-        await SceneLoader.LoadSceneAsync(message.sceneType, TransitionComplete);
-        OnClientSceneTransitionComplete();
+        await SceneLoader.LoadSceneAsync(message.sceneType, onStart: TransitionStart, onComplete: TransitionComplete);
+    }
+
+    private void TransitionStart()
+    {
+        EcsSystems.Run<IClientSceneTransitionStart>(system => system.OnStart());
+    }
+
+    private static void TransitionComplete()
+    {
+        NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
+        EcsSystems.Run<IClientSceneTransitionComplete>(system => system.OnComplete());
     }
 
     public void HandlersServer()
@@ -25,7 +34,6 @@ public partial class SceneNetworkProvider : IProviderHandler
         NetworkServer.RegisterHandler<SceneChangeRequestMessage>(OnServerRequest);
         NetworkServer.RegisterHandler<SceneTransitionCompleteMessage>(OnServerTransitionComplete);
     }
-
 
     private void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
     {

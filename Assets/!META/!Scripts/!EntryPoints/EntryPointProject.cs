@@ -97,6 +97,7 @@ public class EntryPointProject : LifetimeScope
     {
         builder.Register<TeleportService>(Lifetime.Singleton);
         builder.Register<QuestionService>(Lifetime.Singleton);
+        builder.RegisterInstance<SaveService>(new());
         builder.RegisterInstance(CreateVFXService(_visualEffectService)).AsSelf();
     }
 

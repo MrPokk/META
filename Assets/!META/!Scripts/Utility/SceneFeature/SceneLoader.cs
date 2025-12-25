@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneLoader
@@ -13,55 +14,45 @@ public class SceneLoader
         s_sceneConfig = sceneConfig;
         s_scenesToLoadServer = new(s_sceneConfig.GetServerLoadScenes().Count);
     }
-
-    public static void LoadScene(SceneTypes sceneType)
+    public static void LoadScene(SceneTypes sceneType, Action onComplete = null, Action onStart = null)
     {
-        var sceneName = SceneConfig.GetSceneName(sceneType);
-        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        LoadSceneInternal(sceneType, LoadSceneMode.Single, onComplete, onStart);
     }
 
-    public static void LoadScene(SceneTypes sceneType, Action onComplete)
+    public static Scene LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters, Action onStart = null)
     {
-        var sceneName = SceneConfig.GetSceneName(sceneType);
-        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        onComplete?.Invoke();
-    }
-
-    public static Scene LoadScene(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
-    {
+        onStart?.Invoke();
         var sceneName = SceneConfig.GetSceneName(sceneType);
         return SceneManager.LoadScene(sceneName, loadSceneParameters);
     }
 
-    public static async UniTask LoadSceneAsync(SceneTypes sceneType)
+    public static async UniTask LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters = default, Action onStart = null, Action onComplete = null)
     {
-        var sceneName = SceneConfig.GetSceneName(sceneType);
-        var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-        asyncOp.allowSceneActivation = true;
-        await asyncOp.ToUniTask();
+        await LoadSceneAsyncInternal(sceneType, LoadSceneMode.Single, loadSceneParameters, onComplete, onStart);
     }
 
-    public static async UniTask LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters)
+    private static void LoadSceneInternal(SceneTypes sceneType, LoadSceneMode loadSceneMode, Action onComplete = null, Action onStart = null)
     {
+        onStart?.Invoke();
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        var asyncOp = SceneManager.LoadSceneAsync(sceneName, loadSceneParameters);
-        asyncOp.allowSceneActivation = true;
-        await asyncOp.ToUniTask();
-    }
-
-    public static async UniTask LoadSceneAsync(SceneTypes sceneType, Action onComplete = null)
-    {
-        var sceneName = SceneConfig.GetSceneName(sceneType);
-        var asyncOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-        asyncOp.allowSceneActivation = true;
-        await asyncOp.ToUniTask();
+        SceneManager.LoadScene(sceneName, loadSceneMode);
         onComplete?.Invoke();
     }
 
-    public static async UniTask LoadSceneAsync(SceneTypes sceneType, LoadSceneParameters loadSceneParameters, System.Action onComplete = null)
+    private static async UniTask LoadSceneAsyncInternal(
+        SceneTypes sceneType,
+        LoadSceneMode loadSceneMode,
+        LoadSceneParameters loadSceneParameters = default,
+        Action onComplete = null,
+        Action onStart = null)
     {
+        onStart?.Invoke();
         var sceneName = SceneConfig.GetSceneName(sceneType);
-        var asyncOp = SceneManager.LoadSceneAsync(sceneName, loadSceneParameters);
+
+        var asyncOp = loadSceneParameters.Equals(default(LoadSceneParameters))
+            ? SceneManager.LoadSceneAsync(sceneName, loadSceneParameters)
+            : SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
+
         asyncOp.allowSceneActivation = true;
         await asyncOp.ToUniTask();
         onComplete?.Invoke();

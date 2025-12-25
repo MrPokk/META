@@ -10,14 +10,26 @@ public class UISliderProvider : MonoBehaviour
     private SliderManager _sliderManager;
     private SliderEvent _onSubmit;
 
+    [SerializeField] private SaveKey _saveKey = SaveKey.NULL;
+
     private void Awake()
     {
         _sliderManager ??= GetComponent<SliderManager>();
+        if (_saveKey != SaveKey.NULL)
+        {
+            _sliderManager.mainSlider.value = SaveService.Load<float>(_saveKey);
+            _sliderManager.sliderEvent?.AddListener(OnSetValue);
+        }
     }
 
-    public void AddListener(UnityAction<float>  action)
+    private void OnSetValue(float value)
     {
-        _sliderManager.onValueChanged?.AddListener(action);
+        SaveService.Save(_saveKey, value);
+    }
+
+    public void AddListener(UnityAction<float> action)
+    {
+        _sliderManager.sliderEvent?.AddListener(action);
     }
 
     public void RemoveListener(UnityAction<float> action)
@@ -27,6 +39,6 @@ public class UISliderProvider : MonoBehaviour
 
     private void OnDestroy()
     {
-        _sliderManager.onValueChanged.RemoveAllListeners();
+        _sliderManager.sliderEvent.RemoveAllListeners();
     }
 }

@@ -9,7 +9,7 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
 {
     public CharacterController CharacterController { get; private set; }
     [field: SerializeField] public CameraObjectComponent CameraObjectComponent { get; private set; }
-    public Animator animator;
+    [field: SerializeField] public PlayerModelComponent PlayerModelComponent { get; private set; }
 
     private NetworkIdentity _networkIdentity;
 
@@ -19,8 +19,8 @@ public class PlayerProvider : MonoProvider<PlayerPresenter>, ITeleported, IUsing
 
         CharacterController = GetComponent<CharacterController>();
         CameraObjectComponent ??= GetComponentInChildren<CameraObjectComponent>();
+        PlayerModelComponent ??= GetComponentInChildren<PlayerModelComponent>();
         _networkIdentity ??= GetComponent<NetworkIdentity>();
-        animator ??= GetComponent<Animator>();
     }
 
     private void Start()

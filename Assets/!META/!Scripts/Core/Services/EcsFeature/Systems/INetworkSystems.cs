@@ -18,6 +18,16 @@ public interface IClientSpawn : IEcsAutoImplement
     public void Spawn();
 }
 
+public interface IClientSceneTransitionStart : IEcsAutoImplement
+{
+    public void OnStart();
+}
+
+public interface IClientSceneTransitionComplete : IEcsAutoImplement
+{
+    public void OnComplete();
+}
+
 public interface IClientDisconnected : IEcsAutoImplement
 {
     public void Disconnect();

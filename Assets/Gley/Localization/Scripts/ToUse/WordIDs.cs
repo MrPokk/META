@@ -14,6 +14,7 @@ namespace Gley.Localization
 		IDLanguageRussian = 11,
 		LanguageID = 6,
 		MasterVolumeID = 8,
+		MouseSensitivityID = 15,
 		NULLID = 0,
 		ReconnectID = 3,
 		SettingID = 1,
@@ -24,6 +25,7 @@ namespace Gley.Localization
 		Title_Floor5_ID = 22,
 		Title_Floor6_ID = 23,
 		VideoID = 4,
-		MouseSensitivityID = 15,
+		InventoryID = 16,
+		ProfileID = 17,
 	}
 }

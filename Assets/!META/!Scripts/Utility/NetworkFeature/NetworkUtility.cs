@@ -4,8 +4,6 @@ using Cysharp.Threading.Tasks;
 
 public static class NetworkUtility
 {
-    public static Action<NetworkMessage> OnMessageSent;
-
     public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
         if (NetworkServer.active && target != null)
@@ -24,8 +22,6 @@ public static class NetworkUtility
         {
             LoggerUtility.Warning("Waiting for connection...");
         }
-        
-        OnMessageSent?.Invoke(value);
     }
 
     private static async UniTaskVoid WaitingToSend<T>(T message) where T : struct, NetworkMessage
@@ -38,8 +34,6 @@ public static class NetworkUtility
             );
 
             NetworkClient.Send(message);
-            
-            OnMessageSent?.Invoke(message);
         }
         catch (OperationCanceledException)
         {

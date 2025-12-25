@@ -1,5 +1,3 @@
-using System;
-using Gley.Localization;
 using UnityEngine;
 
 public class UISettingLanguageScreen : UIScreen
@@ -38,13 +36,15 @@ public class UISettingLanguageScreen : UIScreen
     public override void Close()
     {
         RemoveListener();
+        
         UIAnimationComponent.UsingAnimation(gameObject)
-        .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
-        .PlayCloseAnimation();
+            .ApplyPreset(UIAnimationPresets.CreateSlideFromRightPreset())
+            .PlayCloseAnimation();
+        
         base.Close();
     }
 
     private void OnGoToBackButton() => UIRootManager.OpenScreen<UISettingScreen>();
 
-    private void OnLanguageChanged(int arg0) => UIUpdateLocalized.SetLanguage(_slLanguage.GetSelectedLanguage());
+    private void OnLanguageChanged(int value) => UIUpdateLocalized.SetLanguage(_slLanguage.GetSelectedLanguage());
 }

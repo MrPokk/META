@@ -5,13 +5,13 @@ using System.Text;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-public static class SaveService
+public partial class SaveService
 {
     [Serializable]
     private class SaveData
     {
-        public Dictionary<string, object> SimpleData { get; set; } = new Dictionary<string, object>();
-        public Dictionary<string, string> ComplexData { get; set; } = new Dictionary<string, string>();
+        public Dictionary<SaveKey, object> SimpleData { get; set; } = new Dictionary<SaveKey, object>();
+        public Dictionary<SaveKey, string> ComplexData { get; set; } = new Dictionary<SaveKey, string>();
     }
 
     private static readonly JsonSerializerSettings s_jsonSettings = new()
@@ -24,24 +24,15 @@ public static class SaveService
 
     private static SaveData s_saveData = new();
     private static readonly string s_addictiveSaveFilePath = "data.json";
-    private static string s_saveFilePath = Path.Combine(Application.persistentDataPath, s_addictiveSaveFilePath);
-    private static bool s_isInitialized = false;
+    private static readonly string s_saveFilePath = Path.Combine(Application.persistentDataPath, s_addictiveSaveFilePath);
 
-    public static void Initialize(string filePath = null)
+    public SaveService()
     {
-        if (!string.IsNullOrEmpty(filePath))
-        {
-            s_saveFilePath = filePath;
-        }
-        
         LoadData();
-        s_isInitialized = true;
     }
 
-    public static void Save(string key, object value)
+    public static void Save(SaveKey key, object value)
     {
-        if (!s_isInitialized) Initialize();
-        
         if (IsSimpleType(value))
         {
             s_saveData.SimpleData[key] = value;
@@ -51,14 +42,12 @@ public static class SaveService
             var json = JsonConvert.SerializeObject(value, s_jsonSettings);
             s_saveData.ComplexData[key] = json;
         }
-        
+
         SaveToFile();
     }
 
-    public static T Load<T>(string key, T defaultValue = default)
+    public static T Load<T>(SaveKey key, T defaultValue = default)
     {
-        if (!s_isInitialized) Initialize();
-        
         if (IsSimpleType(typeof(T)))
         {
             if (s_saveData.SimpleData.TryGetValue(key, out var value))
@@ -87,11 +76,11 @@ public static class SaveService
                 }
             }
         }
-        
+
         return defaultValue;
     }
 
-    public static float LoadFloat(string key, float defaultValue = 0)
+    public static float LoadFloat(SaveKey key, float defaultValue = 0)
     {
         if (s_saveData.SimpleData.TryGetValue(key, out var value))
         {
@@ -107,7 +96,7 @@ public static class SaveService
         return defaultValue;
     }
 
-    public static int LoadInt(string key, int defaultValue = 0)
+    public static int LoadInt(SaveKey key, int defaultValue = 0)
     {
         if (s_saveData.SimpleData.TryGetValue(key, out var value))
         {
@@ -123,7 +112,7 @@ public static class SaveService
         return defaultValue;
     }
 
-    public static string LoadString(string key, string defaultValue = "")
+    public static string LoadString(SaveKey key, string defaultValue = "")
     {
         if (s_saveData.SimpleData.TryGetValue(key, out var value))
         {
@@ -132,7 +121,7 @@ public static class SaveService
         return defaultValue;
     }
 
-    public static bool LoadBool(string key, bool defaultValue = false)
+    public static bool LoadBool(SaveKey key, bool defaultValue = false)
     {
         if (s_saveData.SimpleData.TryGetValue(key, out var value))
         {
@@ -148,23 +137,16 @@ public static class SaveService
         return defaultValue;
     }
 
-    public static void Delete(string key)
+    public static void Delete(SaveKey key)
     {
         s_saveData.SimpleData.Remove(key);
         s_saveData.ComplexData.Remove(key);
         SaveToFile();
     }
 
-    public static bool HasKey(string key)
+    public static bool HasKey(SaveKey key)
     {
         return s_saveData.SimpleData.ContainsKey(key) || s_saveData.ComplexData.ContainsKey(key);
-    }
-
-    public static void ClearAll()
-    {
-        s_saveData.SimpleData.Clear();
-        s_saveData.ComplexData.Clear();
-        SaveToFile();
     }
 
     public static void DeleteSaveFile()
@@ -174,7 +156,6 @@ public static class SaveService
             File.Delete(s_saveFilePath);
         }
         s_saveData = new SaveData();
-        s_isInitialized = false;
     }
 
     private static void SaveToFile()
@@ -182,13 +163,13 @@ public static class SaveService
         try
         {
             var json = JsonConvert.SerializeObject(s_saveData, s_jsonSettings);
-            var directory = Path.GetDirectoryName(s_saveFilePath);
-            
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            var fileIsExist = File.Exists(s_saveFilePath);
+
+            if (!fileIsExist)
             {
-                Directory.CreateDirectory(directory);
+                Debug.LogError($"Save error: file save not found");
             }
-            
+
             File.WriteAllText(s_saveFilePath, json, Encoding.UTF8);
         }
         catch (Exception e)
@@ -199,9 +180,12 @@ public static class SaveService
 
     private static void LoadData()
     {
+        Debug.Log($"[Save] Loading Data in file: [{s_saveFilePath}]");
+
         if (!File.Exists(s_saveFilePath))
         {
             s_saveData = new SaveData();
+            Debug.LogError($"File save not found but Check path: {s_saveFilePath}");
             return;
         }
 
@@ -225,8 +209,8 @@ public static class SaveService
 
     private static bool IsSimpleType(Type type)
     {
-        return type.IsPrimitive 
-            || type == typeof(string) 
+        return type.IsPrimitive
+            || type == typeof(string)
             || type == typeof(decimal)
             || type.IsEnum
             || type == typeof(DateTime)

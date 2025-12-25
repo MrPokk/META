@@ -15,5 +15,17 @@ public class CameraObjectComponent : MonoBehaviour
         _cinemachineInputAxisController ??= GetComponentInChildren<CinemachineInputAxisController>();
         _cameraTarget ??= GetComponentInChildren<CameraTargetComponent>();
 
+        SetMultipleAxisController();
+    }
+
+    private void SetMultipleAxisController()
+    {
+        var multipleAxisController = _cinemachineInputAxisController.Controllers;
+        foreach (var axis in multipleAxisController)
+        {
+            var sensitivity = SaveService.Load<float>(SaveKey.Sensitivity) / 100.0f;
+            var sensitivityClamp = Mathf.Clamp(sensitivity, 0.1f, 1f);
+            axis.Input.Gain *= sensitivityClamp;
+        }
     }
 }

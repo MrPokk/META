@@ -39,8 +39,16 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
 
     public void SetSelectNeighbours(GameObject selectOnUp, GameObject selectOnDown)
     {
+        SetSelectNeighbours(selectOnUp, selectOnDown, null, null);
+    }
+
+    public void SetSelectNeighbours(GameObject selectOnUp, GameObject selectOnDown,
+                               GameObject selectOnLeft, GameObject selectOnRight)
+    {
         _buttonManager.selectOnUp = selectOnUp;
         _buttonManager.selectOnDown = selectOnDown;
+        _buttonManager.selectOnLeft = selectOnLeft;
+        _buttonManager.selectOnRight = selectOnRight;
     }
 
     public void AddListener(UnityAction action)

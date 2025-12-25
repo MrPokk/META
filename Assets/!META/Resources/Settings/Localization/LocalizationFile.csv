@@ -9,10 +9,12 @@ ExitID,2,Exit,Выйти
 FloorID,10,Floor,Этаж
 IDLanguageEnglish,12,English,Английский
 IDLanguageRussian,11,Russian,Русский
+InventoryID,16,Inventory,Инвентарь
 LanguageID,6,Language,Язык
 MasterVolumeID,8,Master Volume,Общая громкость
 MouseSensitivityID,15,Mouse Sensitivity,Чувствительность мыши
 NULLID,0,NULL,NULL
+ProfileID,17,Profile,Профиль
 ReconnectID,3,Reconnect,Повторное подключение
 SettingID,1,Setting,Настройки
 SoundID,5,Sound,Звук
