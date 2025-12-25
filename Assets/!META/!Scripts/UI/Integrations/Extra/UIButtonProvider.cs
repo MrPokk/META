@@ -26,7 +26,6 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
     protected override void OnValidate()
     {
         base.OnValidate();
-        gameObject.name = $"BtnUI_{WordIDString}";
     }
 
     private void OnHover()
@@ -73,6 +72,7 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
 
     public override void SetText(string text)
     {
+        gameObject.name = $"BtnUI_{WordIDString}";
         _buttonManager?.SetText(text);
         _buttonManager?.UpdateUI();
     }

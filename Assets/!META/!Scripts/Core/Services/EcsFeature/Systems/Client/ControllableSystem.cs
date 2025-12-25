@@ -16,7 +16,13 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
         _inputs.Enable();
         _inputs.Playable.Move.performed += MovePressingSystem;
         _inputs.Playable.Move.canceled += MoveUnPressingSystem;
-        _inputs.UI.Navigate.performed += NavigatePressingSystem;
+        //_inputs.UI.Navigate.performed += NavigatePressingSystem; TODO: Make optimized navigation
+        _inputs.UI.Cancel.performed += CancelPressingSystem;
+    }
+
+    private void CancelPressingSystem(InputAction.CallbackContext context)
+    {
+        CursorService.SwitchCursor();
     }
 
     private void NavigatePressingSystem(InputAction.CallbackContext context)
@@ -74,6 +80,7 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
     }
 
     private bool ApplyScreen()
+
     {
         var currentScreen = UIRootManager.GetCurrentScreen;
 

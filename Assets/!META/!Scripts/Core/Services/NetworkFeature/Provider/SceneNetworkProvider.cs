@@ -6,7 +6,11 @@ using UnityEngine.SceneManagement;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
-    public static void ChangeScene(SceneTypes sceneType) => NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
+    public static void ChangeScene(SceneTypes sceneType)
+    {
+        TransitionStart();
+        NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
+    }
 
     public void HandlersClient()
     {
@@ -15,10 +19,10 @@ public partial class SceneNetworkProvider : IProviderHandler
 
     private async void OnClientRequest(SceneChangeRequestMessage message)
     {
-        await SceneLoader.LoadSceneAsync(message.sceneType, onStart: TransitionStart, onComplete: TransitionComplete);
+        await SceneLoader.LoadSceneAsync(message.sceneType, onComplete: TransitionComplete);
     }
 
-    private void TransitionStart()
+    private static void TransitionStart()
     {
         EcsSystems.Run<IClientSceneTransitionStart>(system => system.OnStart());
     }

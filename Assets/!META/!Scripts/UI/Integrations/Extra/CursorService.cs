@@ -14,4 +14,15 @@ public static class CursorService
         Cursor.lockState = CursorLockMode.None;
     }
 
+    public static void SwitchCursor()
+    {
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            UnlockCursor();
+        }
+        else
+        {
+            LockCursor();
+        }
+    }
 }

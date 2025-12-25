@@ -18,14 +18,14 @@ public class CameraObjectComponent : MonoBehaviour
         SetMultipleAxisController();
     }
 
-    private void SetMultipleAxisController()
+    public void SetMultipleAxisController()
     {
         var multipleAxisController = _cinemachineInputAxisController.Controllers;
         foreach (var axis in multipleAxisController)
         {
             var sensitivity = SaveService.Load<float>(SaveKey.Sensitivity) / 100.0f;
             var sensitivityClamp = Mathf.Clamp(sensitivity, 0.1f, 1f);
-            axis.Input.Gain *= sensitivityClamp;
+            axis.Input.Gain = sensitivityClamp * (axis.Input.Gain < 0 ? -1 : 1);
         }
     }
 }

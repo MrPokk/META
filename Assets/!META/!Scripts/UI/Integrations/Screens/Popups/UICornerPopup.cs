@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class UICornerScreen : UIScreen
+public class UICornerPopup : UIPopup
 {
     [SerializeField] private UIButtonProvider _btnGoToProfile;
     [SerializeField] private UIButtonProvider _btnGoToSettings;
@@ -10,6 +10,11 @@ public class UICornerScreen : UIScreen
     public override void Open()
     {
         AddListener();
+
+        UIAnimationComponent
+            .UsingAnimation(gameObject)
+            .ApplyPresetOpen(UIAnimationPresets.CreateSlideFromRightPreset())
+            .PlayOpenAnimation();
 
         base.Open();
     }
@@ -23,6 +28,7 @@ public class UICornerScreen : UIScreen
 
     private void OnGoToProfileButted()
     {
+        
     }
 
     private void OnGoToInventoryButted()
@@ -31,5 +37,6 @@ public class UICornerScreen : UIScreen
 
     private void OnGoToSettingsButted()
     {
+        UIRootManager.OpenPopup<UISettingPopup>();
     }
 }

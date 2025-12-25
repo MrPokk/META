@@ -1,6 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using System;
 
 public class DissolveFullScreen : MonoBehaviour
 {
@@ -30,13 +31,14 @@ public class DissolveFullScreen : MonoBehaviour
         }
     }
 
-    public async UniTask StartDissolve(float targetValue)
+    public async UniTask StartDissolve(float targetValue, Action onComplete = null)
     {
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = new CancellationTokenSource();
 
         await AnimateDissolveAsync(targetValue, _cts.Token);
+        onComplete?.Invoke();
     }
 
     private async UniTask AnimateDissolveAsync(float target, CancellationToken token)

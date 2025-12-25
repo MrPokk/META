@@ -156,7 +156,7 @@ namespace BitterECS.Core
         public ReadOnlySpan<EcsEntity>.Enumerator GetEnumerator() => ValidationCacheOnFilter().GetEnumerator();
 
 
-        public ref struct FilterEnumerator
+        public struct FilterEnumerator
         {
             private EcsFilter _filter;
             public FilterEnumerator(in EcsFilter filter) => _filter = filter;

@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -25,6 +27,6 @@ public class VFXService : MonoBehaviour
 
     public static void OnClientSceneTransitionSet(float value) => Instance._dissolveFullScreen.DissolveAmount = value;
 
-    public static void OnClientSceneTransitionStart() => Instance._dissolveFullScreen.StartDissolve(1f).Forget();
-    public static void OnClientSceneTransitionComplete() => Instance._dissolveFullScreen.StartDissolve(0f).Forget();
+    public static void OnClientSceneTransitionStart(Action  onComplete = null) => Instance._dissolveFullScreen.StartDissolve(1f, onComplete).Forget();
+    public static void OnClientSceneTransitionComplete(Action onComplete = null) => Instance._dissolveFullScreen.StartDissolve(0f, onComplete).Forget();
 }

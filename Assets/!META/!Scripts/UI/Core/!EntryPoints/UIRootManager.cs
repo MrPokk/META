@@ -53,13 +53,13 @@ public class UIRootManager : MonoBehaviour
     public static IWindowBinder GetCurrentScreen => Instance?._uiContainer.OpenedScreenBinder;
     public static IReadOnlyList<IWindowBinder> GetCurrentPopups => Instance?._uiContainer.OpenedBinders.Values.ToList();
 
-    public static void OpenScreen<T>() where T : WindowBinder => Instance?.OpenScreenInstance<T>();
+    public static void OpenScreen<T>() where T : UIScreen => Instance?.OpenScreenInstance<T>();
     public static void CloseScreen() => Instance?.CloseScreenInstance();
-    public static void OpenPopup<T>() where T : WindowBinder => Instance?.OpenPopupInstance<T>();
-    public static void ClosePopup<T>() where T : WindowBinder => Instance?.ClosePopupInstance<T>();
+    public static void OpenPopup<T>() where T : UIPopup => Instance?.OpenPopupInstance<T>();
+    public static void ClosePopup<T>() where T : UIPopup => Instance?.ClosePopupInstance<T>();
     public static void CloseAllPopups() => Instance?.CloseAllPopupsInstance();
 
-    private void OpenScreenInstance<T>() where T : WindowBinder
+    private void OpenScreenInstance<T>() where T : UIScreen
     {
         CloseScreenInstance();
 
@@ -79,7 +79,7 @@ public class UIRootManager : MonoBehaviour
         _uiContainer.OpenedScreenBinder = null;
     }
 
-    private void OpenPopupInstance<T>() where T : WindowBinder
+    private void OpenPopupInstance<T>() where T : UIPopup
     {
         CloseExistingPopup<T>();
 
@@ -88,7 +88,7 @@ public class UIRootManager : MonoBehaviour
         binder?.Open();
     }
 
-    private void ClosePopupInstance<T>() where T : WindowBinder
+    private void ClosePopupInstance<T>() where T : UIPopup
     {
         if (TryFindPopupInContainer<T>(out var existingPopup))
         {
@@ -128,13 +128,13 @@ public class UIRootManager : MonoBehaviour
         }
     }
 
-    private bool TryFindPopupInContainer<T>(out T popup) where T : WindowBinder
+    private bool TryFindPopupInContainer<T>(out T popup) where T : UIPopup
     {
         popup = _uiContainer?.PopupsContainer?.GetComponentsInChildren<T>()?.FirstOrDefault();
         return popup != null;
     }
 
-    private void CloseExistingPopup<T>() where T : WindowBinder
+    private void CloseExistingPopup<T>() where T : UIPopup
     {
         if (!TryFindPopupInContainer<T>(out var existingPopup))
         {

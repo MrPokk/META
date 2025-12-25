@@ -4,15 +4,18 @@ public class UIUpdateSystem : IClientSceneTransitionStart, IClientSceneTransitio
 {
     public Priority PrioritySystem => Priority.High;
 
-    public void OnComplete()
-    {
-        VFXService.OnClientSceneTransitionComplete();
-        UIRootManager.OpenScreen<UICornerScreen>();
-    }
-
     public void OnStart()
     {
-        UIRootManager.CloseScreen();
+        UIRootManager.ClosePopup<UICornerPopup>();
         VFXService.OnClientSceneTransitionSet(1f);
+    }
+
+    public void OnComplete()
+    {
+        VFXService.OnClientSceneTransitionComplete(() =>
+        {
+            UIRootManager.OpenPopup<UICornerPopup>();
+            CursorService.LockCursor();
+        });
     }
 }

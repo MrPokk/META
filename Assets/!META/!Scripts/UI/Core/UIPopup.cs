@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class UIPopup : WindowBinder
 {
-    [SerializeField] private Button _btnClose;
-    [SerializeField] private Button _btnAlternativeClose;
+    [SerializeField] private UIButtonProvider _btnClose;
+    [SerializeField] private UIButtonProvider _btnAlternativeClose;
 
     public override void Open()
     {
@@ -20,14 +20,14 @@ public class UIPopup : WindowBinder
 
     private void AddListeners()
     {
-        if (_btnClose) _btnClose.onClick.AddListener(OnCloseClicked);
-        if (_btnAlternativeClose) _btnAlternativeClose.onClick.AddListener(OnCloseClicked);
+        if (_btnClose) _btnClose.AddListener(OnCloseClicked);
+        if (_btnAlternativeClose) _btnAlternativeClose.AddListener(OnCloseClicked);
     }
 
     private void RemoveListeners()
     {
-        if (_btnClose) _btnClose.onClick.RemoveListener(OnCloseClicked);
-        if (_btnAlternativeClose) _btnAlternativeClose.onClick.RemoveListener(OnCloseClicked);
+        if (_btnClose) _btnClose.RemoveListener(OnCloseClicked);
+        if (_btnAlternativeClose) _btnAlternativeClose.RemoveListener(OnCloseClicked);
     }
 
     private void OnCloseClicked() => Close();

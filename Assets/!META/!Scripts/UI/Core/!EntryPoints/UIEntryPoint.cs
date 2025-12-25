@@ -27,6 +27,5 @@ public class UIEntryPoint : IStartable
         }
 
         UIFactory.CreateRootManager(allBinders, _container);
-        UIRootManager.OpenScreen<UIMainScreen>();
     }
 }
