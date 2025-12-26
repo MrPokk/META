@@ -106,9 +106,8 @@ Shader "VFX-GAME/CelShading/CelShadingEffect_Lit"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
-            #pragma multi_compile_instancing
-
+            #pragma shader_feature _MAIN_LIGHT_SHADOWS
+                
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             struct Attributes {

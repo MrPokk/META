@@ -30,6 +30,6 @@ public class LoggerConfig : ScriptableObject
             : Path.Combine(Application.persistentDataPath, _logPath);
 
         var dateTime = DateTime.Now.ToString(TIME_FORMAT);
-        return Path.Combine(basePath, $"{_logFileName}_{dateTime}.txt");
+        return Path.Combine(basePath, $"{_logFileName}_{dateTime}.md");
     }
 }
