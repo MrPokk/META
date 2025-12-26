@@ -43,13 +43,10 @@ public static class LoggerUtility
         }
 #else
 
-        if (level < s_config?.minimumLogLevel) return;
-        if (message == s_lastMessage) return;
-
-        s_lastMessage = message;
-
-        if (s_config == null && !s_config.isLoggingEnabled)
+        if (s_config == null && !s_config.IsLoggingEnabled)
             return;
+
+        if (level < s_config?.MinimumLogLevel) return;
 
         lock (s_lock)
         {

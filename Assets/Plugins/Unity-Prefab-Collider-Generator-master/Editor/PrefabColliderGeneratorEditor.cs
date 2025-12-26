@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(PrefabColliderGenerator))]
@@ -40,3 +42,5 @@ public class PrefabColliderGeneratorEditor : Editor
         GUILayout.EndHorizontal();
     }
 }
+
+#endif
