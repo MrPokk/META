@@ -25,6 +25,19 @@ public class ConnectionInfo : IServerConnected, IServerDisconnected, IServerStar
 
     public void Disconnect(NetworkConnectionToClient client)
     {
+        if (ClientEntities.TryGetValue(client, out var objects))
+        {
+            foreach (var networkIdentity in objects)
+            {
+                if (networkIdentity == null)
+                {
+                    continue;
+                }
+                
+                NetworkServer.Destroy(networkIdentity.gameObject);
+            }
+        }
+
         ClientEntities.Remove(client);
         PlayerEntityId.Remove(client);
         ClientToScene.Remove(client);

@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 
 public class UIMainMenuPopup : UIPopup
@@ -30,6 +31,7 @@ public class UIMainMenuPopup : UIPopup
 
     private void OnGoToGlobalMenuButted()
     {
+        NetworkClient.Disconnect();
         UIRootManager.CloseAllPopups();
         UIRootManager.OpenScreen<UIMainScreen>();
     }
