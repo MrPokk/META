@@ -34,6 +34,6 @@ public class ConnectionInfo : IServerConnected, IServerDisconnected, IServerStar
             sceneConnections.Remove(client);
         }
 
-        LoggerUtility.Info($"Cleaned up connection info for connection {client.connectionId}");
+        LoggerUtility.Info($"Cleaned up connection info for connection {client.connectionId}", NetworkType.Server);
     }
 }

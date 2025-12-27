@@ -6,6 +6,7 @@ public class UICornerPopup : UIPopup
     [SerializeField] private UIButtonProvider _btnGoToProfile;
     [SerializeField] private UIButtonProvider _btnGoToSettings;
     [SerializeField] private UIButtonProvider _btnGoToInventory;
+    [SerializeField] private UIButtonProvider _btnGoToMenu;
 
     public override void Open()
     {
@@ -24,15 +25,22 @@ public class UICornerPopup : UIPopup
         _btnGoToProfile.AddListener(OnGoToProfileButted);
         _btnGoToSettings.AddListener(OnGoToSettingsButted);
         _btnGoToInventory.AddListener(OnGoToInventoryButted);
+        _btnGoToMenu.AddListener(OnGoToMenuButted);
+    }
+
+    private void OnGoToMenuButted()
+    {
+        UIRootManager.OpenPopup<UIMainMenuPopup>();
     }
 
     private void OnGoToProfileButted()
     {
-        
+        UIRootManager.OpenPopup<UIComingSoonPopup>();
     }
 
     private void OnGoToInventoryButted()
     {
+        UIRootManager.OpenPopup<UIComingSoonPopup>();
     }
 
     private void OnGoToSettingsButted()

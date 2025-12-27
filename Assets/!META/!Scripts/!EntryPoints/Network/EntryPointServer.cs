@@ -33,7 +33,6 @@ public class EntryPointServer : IStartable, IDisposable
         LoggerUtility.Info("Injecting server...", NetworkType.Server);
         _networkConfig.Configure(_networkManager);
         _networkManager.StartServer();
-        SetupNotGraphicServer();
         SetupServerScenes();
         SetupProvider();
         SubscribeServerEvents();
@@ -52,52 +51,6 @@ public class EntryPointServer : IStartable, IDisposable
             });
         }
     }
-
-    static void SetupNotGraphicServer()
-    {
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 60;
-        Screen.SetResolution(1, 1, false);
-
-        foreach (var cam in Camera.allCameras)
-        {
-            cam.enabled = false;
-            cam.gameObject.SetActive(false);
-        }
-
-        foreach (var item in Object.FindObjectsByType<ServerOnDestroy>(FindObjectsSortMode.None))
-        {
-            Object.Destroy(item.gameObject);
-        }
-
-        foreach (var renderer in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None))
-        {
-            renderer.enabled = false;
-        }
-
-        foreach (var canvas in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
-        {
-            canvas.enabled = false;
-            canvas.gameObject.SetActive(false);
-        }
-
-        foreach (var light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
-        {
-            light.enabled = false;
-        }
-
-        var rpAsset = UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline;
-        if (rpAsset != null)
-        {
-            UnityEngine.Rendering.GraphicsSettings.defaultRenderPipeline = null;
-        }
-
-        LightmapSettings.lightmaps = new LightmapData[0];
-        RenderSettings.ambientLight = Color.black;
-        RenderSettings.fog = false;
-        DynamicGI.UpdateEnvironment();
-    }
-
 
     private void SetupProvider()
     {

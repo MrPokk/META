@@ -102,9 +102,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         if (entryPoint == null)
         {
             LoggerUtility.Error($"No entry point found in scene {scene.name}", NetworkType.Server);
-            position = default;
-            rotation = default;
-            return; // TODO make disconnect
+            throw new Exception("No entry point found in scene");
         }
 
         player.transform.SetPositionAndRotation(

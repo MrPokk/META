@@ -118,7 +118,3 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) => ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
 }
-
-internal struct CameraEventComponent
-{
-}
