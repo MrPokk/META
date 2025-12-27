@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -15,9 +15,7 @@ public abstract class EntryPointFloors : LifetimeScope
     protected override void Awake()
     {
         parentReference = ParentReference.Create<EntryPointProject>();
-
         CursorService.LockCursor();
-
         base.Awake();
     }
 

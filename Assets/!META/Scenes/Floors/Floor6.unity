@@ -3418,6 +3418,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1355482467}
+  - component: {fileID: 1355482468}
   m_Layer: 0
   m_Name: Lightings
   m_TagString: Untagged
@@ -3462,6 +3463,18 @@ Transform:
   - {fileID: 144824890}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1355482468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1355482466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adec689828aa9fe7c8e8ac6350124d24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ServerOnDestroy
 --- !u!1 &1382066953
 GameObject:
   m_ObjectHideFlags: 0
@@ -4648,6 +4661,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1933255915}
+  - component: {fileID: 1933255916}
   m_Layer: 0
   m_Name: FloorOject_6
   m_TagString: Untagged
@@ -4671,6 +4685,18 @@ Transform:
   - {fileID: 567489126}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1933255916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1933255914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adec689828aa9fe7c8e8ac6350124d24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ServerOnDestroy
 --- !u!1 &1973529872
 GameObject:
   m_ObjectHideFlags: 0

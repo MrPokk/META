@@ -1,9 +1,26 @@
 using System;
 using Mirror;
 using Cysharp.Threading.Tasks;
+using System.IO;
+using UnityEngine;
 
 public static class NetworkUtility
 {
+    public static NetworkType Type { get; private set; }
+
+    public static NetworkType Initialize(NetworkConfig networkConfig)
+    {
+#if !UNITY_EDITOR
+        if (networkConfig.NetworkType == NetworkType.Server)
+        {
+            var configPath = GetServerConfigPath();
+            LoadOrSaveServerConfig(networkConfig, configPath);
+        }
+#endif
+        return Type = networkConfig.NetworkType;
+    }
+
+
     public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
         if (NetworkServer.active && target != null)
@@ -47,9 +64,9 @@ public static class NetworkUtility
 
     public static bool IsClientActive()
     {
-        if (NetworkClient.connection == null)
+        if (NetworkClient.connection == null || !NetworkClient.active)
         {
-            LoggerUtility.Error("NetworkClient is not active");
+            LoggerUtility.Info("NetworkClient is not active", NetworkType.Client);
             return false;
         }
         return true;
@@ -59,9 +76,37 @@ public static class NetworkUtility
     {
         if (!NetworkServer.active)
         {
-            LoggerUtility.Error("NetworkServer is not active");
+            LoggerUtility.Info("NetworkServer is not active", NetworkType.Server);
             return false;
         }
         return true;
+    }
+
+    private static void LoadOrSaveServerConfig(NetworkConfig config, string configPath)
+    {
+        var configDir = Path.GetDirectoryName(configPath);
+
+        if (!Directory.Exists(configDir))
+        {
+            Directory.CreateDirectory(configDir);
+        }
+
+        if (File.Exists(configPath))
+        {
+            config.LoadFromFile(configPath);
+            LoggerUtility.Info($"Loaded server config from: {configPath}", NetworkType.Server);
+        }
+        else
+        {
+            config.SaveToFile(configPath);
+            LoggerUtility.Info($"Created new server config at: {configPath}", NetworkType.Server);
+        }
+    }
+
+    private static string GetServerConfigPath()
+    {
+        var dataPath = Application.dataPath;
+        var executableDir = Path.GetDirectoryName(dataPath);
+        return Path.Combine(executableDir, "config", "server_config.json");
     }
 }

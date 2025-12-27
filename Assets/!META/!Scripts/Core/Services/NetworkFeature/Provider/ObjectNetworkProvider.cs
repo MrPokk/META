@@ -51,12 +51,12 @@ public class ObjectNetworkProvider : IProviderHandler
 
         if (identity.TryGetComponent<PlayerProvider>(out var _))
         {
-            LoggerUtility.Info($"Registering player for connection {conn}");
+            LoggerUtility.Info($"Registering player for connection {conn}", NetworkType.Server);
             RegisterPlayerForConnection(conn, goInstance);
         }
         else
         {
-            LoggerUtility.Info("Registering object for connection");
+            LoggerUtility.Info("Registering object for connection", NetworkType.Server);
             RegisterObjectForConnection(conn, goInstance);
         }
 
@@ -81,7 +81,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
         if (entityPrefab == null)
         {
-            LoggerUtility.Error($"Prefab with component {entityType} not found in spawnPrefabs");
+            LoggerUtility.Error($"Prefab with component {entityType} not found in spawnPrefabs", NetworkType.Server);
             return null;
         }
 

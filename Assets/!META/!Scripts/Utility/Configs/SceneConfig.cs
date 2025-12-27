@@ -49,7 +49,7 @@ public class SceneConfig : ScriptableObject
 
         if (_serverScenes.Count == 0)
         {
-            LoggerUtility.Error("No server load scenes found!");
+            LoggerUtility.Error("No server load scenes found!", NetworkType.Server);
         }
     }
 

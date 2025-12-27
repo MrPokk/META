@@ -5,43 +5,33 @@ using UnityEngine;
 public static class LoggerUtility
 {
     private static LoggerConfig s_config;
-    private static string s_logPath;
+    private static string s_logPathToFile;
     private static readonly object s_lock = new();
-    private const string TIME_FORMAT = "HH:mm:ss";
 
     public enum LogLevel { Info, Warning, Error, Critical }
 
-    public static void Initialize(LoggerConfig config)
+    public static void Initialize(LoggerConfig config, NetworkConfig networkConfig)
     {
-        lock (s_lock)
-        {
-            try
-            {
-                s_config = config;
-                s_logPath = config.GetFullLogFilePath();
+        s_config = config;
 
-                if (!s_config.IsLoggingEnabled)
-                {
-                    return;
-                }
+#if UNITY_EDITOR
+        return;
+#else
+        s_logPathToFile = GetFullLogFilePath(config, networkConfig);
 
-                Debug.Log($"[Logger] init started log: [{s_logPath}]");
-                File.Create(s_logPath).Close();
-                File.AppendAllText(s_logPath, $"## Log started at {DateTime.Now}\n");
-            }
-            catch (Exception e) { Debug.LogError($"Logger init failed: {e.Message}"); }
-        }
+        Debug.Log($"[Logger] init started log: [{s_logPathToFile}]");
+        File.WriteAllText(s_logPathToFile, $"## Log started at {DateTime.Now}\n");
+#endif
     }
 
-    public static void Log(string message, LogLevel level = LogLevel.Info)
+    private static void Log(string message, LogLevel level = LogLevel.Info)
     {
-
         if (s_config == null)
         {
-            return;
+            throw new InvalidOperationException("Logger not initialized - call Initialize() first.");
         }
 
-        var logEntry = $"[{DateTime.Now.ToString(TIME_FORMAT)}] [{level}] {message}\n";
+        var logEntry = $"[{DateTime.Now.ToString(LoggerConfig.TIME_FORMAT)}] [{level}] {message}\n";
 
 #if UNITY_EDITOR
         switch (level)
@@ -50,12 +40,9 @@ public static class LoggerUtility
             case LogLevel.Warning: Debug.LogWarning(logEntry); break;
             default: Debug.LogError(logEntry); break;
         }
-#endif
-        if (!s_config.IsLoggingEnabled)
-        {
-            return;
-        }
 
+        return;
+#else
         if (level < s_config.MinimumLogLevel)
         {
             return;
@@ -63,13 +50,74 @@ public static class LoggerUtility
 
         lock (s_lock)
         {
-            try { File.AppendAllText(s_logPath, logEntry); }
-            catch (Exception e) { Debug.LogError($"Log write failed: {e.Message}"); }
+            try
+            {
+                File.AppendAllText(s_logPathToFile, logEntry);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Log write failed: {e.Message}");
+            }
         }
+#endif
     }
 
-    public static void Info(string message) => Log(message, LogLevel.Info);
-    public static void Warning(string message) => Log(message, LogLevel.Warning);
-    public static void Error(string message) => Log(message, LogLevel.Error);
-    public static void Critical(string message) => Log(message, LogLevel.Critical);
+
+    private static string GetFullLogFilePath(LoggerConfig config, NetworkConfig networkConfig)
+    {
+        var combinedPath = networkConfig.NetworkType switch
+        {
+            NetworkType.Server => GetExecutableServerDirectory(config),
+            NetworkType.Client => GetExecutableClientDirectory(config),
+            _ => throw new ArgumentOutOfRangeException(nameof(networkConfig.NetworkType),
+                $"Unsupported network type: {networkConfig.NetworkType}")
+        };
+
+        if (!Directory.Exists(combinedPath))
+        {
+            Directory.CreateDirectory(combinedPath);
+        }
+
+        var dateTime = DateTime.Now.ToString(LoggerConfig.TIME_FORMAT);
+        return Path.Combine(combinedPath, $"{config.LogFileName}_{dateTime}.md");
+
+    }
+
+    private static string GetExecutableClientDirectory(LoggerConfig config)
+    {
+        return string.IsNullOrEmpty(config.LogPathFolder)
+            ? Path.Combine(Application.persistentDataPath, "logs")
+            : Path.Combine(Application.persistentDataPath, config.LogPathFolder);
+    }
+
+    private static string GetExecutableServerDirectory(LoggerConfig config)
+    {
+        var dataPath = Application.dataPath;
+        var executableDir = Path.GetDirectoryName(dataPath);
+        var logsPath = string.IsNullOrEmpty(config.LogPathFolder)
+        ? Path.Combine(executableDir, "logs")
+        : Path.Combine(executableDir, config.LogPathFolder);
+
+        return logsPath;
+    }
+
+    public static void Info(string message, NetworkType network = NetworkType.None)
+    {
+        Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Info);
+    }
+
+    public static void Warning(string message, NetworkType network = NetworkType.None)
+    {
+        Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Warning);
+    }
+
+    public static void Error(string message, NetworkType network = NetworkType.None)
+    {
+        Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Error);
+    }
+
+    public static void Critical(string message, NetworkType network = NetworkType.None)
+    {
+        Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Critical);
+    }
 }

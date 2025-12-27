@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _networkAddress: localhost
   _networkType: 1
-  _kcpPort: 7777
-  _kcpNoDelay: 1
-  _kcpInterval: 10
-  _webSocketPort: 8888
-  _webSocketSecure: 0
-  _webSocketSslCertJson: 
-  _webSocketMaxMessageSize: 16384
-  _webSocketSendTimeout: 5000
-  _webSocketReceiveTimeout: 20000
+  _kcpSettings:
+    port: 5555
+    noDelay: 1
+    interval: 10
+  _webSocketSettings:
+    port: 8888
+    secure: 0
+    sslCertJson: 
+    maxMessageSize: 16384
+    sendTimeout: 5000
+    receiveTimeout: 20000
   _authenticator: {fileID: 0}
   _playerPrefab: {fileID: 0}
   _autoCreatePlayer: 0

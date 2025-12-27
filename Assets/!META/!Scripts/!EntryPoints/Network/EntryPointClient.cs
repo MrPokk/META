@@ -24,17 +24,18 @@ public class EntryPointClient : IStartable, IDisposable
 
     public void Start()
     {
-        LoggerUtility.Info("[Client] Injecting client...");
         _networkConfig.Configure(_networkManager);
         SceneLoader.LoadScene(SceneTypes.Menu);
     }
 
     public void SetupConnection()
     {
+        LoggerUtility.Info("Injecting client...", NetworkType.Client);
         _networkManager.StartClient();
         SetupProvider();
         OnSubscribeClient();
         OnClientStart();
+        LoggerUtility.Info("Client injected successfully!", NetworkType.Client);
     }
 
     private void SetupProvider()
@@ -47,31 +48,26 @@ public class EntryPointClient : IStartable, IDisposable
 
     private void OnClientStart()
     {
-        LoggerUtility.Info("[Client] Client started!");
         EcsSystems.Run<IClientStart>(system => system.Start());
     }
 
     private void OnClientConnected()
     {
-        LoggerUtility.Info("[Client] Client connected successfully!");
         EcsSystems.Run<IClientConnected>(system => system.Connect());
     }
 
     private void OnClientDisconnected()
     {
-        LoggerUtility.Info("[Client] Connection disconnected!");
         EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
     }
 
     private void OnClientError(TransportError error, string arg2)
     {
-        LoggerUtility.Error("[Client] Connection failed or disconnected!");
         EcsSystems.Run<IClientError>(system => system.OnError());
     }
 
     private void OnSubscribeClient()
     {
-        LoggerUtility.Info("[Client] Subscribing to events...");
         NetworkClient.OnConnectedEvent += OnClientConnected;
         NetworkClient.OnErrorEvent += OnClientError;
         NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
@@ -79,7 +75,6 @@ public class EntryPointClient : IStartable, IDisposable
 
     private void OnUnsubscribeClient()
     {
-        LoggerUtility.Info("[Client] Unsubscribing from events...");
         NetworkClient.OnConnectedEvent -= OnClientConnected;
         NetworkClient.OnErrorEvent -= OnClientError;
         NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;

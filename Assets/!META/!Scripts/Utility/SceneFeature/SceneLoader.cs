@@ -1,18 +1,14 @@
 using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneLoader
 {
     private static SceneConfig s_sceneConfig;
-    private static HashSet<Scene> s_scenesToLoadServer;
 
     public void Initialize(SceneConfig sceneConfig)
     {
         s_sceneConfig = sceneConfig;
-        s_scenesToLoadServer = new(s_sceneConfig.GetServerLoadScenes().Count);
     }
     public static void LoadScene(SceneTypes sceneType, Action onComplete = null, Action onStart = null)
     {
@@ -56,17 +52,5 @@ public class SceneLoader
         asyncOp.allowSceneActivation = true;
         await asyncOp.ToUniTask();
         onComplete?.Invoke();
-    }
-
-    public static void AddServerScene(SceneTypes types, Scene sceneToServer)
-    {
-        if (SceneConfig.IsServerScene(types))
-        {
-            s_scenesToLoadServer.Add(sceneToServer);
-        }
-        else
-        {
-            LoggerUtility.Error($"Scene {types} is not a server scene!");
-        }
     }
 }

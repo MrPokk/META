@@ -4,15 +4,15 @@ using VContainer;
 using System.Linq;
 using BitterECS.Integration;
 
-
-#if UNITY_EDITOR
-
-#endif
-
 public class EcsNetworkUnity : EcsUnityRoot
 {
-    [Inject]
     private NetworkConfig _networkConfig;
+
+    [Inject]
+    public void Configure(NetworkConfig networkConfig)
+    {
+        _networkConfig = networkConfig;
+    }
 
     protected override void Update()
     {
@@ -74,31 +74,45 @@ public class EcsNetworkUnity : EcsUnityRoot
 
     private void RunHandlingInBuild()
     {
-        switch (_networkConfig.NetworkType)
+        try
         {
-            case NetworkType.Server:
-                EcsSystems.Run<IServerConnectedRun>(system => system.Run());
-                break;
-            case NetworkType.Client:
-                EcsSystems.Run<IClientConnectedRun>(system => system.Run());
-                break;
-            default:
-                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            switch (_networkConfig.NetworkType)
+            {
+                case NetworkType.Server:
+                    EcsSystems.Run<IServerConnectedRun>(system => system.Run());
+                    break;
+                case NetworkType.Client:
+                    EcsSystems.Run<IClientConnectedRun>(system => system.Run());
+                    break;
+                default:
+                    throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            }
+        }
+        catch (Exception)
+        {
+            throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
         }
     }
 
     private void FixedRunHandlingInBuild()
     {
-        switch (_networkConfig.NetworkType)
+        try
         {
-            case NetworkType.Server:
-                EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
-                break;
-            case NetworkType.Client:
-                EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
-                break;
-            default:
-                throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            switch (_networkConfig.NetworkType)
+            {
+                case NetworkType.Server:
+                    EcsSystems.Run<IServerConnectedFixedRun>(system => system.FixedRun());
+                    break;
+                case NetworkType.Client:
+                    EcsSystems.Run<IClientConnectedFixedRun>(system => system.FixedRun());
+                    break;
+                default:
+                    throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
+            }
+        }
+        catch (Exception)
+        {
+            throw new Exception($"Invalid network type: {_networkConfig.NetworkType}");
         }
     }
 }

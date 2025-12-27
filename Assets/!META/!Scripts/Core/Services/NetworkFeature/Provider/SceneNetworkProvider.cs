@@ -43,7 +43,7 @@ public partial class SceneNetworkProvider : IProviderHandler
     {
         if (!SceneConfig.IsServerScene(message.sceneType))
         {
-            LoggerUtility.Error($"Scene {message.sceneType} is not a server scene!");
+            LoggerUtility.Error($"Scene {message.sceneType} is not a server scene!", NetworkType.Server);
             return;
         }
 
@@ -61,7 +61,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         }
         else
         {
-            LoggerUtility.Error($"No scene type found for connection {client.connectionId}");
+            LoggerUtility.Error($"No scene type found for connection {client.connectionId}", NetworkType.Server);
         }
     }
 
@@ -70,13 +70,13 @@ public partial class SceneNetworkProvider : IProviderHandler
         var scene = SceneConfig.GetSceneToType(sceneType);
         if (!scene.IsValid())
         {
-            LoggerUtility.Error($"Scene {sceneType} is not valid!");
+            LoggerUtility.Error($"Scene {sceneType} is not valid!", NetworkType.Server);
             return;
         }
 
         if (!ConnectionInfo.PlayerEntityId.TryGetValue(client, out var playerEntity))
         {
-            LoggerUtility.Warning($"No player entity id found for connection {client.connectionId}");
+            LoggerUtility.Warning($"No player entity id found for connection {client.connectionId}", NetworkType.Server);
             return;
         }
 
@@ -104,7 +104,7 @@ public partial class SceneNetworkProvider : IProviderHandler
 
         if (entryPoint == null)
         {
-            LoggerUtility.Error($"No entry point found in scene {scene.name}");
+            LoggerUtility.Error($"No entry point found in scene {scene.name}", NetworkType.Server);
             position = default;
             rotation = default;
             return; // TODO make disconnect
@@ -137,7 +137,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         }
         else
         {
-            LoggerUtility.Error($"No floor found below entry point at {rayOrigin}. Using spawn point.");
+            LoggerUtility.Error($"No floor found below entry point at {rayOrigin}. Using spawn point.", NetworkType.Server);
             position = entryPoint.PlayerSpawnPoint;
         }
 
