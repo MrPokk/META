@@ -7,7 +7,8 @@ using Object = UnityEngine.Object;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider => NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
+    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider => 
+    NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
 
     public void HandlersClient()
     {
@@ -68,9 +69,11 @@ public class ObjectNetworkProvider : IProviderHandler
     {
         if (!ConnectionInfo.PlayerEntityId.TryGetValue(conn, out _))
         {
+            LoggerUtility.Info($"Player identity not found for connection {conn}", NetworkType.Server);
             return false;
         }
 
+        LoggerUtility.Info($"Player identity already exists for connection {conn}", NetworkType.Server);
         return true;
     }
 
@@ -99,14 +102,17 @@ public class ObjectNetworkProvider : IProviderHandler
     {
         if (!ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
         {
+            LoggerUtility.Error($"Scene type not found for connection {conn}", NetworkType.Server);
             return;
         }
 
+        LoggerUtility.Info($"Moving entity {entity.name} to scene {sceneType}", NetworkType.Server);
         SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
     }
 
     private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject)
     {
+        LoggerUtility.Info($"Registering player for connection {conn}", NetworkType.Server);
         NetworkServer.AddPlayerForConnection(conn, playerObject);
         ConnectionInfo.PlayerEntityId[conn] = playerObject.GetComponent<NetworkIdentity>();
     }

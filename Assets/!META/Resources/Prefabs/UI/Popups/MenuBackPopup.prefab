@@ -108,10 +108,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2634915838196155668}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 279.4969, y: 50}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 194.13, y: -31.199997}
+  m_SizeDelta: {x: 374.793, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6236462243174684379
 CanvasRenderer:
@@ -517,7 +517,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6654818998310009208}
-  - component: {fileID: 8561200274810368778}
   m_Layer: 5
   m_Name: BtnAll
   m_TagString: Untagged
@@ -541,37 +540,11 @@ RectTransform:
   - {fileID: 1863752883209598102}
   m_Father: {fileID: 2634915838196155668}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 388.2606, y: 100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 194.13, y: -136.2}
+  m_SizeDelta: {x: 374.79, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &8561200274810368778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5263408824921591775}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.HorizontalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 1
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!1 &5840243719601556783
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,7 +608,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2634915838196155668}
-  - component: {fileID: 7808132171352155103}
   m_Layer: 5
   m_Name: ElementContainer
   m_TagString: Untagged
@@ -664,32 +636,6 @@ RectTransform:
   m_AnchoredPosition: {x: -0.00067139, y: -3.8}
   m_SizeDelta: {x: 388.26, y: 192.4}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7808132171352155103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6766563632771068722}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.VerticalLayoutGroup
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 30
-  m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 0
-  m_ChildControlWidth: 0
-  m_ChildControlHeight: 0
-  m_ChildScaleWidth: 0
-  m_ChildScaleHeight: 0
-  m_ReverseArrangement: 0
 --- !u!1 &8640725739510953071
 GameObject:
   m_ObjectHideFlags: 0
@@ -856,7 +802,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 110.19765
+      value: 106.83
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -896,7 +842,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 130.46
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.y
@@ -920,7 +866,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 136.21
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.y
@@ -980,7 +926,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 136.21
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: c90dad4b9ccaff4bb9315e3d200c2988, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1085,7 +1031,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 304.82794
+      value: 294.725
       objectReference: {fileID: 0}
     - target: {fileID: 324195398790543625, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1109,15 +1055,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 627160862956184373, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_text
-      value: BackID
+      value: ExitID
       objectReference: {fileID: 0}
     - target: {fileID: 845772608822920703, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_text
-      value: BackID
+      value: ExitID
       objectReference: {fileID: 0}
     - target: {fileID: 1334096777063169263, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_text
-      value: BackID
+      value: ExitID
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1129,7 +1075,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 80.32
       objectReference: {fileID: 0}
     - target: {fileID: 1441754029544169705, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1153,7 +1099,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 82.68
       objectReference: {fileID: 0}
     - target: {fileID: 1789135180323376643, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.y
@@ -1169,15 +1115,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2360105628705923221, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: buttonText
-      value: BackID
+      value: ExitID
+      objectReference: {fileID: 0}
+    - target: {fileID: 2360105628705923221, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
+      propertyPath: latestTabIndex
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4298049208270287875, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: '_wordIDs.Array.data[0]'
-      value: 7
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7133976538823832953, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_Name
-      value: BtnUI_BackID
+      value: BtnUI_ExitID
       objectReference: {fileID: 0}
     - target: {fileID: 7251434263512913948, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1213,7 +1163,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 82.68
       objectReference: {fileID: 0}
     - target: {fileID: 8312079422623830356, guid: 7d66f9cbe83211d719f1b4561f365a34, type: 3}
       propertyPath: m_SizeDelta.y
