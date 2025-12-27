@@ -3,13 +3,18 @@ using Mirror;
 using Cysharp.Threading.Tasks;
 using System.IO;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public static class NetworkUtility
 {
     public static NetworkType Type { get; private set; }
+    private static readonly Stack<Type> s_messages = new();
 
     public static NetworkType Initialize(NetworkConfig networkConfig)
     {
+        s_messages.Clear();
+
 #if !UNITY_EDITOR
         if (networkConfig.NetworkType == NetworkType.Server)
         {
@@ -19,7 +24,6 @@ public static class NetworkUtility
 #endif
         return Type = networkConfig.NetworkType;
     }
-
 
     public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
@@ -45,12 +49,21 @@ public static class NetworkUtility
     {
         try
         {
+            if (s_messages.Any() && s_messages.Peek() == typeof(T))
+            {
+                return;
+            }
+
+            s_messages.Push(typeof(T));
+
             await UniTask.WaitUntil(() =>
                 NetworkClient.connection != null &&
                 NetworkClient.connection.isReady
             );
 
             NetworkClient.Send(message);
+
+            s_messages.Pop();
         }
         catch (OperationCanceledException)
         {

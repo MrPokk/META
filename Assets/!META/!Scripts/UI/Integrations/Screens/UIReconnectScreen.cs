@@ -2,7 +2,6 @@ using UnityEngine;
 using VContainer;
 using Cysharp.Threading.Tasks;
 using System.Threading;
-using System;
 
 public class UIReconnectScreen : UIScreen
 {
@@ -10,68 +9,99 @@ public class UIReconnectScreen : UIScreen
     [SerializeField] private UIButtonProvider _btnGoToExit;
     
     private CancellationTokenSource _connectionCts;
+    private EntryPointClient _entryPointClient;
+    private bool _isConnecting;
+
+    [Inject]
+    private void Construct(EntryPointClient entryPointClient)
+    {
+        _entryPointClient = entryPointClient;
+    }
 
     public override void Open()
     {
-        AddListener();
-
-        UINavigationComponent
-            .UsingNavigation(gameObject)
-            .ApplyFirstSelected()
-            .ApplyNavigation(
-                _btnGoToReconnect,
-                _btnGoToExit);
-
         base.Open();
+        
+        AddListeners();
+        SetupNavigation();
     }
 
     public override void Close()
     {
-        _connectionCts?.Cancel();
-        _connectionCts?.Dispose();
-        _connectionCts = null;
+        CancelConnectionAttempt();
+        RemoveListeners();
         
-        RemoveListener();
         base.Close();
     }
 
-    private void AddListener()
+    private void SetupNavigation()
     {
-        _btnGoToReconnect.AddListener(OnGoToGameplayButtonClicked);
-        _btnGoToExit.AddListener(OnGoToExitButtonClicked);
+        UINavigationComponent
+            .UsingNavigation(gameObject)
+            .ApplyFirstSelected()
+            .ApplyNavigation(_btnGoToReconnect, _btnGoToExit);
     }
 
-    private void RemoveListener()
+    private void AddListeners()
     {
-        _btnGoToReconnect.RemoveListener(OnGoToGameplayButtonClicked);
-        _btnGoToExit.RemoveListener(OnGoToExitButtonClicked);
+        _btnGoToReconnect.AddListener(OnReconnectButtonClicked);
+        _btnGoToExit.AddListener(OnExitButtonClicked);
     }
 
-    private void OnGoToExitButtonClicked()
+    private void RemoveListeners()
+    {
+        _btnGoToReconnect.RemoveListener(OnReconnectButtonClicked);
+        _btnGoToExit.RemoveListener(OnExitButtonClicked);
+    }
+
+    private void OnExitButtonClicked()
     {
         UIRootManager.OpenScreen<UIMainScreen>();
     }
 
-    private async void OnGoToGameplayButtonClicked()
+    private void OnReconnectButtonClicked()
     {
-        _connectionCts?.Cancel();
-        _connectionCts?.Dispose();
+        if (_isConnecting)
+            return;
+            
+        StartReconnection().Forget();
+    }
+
+    private async UniTaskVoid StartReconnection()
+    {
+        _isConnecting = true;
+        
+        try
+        {
+            await AttemptReconnection();
+        }
+        finally
+        {
+            _isConnecting = false;
+        }
+    }
+
+    private async UniTask AttemptReconnection()
+    {
+        CancelConnectionAttempt();
         
         _connectionCts = new CancellationTokenSource();
         var token = _connectionCts.Token;
         
-        Container.Resolve<EntryPointClient>().SetupConnection();
+        _entryPointClient.SetupConnection();
         
-        var isConnected = await TryConnectWithRetries(5, 2000, token);
+        const int MaxAttempts = 5;
+        const int DelayMs = 2000;
+        
+        var isConnected = await TryConnectWithRetries(MaxAttempts, DelayMs, token);
         
         if (isConnected)
         {
-            SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
-            Close();
+            await HandleSuccessfulConnection(token);
         }
         else
         {
-            Debug.LogWarning("Failed to connect after 5 attempts");
+            HandleFailedConnection();
         }
     }
 
@@ -87,17 +117,36 @@ public class UIReconnectScreen : UIScreen
             
             if (attempt < maxAttempts - 1)
             {
-                try
-                {
-                    await UniTask.Delay(delayMs, cancellationToken: token);
-                }
-                catch (OperationCanceledException)
-                {
-                    return false;
-                }
+                await UniTask.Delay(delayMs, cancellationToken: token);
             }
         }
         
         return false;
+    }
+
+    private async UniTask HandleSuccessfulConnection(CancellationToken token)
+    {
+        if (token.IsCancellationRequested)
+            return;
+            
+        SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
+        Close();
+    }
+
+    private void HandleFailedConnection()
+    {
+        Debug.LogWarning("Failed to connect after multiple attempts");
+    }
+
+    private void CancelConnectionAttempt()
+    {
+        _connectionCts?.Cancel();
+        _connectionCts?.Dispose();
+        _connectionCts = null;
+    }
+
+    private void OnDestroy()
+    {
+        CancelConnectionAttempt();
     }
 }

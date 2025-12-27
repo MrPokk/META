@@ -11,13 +11,14 @@ public class UISliderProvider : MonoBehaviour
     private SliderEvent _onSubmit;
 
     [SerializeField] private SaveKey _saveKey = SaveKey.NULL;
+    [SerializeField] private int _defaultValue = 30;
 
     private void Awake()
     {
         _sliderManager ??= GetComponent<SliderManager>();
         if (_saveKey != SaveKey.NULL)
         {
-            _sliderManager.mainSlider.value = SaveService.Load<float>(_saveKey);
+            _sliderManager.mainSlider.value = SaveService.Load(_saveKey, _defaultValue);
             _sliderManager.sliderEvent?.AddListener(OnSetValue);
         }
     }
