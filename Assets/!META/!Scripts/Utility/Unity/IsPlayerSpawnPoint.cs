@@ -28,12 +28,15 @@ public class IsPlayerSpawnPoint : MonoBehaviour
             throw new Exception("No entry point found in scene");
         }
 
-        player.transform.SetPositionAndRotation(
-            FindPositionToSpawn(player, entryPoint),
-            FindRotationToSpawn(entryPoint));
+        var positionToPlayer = FindPositionToSpawn(player, entryPoint);
+        var rotationToPlayer = FindRotationToSpawn(entryPoint);
 
-        position = player.transform.position;
-        rotation = player.transform.rotation;
+        player.transform.SetPositionAndRotation(
+            positionToPlayer,
+            rotationToPlayer);
+
+        position = positionToPlayer;
+        rotation = rotationToPlayer;
     }
 
     [Server]
@@ -50,7 +53,7 @@ public class IsPlayerSpawnPoint : MonoBehaviour
         var ray = new Ray(rayOrigin, Vector3.down);
 
         var layerMask = LayerMask.GetMask(
-            "IgnoreRaycast",
+            "Ignore Raycast",
             "Player");
 
         if (Physics.Raycast(ray, out var hit, Mathf.Infinity, ~layerMask))
