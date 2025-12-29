@@ -16,11 +16,13 @@ public class PlayerModelComponent : MonoBehaviour
         _playerProvider ??= GetComponentInParent<PlayerProvider>();
     }
 
-    public void SetIdle()
-    {
-        Animator.SetTrigger(_isIdle);
-    }
+    public void Hidden() => gameObject.SetActive(false);
+    public void Show() => gameObject.SetActive(true);
+    public void Toggle() => gameObject.SetActive(!gameObject.activeSelf);
+    public void SetView(bool isView) => gameObject.SetActive(isView);
 
+    public void SetIdle() => Animator.SetTrigger(_isIdle);
+    public void SetWalk() => Animator.SetTrigger(_isWalk);
     public void SetAnimationState(StateComponent.State state)
     {
         switch (state)

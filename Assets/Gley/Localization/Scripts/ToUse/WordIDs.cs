@@ -30,5 +30,6 @@ namespace Gley.Localization
 		VideoID = 4,
 		WantQuitID = 18,
 		WorkInProgressID = 24,
+		ViewPlayerID = 25,
 	}
 }

@@ -34,10 +34,30 @@ public class EntryPointServer : IStartable, IDisposable
         _networkConfig.Configure(_networkManager);
         _networkManager.StartServer();
         SetupServerScenes();
+        SetupNotGraphicServer();
         SetupProvider();
         SubscribeServerEvents();
         OnServerStart();
         LoggerUtility.Info("Server started successfully!", NetworkType.Server);
+    }
+
+    private static void SetupNotGraphicServer()
+    {
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 60;
+        Screen.fullScreenMode = FullScreenMode.Windowed;
+        Screen.SetResolution(850, 500, false);
+
+        foreach (var cam in Camera.allCameras)
+        {
+            cam.enabled = false;
+            cam.gameObject.SetActive(false);
+        }
+
+        LightmapSettings.lightmaps = new LightmapData[0];
+        RenderSettings.ambientLight = Color.black;
+        RenderSettings.fog = false;
+        DynamicGI.UpdateEnvironment();
     }
 
     private void SetupServerScenes()
@@ -96,9 +116,7 @@ public class EntryPointServer : IStartable, IDisposable
 
     public void Dispose()
     {
-        if (NetworkServer.active)
-        {
-            UnsubscribeServerEvents();
-        }
+        UnsubscribeServerEvents();
+        LoggerUtility.Info("Server stop successfully!", NetworkType.Server);
     }
 }
