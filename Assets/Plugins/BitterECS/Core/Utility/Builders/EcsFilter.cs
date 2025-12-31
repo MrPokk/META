@@ -40,16 +40,16 @@ namespace BitterECS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsFilter Exclude<T>() where T : struct
+        public EcsFilter Include<T>(Predicate<T> predicate) where T : struct
         {
-            AddCondition(_excludeConditions, new NotHasComponentCondition<T>(), ref _excludeCount);
+            AddCondition(_includeConditions, new ComponentPredicateCondition<T>(predicate), ref _includeCount);
             return this;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EcsFilter Where<T>(Predicate<T> predicate) where T : struct
+        public EcsFilter Exclude<T>() where T : struct
         {
-            AddCondition(_includeConditions, new ComponentPredicateCondition<T>(predicate), ref _includeCount);
+            AddCondition(_excludeConditions, new NotHasComponentCondition<T>(), ref _excludeCount);
             return this;
         }
 
@@ -129,7 +129,7 @@ namespace BitterECS.Core
             var aliveEntities = _presenter.GetAliveEntities();
             ResetFilteredCache();
 
-            for (var i = 0; i < aliveEntities.Length; i++)
+            for (var i = 0; i < aliveEntities.Count; i++)
             {
                 var entity = aliveEntities[i];
                 if (!MatchesAllConditions(entity))
@@ -152,15 +152,16 @@ namespace BitterECS.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly FilterEnumerator Collect() => new(this);
+        public readonly Enumerator Collect() => new(this);
         public ReadOnlySpan<EcsEntity>.Enumerator GetEnumerator() => ValidationCacheOnFilter().GetEnumerator();
-
-
-        public ref struct FilterEnumerator
+        public readonly int Count() => _filteredLength;
+        
+        public ref struct Enumerator
         {
             private EcsFilter _filter;
-            public FilterEnumerator(in EcsFilter filter) => _filter = filter;
+            public Enumerator(in EcsFilter filter) => _filter = filter;
             public ReadOnlySpan<EcsEntity>.Enumerator GetEnumerator() => _filter.ValidationCacheOnFilter().GetEnumerator();
+            public readonly int Count() => _filter.ValidationCacheOnFilter().Length;
         }
     }
 

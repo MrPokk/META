@@ -59,12 +59,11 @@ public class IsPlayerSpawnPoint : MonoBehaviour
         if (Physics.Raycast(ray, out var hit, Mathf.Infinity, ~layerMask))
         {
             position = GetPosition(player, hit);
-            LoggerUtility.Info($"Floor found below entry point at {position}.", NetworkType.Server);
         }
         else
         {
             position = entryPoint.PlayerSpawnPoint;
-            LoggerUtility.Error($"No floor found below entry point at {rayOrigin}. Using spawn point.", NetworkType.Server);
+            LoggerUtility.Warning($"No floor found below entry point at {rayOrigin}. Using spawn point.", NetworkType.Server);
         }
 
         return position;

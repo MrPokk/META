@@ -10,13 +10,13 @@ public class UISettingPopup : UIPopup
     [SerializeField] private UISliderProvider _slSoundMusic;
     [SerializeField] private UISwitchProvider _swShowPlayers;
 
-    private FilterEnumerator _ecsSensitivity =>
+    private Enumerator _ecsSensitivity =>
         Build.For<PlayerPresenter>()
         .Filter()
         .Include<ControllableComponent>()
         .Collect();
 
-    private FilterEnumerator _ecsToggle =>
+    private Enumerator _ecsToggle =>
         Build.For<PlayerPresenter>()
         .Filter()
         .Exclude<ControllableComponent>()

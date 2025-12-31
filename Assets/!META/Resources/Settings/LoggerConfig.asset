@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb1c6edc682495be5b04d0638836ce76, type: 3}
   m_Name: LoggerConfig
   m_EditorClassIdentifier: 
-  _isLoggingEnabled: 1
   _minimumLogLevel: 0
-  _logFileName: game_log
+  _logFileName: latest
   _logPathFolder: logs
+  _maxLogSizeMB: 10
+  _maxArchivedLogs: 10
+  _compressArchivedLogs: 1
