@@ -228,7 +228,7 @@ PrefabInstance:
     - target: {fileID: 2430551615561310743, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
       propertyPath: _cameraTarget
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8229211110006409416}
     - target: {fileID: 5573527691401548260, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
       propertyPath: m_Name
       value: '[CameraObject]'
@@ -274,6 +274,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 349090233005243805, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
   m_PrefabInstance: {fileID: 7567024673615688055}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8229211110006409416 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1961176070444808639, guid: 8364e16d8dbc7ba3f847a7f83bfbc835, type: 3}
+  m_PrefabInstance: {fileID: 7567024673615688055}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab48b2e315d553d399f6489a8fc7c653, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraTargetComponent
 --- !u!1001 &7893827206767913958
 PrefabInstance:
   m_ObjectHideFlags: 0

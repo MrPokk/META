@@ -17,7 +17,7 @@ MonoBehaviour:
   _kcpSettings:
     port: 5555
     noDelay: 1
-    interval: 10
+    interval: 30
   _webSocketSettings:
     port: 8888
     secure: 0

@@ -199,7 +199,7 @@ public static class LoggerUtility
             allArchives.Sort((a, b) => 
                 File.GetCreationTime(a).CompareTo(File.GetCreationTime(b)));
 
-            while (allArchives.Count > config.MaxArchivedLogs)
+            while (allArchives.Count >= config.MaxArchivedLogs)
             {
                 var fileToDelete = allArchives[0];
                 File.Delete(fileToDelete);
