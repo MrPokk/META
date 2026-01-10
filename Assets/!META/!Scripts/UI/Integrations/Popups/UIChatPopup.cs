@@ -23,7 +23,19 @@ public class UIChatPopup : UIPopup
     private void AddListener()
     {
         _inputFieldProvider.AddListener(OnInputFieldSubmitted);
+        _inputFieldProvider.AddListenerToSelected(OnStartSelected);
+        _inputFieldProvider.AddListenerToEndSelected(OnEndSelected);
         _btnSubmit.AddListener(OnButtonSubmit);
+    }
+
+    private void OnEndSelected()
+    {
+        ControllableSystem.EnablePlayable();
+    }
+
+    private void OnStartSelected()
+    {
+        ControllableSystem.DisablePlayable();
     }
 
     private void OnButtonSubmit() => _inputFieldProvider.OnSubmit();

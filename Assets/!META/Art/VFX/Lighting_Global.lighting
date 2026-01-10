@@ -16,10 +16,10 @@ LightingSettings:
   m_IndirectOutputScale: 1
   m_UsingShadowmask: 1
   m_BakeBackend: 2
-  m_LightmapMaxSize: 32
+  m_LightmapMaxSize: 2048
   m_LightmapSizeFixed: 0
   m_UseMipmapLimits: 1
-  m_BakeResolution: 60
+  m_BakeResolution: 32
   m_Padding: 2
   m_LightmapCompression: 3
   m_LightmapPackingMode: 1
@@ -40,7 +40,7 @@ LightingSettings:
   m_ExportTrainingData: 0
   m_EnableWorkerProcessBaking: 1
   m_TrainingDataDestination: TrainingData
-  m_RealtimeResolution: 2
+  m_RealtimeResolution: 1
   m_ForceWhiteAlbedo: 0
   m_ForceUpdates: 0
   m_PVRCulling: 1

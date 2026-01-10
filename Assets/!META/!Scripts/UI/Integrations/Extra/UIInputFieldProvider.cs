@@ -21,6 +21,26 @@ public class UIInputFieldProvider : MonoBehaviour, IUIProvider
         InitializeComponents();
     }
 
+    public void AddListenerToEndSelected(UnityAction action)
+    {
+        _inputFieldProvider.inputText.onEndEdit.AddListener(delegate { action(); });
+    }
+
+    public void RemoveListenerToEndSelected(UnityAction action)
+    {
+        _inputFieldProvider.inputText.onEndEdit.RemoveListener(delegate { action(); });
+    }
+
+    public void AddListenerToSelected(UnityAction action)
+    {
+        _inputFieldProvider.inputText.onSelect.AddListener(delegate { action(); });
+    }
+
+    public void RemoveListenerToSelected(UnityAction action)
+    {
+        _inputFieldProvider.inputText.onSelect.RemoveListener(delegate { action(); });
+    }
+
     public void AddListener(UnityAction action)
     {
         _inputFieldProvider.onSubmit.AddListener(action);
@@ -53,5 +73,7 @@ public class UIInputFieldProvider : MonoBehaviour, IUIProvider
     {
         _inputFieldProvider.onSubmit?.RemoveAllListeners();
         _inputFieldProvider.onSubmit?.RemoveListener(ClearOnSubmit);
+        _inputFieldProvider.inputText.onEndEdit?.RemoveAllListeners();
+        _inputFieldProvider.inputText.onSelect?.RemoveAllListeners();
     }
 }

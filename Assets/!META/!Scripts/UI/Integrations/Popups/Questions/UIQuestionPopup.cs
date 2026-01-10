@@ -11,10 +11,7 @@ public class UIQuestionPopup : UIPopup
 
     private void Awake()
     {
-        if (_notificationManager == null)
-        {
-            _notificationManager = GetComponentInChildren<NotificationManager>();
-        }
+        _notificationManager ??= GetComponentInChildren<NotificationManager>();
     }
 
     [Inject]
@@ -30,11 +27,6 @@ public class UIQuestionPopup : UIPopup
         _notificationManager.description = questionPoint.Description;
         _notificationManager.UpdateUI();
         _notificationManager.Open();
-    }
-
-    public override void Open()
-    {
-        base.Open();
     }
 
     public override void Close()

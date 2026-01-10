@@ -8,17 +8,20 @@ using UnityEngine.InputSystem;
 public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 {
     public Priority PrioritySystem => Priority.FIRST_TASK;
-    private ControlsConfig _inputs;
+    private static ControlsConfig s_inputs;
 
     public void Init()
     {
-        _inputs = new ControlsConfig();
-        _inputs.Enable();
-        _inputs.Playable.Move.performed += MovePressingSystem;
-        _inputs.Playable.Move.canceled += MoveUnPressingSystem;
-        //_inputs.UI.Navigate.performed += NavigatePressingSystem; TODO: Make optimized navigation
-        _inputs.UI.Cancel.performed += CancelPressingSystem;
+        s_inputs = new ControlsConfig();
+        s_inputs.Enable();
+        s_inputs.Playable.Move.performed += MovePressingSystem;
+        s_inputs.Playable.Move.canceled += MoveUnPressingSystem;
+        s_inputs.UI.Cancel.performed += CancelPressingSystem;
+        //_inputs.UI.Navigate.performed += NavigatePressingSystem; TODO: Make optimized navigation and fix bug with UI
     }
+
+    public static void DisablePlayable() => s_inputs.Playable.Disable();
+    public static void EnablePlayable() => s_inputs.Playable.Enable();
 
     private void CancelPressingSystem(InputAction.CallbackContext context)
     {
@@ -140,14 +143,14 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 
     public void Destroy()
     {
-        if (_inputs == null)
+        if (s_inputs == null)
         {
             return;
         }
 
-        _inputs.Playable.Move.performed -= MovePressingSystem;
-        _inputs.Playable.Move.canceled -= MoveUnPressingSystem;
-        _inputs.UI.Navigate.performed -= NavigatePressingSystem;
-        _inputs.Disable();
+        s_inputs.Playable.Move.performed -= MovePressingSystem;
+        s_inputs.Playable.Move.canceled -= MoveUnPressingSystem;
+        s_inputs.UI.Navigate.performed -= NavigatePressingSystem;
+        s_inputs.Disable();
     }
 }
