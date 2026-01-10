@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class UICornerPopup : UIPopup
 {
-    [SerializeField] private UIButtonProvider _btnGoToProfile;
+    [SerializeField] private UIButtonProvider _btnGoToChat;
     [SerializeField] private UIButtonProvider _btnGoToSettings;
     [SerializeField] private UIButtonProvider _btnGoToInventory;
     [SerializeField] private UIButtonProvider _btnGoToMenu;
@@ -22,7 +22,7 @@ public class UICornerPopup : UIPopup
 
     private void AddListener()
     {
-        _btnGoToProfile.AddListener(OnGoToProfileButted);
+        _btnGoToChat.AddListener(OnGoToChatButted);
         _btnGoToSettings.AddListener(OnGoToSettingsButted);
         _btnGoToInventory.AddListener(OnGoToInventoryButted);
         _btnGoToMenu.AddListener(OnGoToMenuButted);
@@ -33,9 +33,9 @@ public class UICornerPopup : UIPopup
         UIRootManager.OpenPopup<UIMainMenuPopup>();
     }
 
-    private void OnGoToProfileButted()
+    private void OnGoToChatButted()
     {
-        UIRootManager.OpenPopup<UIComingSoonPopup>();
+        UIRootManager.OpenPopup<UIChatPopup>();
     }
 
     private void OnGoToInventoryButted()

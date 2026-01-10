@@ -7,20 +7,14 @@ public partial class SceneNetworkProvider : IProviderHandler
     public static void ChangeScene(SceneTypes sceneType) =>
     NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
-    public void HandlersClient()
-    {
-        NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
-    }
+    public void HandlersClient() =>
+    NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
 
-    private async void OnClientRequest(SceneChangeRequestMessage message)
-    {
-        await SceneLoader.LoadSceneAsync(message.sceneType, onStart: TransitionStart, onComplete: TransitionComplete);
-    }
+    private async void OnClientRequest(SceneChangeRequestMessage message) =>
+    await SceneLoader.LoadSceneAsync(message.sceneType, onStart: TransitionStart, onComplete: TransitionComplete);
 
-    private static void TransitionStart()
-    {
-        EcsSystems.Run<IClientSceneTransitionStart>(system => system.OnStart());
-    }
+    private static void TransitionStart() =>
+    EcsSystems.Run<IClientSceneTransitionStart>(system => system.OnStart());
 
     private static void TransitionComplete()
     {

@@ -28,8 +28,9 @@ namespace Gley.Localization
 		Title_Floor5_ID = 22,
 		Title_Floor6_ID = 23,
 		VideoID = 4,
+		ViewPlayerID = 25,
 		WantQuitID = 18,
 		WorkInProgressID = 24,
-		ViewPlayerID = 25,
+		ChatID = 26,
 	}
 }

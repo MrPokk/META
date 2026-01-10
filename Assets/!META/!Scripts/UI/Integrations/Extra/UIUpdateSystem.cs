@@ -6,7 +6,7 @@ public class UIUpdateSystem : IClientSceneTransitionStart, IClientSceneTransitio
 
     public void OnStart()
     {
-        UIRootManager.ClosePopup<UICornerPopup>();
+        UIRootManager.CloseAllPopups();
         VFXService.OnClientSceneTransitionSet(1f);
     }
 
