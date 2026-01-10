@@ -7,7 +7,7 @@ public class UIReconnectScreen : UIScreen
 {
     [SerializeField] private UIButtonProvider _btnGoToReconnect;
     [SerializeField] private UIButtonProvider _btnGoToExit;
-    
+
     private CancellationTokenSource _connectionCts;
     private EntryPointClient _entryPointClient;
     private bool _isConnecting;
@@ -21,7 +21,7 @@ public class UIReconnectScreen : UIScreen
     public override void Open()
     {
         base.Open();
-        
+
         AddListeners();
         SetupNavigation();
     }
@@ -30,7 +30,7 @@ public class UIReconnectScreen : UIScreen
     {
         CancelConnectionAttempt();
         RemoveListeners();
-        
+
         base.Close();
     }
 
@@ -63,14 +63,14 @@ public class UIReconnectScreen : UIScreen
     {
         if (_isConnecting)
             return;
-            
+
         StartReconnection().Forget();
     }
 
     private async UniTaskVoid StartReconnection()
     {
         _isConnecting = true;
-        
+
         try
         {
             await AttemptReconnection();
@@ -84,17 +84,17 @@ public class UIReconnectScreen : UIScreen
     private async UniTask AttemptReconnection()
     {
         CancelConnectionAttempt();
-        
+
         _connectionCts = new CancellationTokenSource();
         var token = _connectionCts.Token;
-        
+
         _entryPointClient.SetupConnection();
-        
+
         const int MaxAttempts = 5;
         const int DelayMs = 2000;
-        
+
         var isConnected = await TryConnectWithRetries(MaxAttempts, DelayMs, token);
-        
+
         if (isConnected)
         {
             await HandleSuccessfulConnection(token);
@@ -111,16 +111,16 @@ public class UIReconnectScreen : UIScreen
         {
             if (token.IsCancellationRequested)
                 return false;
-            
+
             if (NetworkUtility.IsClientActive())
                 return true;
-            
+
             if (attempt < maxAttempts - 1)
             {
                 await UniTask.Delay(delayMs, cancellationToken: token);
             }
         }
-        
+
         return false;
     }
 
@@ -128,8 +128,8 @@ public class UIReconnectScreen : UIScreen
     {
         if (token.IsCancellationRequested)
             return;
-            
-        SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
+
+        await SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
         Close();
     }
 

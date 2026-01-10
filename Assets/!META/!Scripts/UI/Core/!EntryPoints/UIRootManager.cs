@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -50,14 +51,29 @@ public class UIRootManager : MonoBehaviour
         _instance = null;
     }
 
-    public static IWindowBinder GetCurrentScreen => Instance?._uiContainer.OpenedScreenBinder;
-    public static IReadOnlyList<IWindowBinder> GetCurrentPopups => Instance?._uiContainer.OpenedBinders.Values.ToList();
+    public static IWindowBinder GetCurrentScreen => Instance._uiContainer.OpenedScreenBinder;
+    public static IReadOnlyList<IWindowBinder> GetCurrentPopups => Instance._uiContainer.OpenedBinders.Values.ToList();
 
-    public static void OpenScreen<T>() where T : UIScreen => Instance?.OpenScreenInstance<T>();
-    public static void CloseScreen() => Instance?.CloseScreenInstance();
-    public static void OpenPopup<T>() where T : UIPopup => Instance?.OpenPopupInstance<T>();
-    public static void ClosePopup<T>() where T : UIPopup => Instance?.ClosePopupInstance<T>();
-    public static void CloseAllPopups() => Instance?.CloseAllPopupsInstance();
+    public static bool TryGetOpenedPopup<T>(out T popup) where T : UIPopup => Instance.TryGetOpenedPopupInstance(out popup);
+    public static void OpenScreen<T>() where T : UIScreen => Instance.OpenScreenInstance<T>();
+    public static void CloseScreen() => Instance.CloseScreenInstance();
+    public static void OpenPopup<T>() where T : UIPopup => Instance.OpenPopupInstance<T>();
+    public static void ChangePopup<T>() where T : UIPopup => Instance.ChangePopupInstance<T>();
+
+    public static void ClosePopup<T>() where T : UIPopup => Instance.ClosePopupInstance<T>();
+    public static void CloseAllPopups() => Instance.CloseAllPopupsInstance();
+
+    private bool TryGetOpenedPopupInstance<T>(out T popup) where T : UIPopup
+    {
+        if (_uiContainer.OpenedBinders.TryGetValue(typeof(T), out var binder))
+        {
+            popup = binder as T;
+            return true;
+        }
+
+        popup = null;
+        return false;
+    }
 
     private void OpenScreenInstance<T>() where T : UIScreen
     {
@@ -128,6 +144,19 @@ public class UIRootManager : MonoBehaviour
         }
     }
 
+    private void ChangePopupInstance<T>() where T : UIPopup
+    {
+        var isOpenPopup = _uiContainer.OpenedBinders.TryGetValue(typeof(T), out _);
+        if (isOpenPopup)
+        {
+            ClosePopup<T>();
+        }
+        else
+        {
+            OpenPopup<T>();
+        }
+    }
+
     private bool TryFindPopupInContainer<T>(out T popup) where T : UIPopup
     {
         popup = _uiContainer?.PopupsContainer?.GetComponentsInChildren<T>()?.FirstOrDefault();
@@ -139,7 +168,7 @@ public class UIRootManager : MonoBehaviour
         if (!TryFindPopupInContainer<T>(out var existingPopup))
         {
             return;
-            
+
         }
 
         existingPopup.Close();

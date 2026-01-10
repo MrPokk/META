@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using VContainer;
 
@@ -16,7 +17,7 @@ public class UIMainScreen : UIScreen
             .ApplyFirstSelected()
             .ApplyNavigation(
                 _btnGoToGameplay,
-                _btnGoToSettings, 
+                _btnGoToSettings,
                 _btnGoToExit);
 
         UIAnimationComponent
@@ -57,11 +58,11 @@ public class UIMainScreen : UIScreen
         UIRootManager.OpenScreen<UISettingScreen>();
     }
 
-    private void OnGoToGameplayButted()
+    private async void OnGoToGameplayButted()
     {
         Container.Resolve<EntryPointClient>().SetupConnection();
         VFXService.OnClientSceneTransitionSet(1);
-        SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
+        await SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
         Close();
     }
 }

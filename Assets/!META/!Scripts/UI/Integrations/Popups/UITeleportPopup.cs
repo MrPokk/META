@@ -21,16 +21,16 @@ public class UITeleportPopup : UIPopup
         CreateButtons();
     }
 
-    private void OnTeleportExecuted(TeleportPoint teleportPoint)
+    private async void OnTeleportExecuted(TeleportPoint teleportPoint)
     {
-        SceneNetworkProvider.ChangeScene(teleportPoint.SceneType);
+        await SceneNetworkProvider.ChangeScene(teleportPoint.SceneType);
         Close();
     }
 
     public override void Open()
     {
         base.Open();
-        
+
         UINavigationComponent
               .UsingNavigation(gameObject)
               .ApplyFirstSelected()

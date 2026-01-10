@@ -4,14 +4,16 @@ using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using System;
 using Object = UnityEngine.Object;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static void Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider => 
+    public static UniTask Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider =>
         NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
 
-    public static void Destroy(uint netId) => 
-        NetworkUtility.SendMessage(new DestroyObjectRequestMessage(netId));
+    public static UniTask Destroy(uint netId) =>
+      NetworkUtility.SendMessage(new DestroyObjectRequestMessage(netId));
 
     public void HandlersClient()
     {
@@ -51,10 +53,10 @@ public class ObjectNetworkProvider : IProviderHandler
             {
                 provider.Entity?.Dispose();
             }
-            
+
             NetworkClient.spawned.Remove(destroyMessage.netId);
             Object.Destroy(networkObject.gameObject);
-            
+
             LoggerUtility.Info($"Client destroyed object with netId: {destroyMessage.netId}", NetworkType.Client);
         }
     }
@@ -86,7 +88,7 @@ public class ObjectNetworkProvider : IProviderHandler
         TrackClientEntity(conn, identity);
     }
 
-    private void OnServerDestroy(NetworkConnectionToClient conn, DestroyObjectRequestMessage destroyMessage)
+    private async void OnServerDestroy(NetworkConnectionToClient conn, DestroyObjectRequestMessage destroyMessage)
     {
         if (!NetworkServer.spawned.TryGetValue(destroyMessage.netId, out var networkIdentity))
         {
@@ -94,14 +96,14 @@ public class ObjectNetworkProvider : IProviderHandler
             return;
         }
 
-        if (!ConnectionInfo.ClientEntities.TryGetValue(conn, out var clientObjects) || 
+        if (!ConnectionInfo.ClientEntities.TryGetValue(conn, out var clientObjects) ||
             !clientObjects.Contains(networkIdentity))
         {
             LoggerUtility.Warning($"Connection {conn.connectionId} does not own object with netId {destroyMessage.netId}", NetworkType.Server);
             return;
         }
 
-        if (ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerIdentity) && 
+        if (ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerIdentity) &&
             playerIdentity.netId == destroyMessage.netId)
         {
             ConnectionInfo.PlayerEntityId.Remove(conn);
@@ -109,7 +111,7 @@ public class ObjectNetworkProvider : IProviderHandler
 
         clientObjects.Remove(networkIdentity);
 
-        NetworkUtility.SendMessage(new DestroyObjectRequestMessage(destroyMessage.netId));
+        await NetworkUtility.SendMessage(new DestroyObjectRequestMessage(destroyMessage.netId));
         NetworkServer.Destroy(networkIdentity.gameObject);
 
         LoggerUtility.Info($"Server destroyed object with netId: {destroyMessage.netId} for connection {conn.connectionId}", NetworkType.Server);
@@ -158,12 +160,12 @@ public class ObjectNetworkProvider : IProviderHandler
         ConnectionInfo.PlayerEntityId[conn] = playerObject.GetComponent<NetworkIdentity>();
     }
 
-    private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) => 
+    private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) =>
         NetworkServer.Spawn(networkObject, conn);
 
-    private void SendSpawnConfirmation(NetworkConnectionToClient conn, in SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
+    private UniTask SendSpawnConfirmation(NetworkConnectionToClient conn, in SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
         NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), conn);
 
-    private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) => 
+    private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) =>
         ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
 }

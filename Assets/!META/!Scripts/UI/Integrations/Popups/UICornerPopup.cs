@@ -35,7 +35,7 @@ public class UICornerPopup : UIPopup
 
     private void OnGoToChatButted()
     {
-        UIRootManager.OpenPopup<UIChatPopup>();
+        UIRootManager.ChangePopup<UIChatPopup>();
     }
 
     private void OnGoToInventoryButted()

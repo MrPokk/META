@@ -25,7 +25,7 @@ public static class NetworkUtility
         return Type = networkConfig.NetworkType;
     }
 
-    public static void SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
+    public static async UniTask SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
     {
         if (NetworkServer.active && target != null)
         {
@@ -37,7 +37,7 @@ public static class NetworkUtility
         }
         else if (NetworkClient.active)
         {
-            WaitingToSend(value).Forget();
+            await WaitingToSend(value);
         }
         else
         {
@@ -45,7 +45,7 @@ public static class NetworkUtility
         }
     }
 
-    private static async UniTaskVoid WaitingToSend<T>(T message) where T : struct, NetworkMessage
+    private static async UniTask WaitingToSend<T>(T message) where T : struct, NetworkMessage
     {
         try
         {

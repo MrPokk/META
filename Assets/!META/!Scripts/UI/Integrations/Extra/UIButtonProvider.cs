@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using static UnityEngine.UI.Button;
 
 [RequireComponent(typeof(ButtonManager))]
-public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmitHandler
+public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmitHandler, IUIProvider
 {
     [SerializeField] private ButtonManager _buttonManager;
     private ButtonClickedEvent _onSubmit;
@@ -92,7 +92,7 @@ public class UIButtonProvider : LocalizedUIElement, IPointerClickHandler, ISubmi
 
     private void OnDestroy()
     {
-        _onSubmit?.RemoveAllListeners();
+        _onSubmit.RemoveAllListeners();
         _buttonManager.onHover.RemoveAllListeners();
     }
 }

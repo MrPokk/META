@@ -1,11 +1,13 @@
+using System.Threading.Tasks;
 using BitterECS.Core;
+using Cysharp.Threading.Tasks;
 using Mirror;
 using UnityEngine.SceneManagement;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
-    public static void ChangeScene(SceneTypes sceneType) =>
-    NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
+    public static async UniTask ChangeScene(SceneTypes sceneType)
+    => await NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
     public void HandlersClient() =>
     NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
@@ -16,9 +18,9 @@ public partial class SceneNetworkProvider : IProviderHandler
     private static void TransitionStart() =>
     EcsSystems.Run<IClientSceneTransitionStart>(system => system.OnStart());
 
-    private static void TransitionComplete()
+    private static async void TransitionComplete()
     {
-        NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
+        await NetworkUtility.SendMessage(new SceneTransitionCompleteMessage());
         EcsSystems.Run<IClientSceneTransitionComplete>(system => system.OnComplete());
     }
 
@@ -42,11 +44,11 @@ public partial class SceneNetworkProvider : IProviderHandler
         client.Send(new SceneChangeRequestMessage(message.sceneType));
     }
 
-    private void OnServerTransitionComplete(NetworkConnectionToClient client, SceneTransitionCompleteMessage message)
+    private async void OnServerTransitionComplete(NetworkConnectionToClient client, SceneTransitionCompleteMessage message)
     {
         if (ConnectionInfo.ClientToScene.TryGetValue(client, out var sceneType))
         {
-            MoveClientObjectsToScene(client, sceneType);
+            await MoveClientObjectsToScene(client, sceneType);
         }
         else
         {
@@ -54,7 +56,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         }
     }
 
-    private void MoveClientObjectsToScene(NetworkConnectionToClient client, SceneTypes sceneType)
+    private async UniTask MoveClientObjectsToScene(NetworkConnectionToClient client, SceneTypes sceneType)
     {
         var scene = SceneConfig.GetSceneToType(sceneType);
         if (!scene.IsValid())
@@ -74,9 +76,10 @@ public partial class SceneNetworkProvider : IProviderHandler
         IsPlayerSpawnPoint.SetPositionPlayerToSpawnPoint(playerEntity, scene, out var position, out var rotation);
         NetworkServer.AddPlayerForConnection(client, playerEntity.gameObject);
 
-        SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId, position, rotation));
+        await SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId, position, rotation));
     }
 
-    private void SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn) => NetworkUtility.SendMessage(spawn, client);
+    private async UniTask SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn)
+    => await NetworkUtility.SendMessage(spawn, client);
 }
 

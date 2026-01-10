@@ -28,6 +28,12 @@ public interface IClientSceneTransitionComplete : IEcsAutoImplement
     public void OnComplete();
 }
 
+
+public interface IClientChatMessage : IEcsAutoImplement
+{
+    public void OnMessage(ChatMessage message);
+}
+
 public interface IClientDisconnected : IEcsAutoImplement
 {
     public void Disconnect();
