@@ -2,12 +2,14 @@ using Mirror;
 
 public struct ChatMessage : NetworkMessage
 {
+    public uint ownerId;
     public string message;
     public string sender;
 
-    public ChatMessage(string message = default, string sender = default)
+    public ChatMessage(uint ownerId, string message = default, string sender = default)
     {
         this.message = message;
         this.sender = sender;
+        this.ownerId = ownerId;
     }
 }

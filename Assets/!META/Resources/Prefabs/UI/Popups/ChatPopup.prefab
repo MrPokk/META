@@ -36,8 +36,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 11.859, y: 0}
-  m_SizeDelta: {x: -23.7178, y: -57.2466}
+  m_AnchoredPosition: {x: 11.859, y: -9.1139}
+  m_SizeDelta: {x: -23.7178, y: -66.3605}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &8599838765924759001
 CanvasRenderer:
@@ -693,6 +693,7 @@ MonoBehaviour:
   _inputFieldProvider: {fileID: 1116899881573880296}
   _btnSubmit: {fileID: 3562174800518266557}
   _chatContent: {fileID: 9115659888055574350}
+  _colorOwner: {r: 0.36779103, g: 0.8207547, b: 0.4093474, a: 1}
 --- !u!1 &6705528140410597330
 GameObject:
   m_ObjectHideFlags: 0
@@ -923,7 +924,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -0.000015258789, y: 71.37671}
+  m_AnchoredPosition: {x: -0.000015258789, y: 66.81976}
   m_SizeDelta: {x: -264, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &9115659888055574350

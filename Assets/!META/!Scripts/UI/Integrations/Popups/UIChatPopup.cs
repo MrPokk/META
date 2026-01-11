@@ -1,6 +1,7 @@
 using System;
 using BitterECS.Core;
 using Cysharp.Threading.Tasks;
+using Gley.Localization;
 using UnityEngine;
 
 public class UIChatPopup : UIPopup
@@ -8,6 +9,9 @@ public class UIChatPopup : UIPopup
     [SerializeField] private UIInputFieldProvider _inputFieldProvider;
     [SerializeField] private UIButtonProvider _btnSubmit;
     [SerializeField] private UIChatContent _chatContent;
+
+    [Header("Setting")]
+    [SerializeField] private Color _colorOwner;
     public override void Open()
     {
         AddListener();
@@ -42,12 +46,32 @@ public class UIChatPopup : UIPopup
 
     private void OnInputFieldSubmitted()
     {
-        MessageNetworkProvider.SendChatMessage(_inputFieldProvider.OnSubmitText).Forget();
+        ChatNetworkProvider.SendChatMessage(_inputFieldProvider.OnSubmitText);
     }
 
     public void AddContent(ChatMessage message)
     {
-        Instantiate(_chatContent.chatContentItem, _chatContent.transform).SetText(message.message);
+        if (NetworkUtility.IsSenderToOwned(message.ownerId))
+        {
+            AddOwnerMessage(message);
+        }
+        else
+        {
+            AddStandardMessage(message);
+        }
+    }
+
+    private void AddStandardMessage(ChatMessage message)
+    {
+        var makeMessage = $"{message.sender}: {message.message}";
+        Instantiate(_chatContent.chatContentItem, _chatContent.transform).SetText(makeMessage);
+    }
+
+    public void AddOwnerMessage(ChatMessage message)
+    {
+        var hexRGB = ColorUtility.ToHtmlStringRGB(_colorOwner);
+        var makeMessage = $"<color=#{hexRGB}>{API.GetText(WordIDs.NameOwnerID)}:</color> {message.message}";
+        Instantiate(_chatContent.chatContentItem, _chatContent.transform).SetText(makeMessage);
     }
 }
 

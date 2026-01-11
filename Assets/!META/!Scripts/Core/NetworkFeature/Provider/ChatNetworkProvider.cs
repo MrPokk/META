@@ -2,10 +2,10 @@ using BitterECS.Core;
 using Cysharp.Threading.Tasks;
 using Mirror;
 
-public class MessageNetworkProvider : IProviderHandler
+public class ChatNetworkProvider : IProviderHandler
 {
-    public static async UniTask SendChatMessage(string message)
-    => await NetworkUtility.SendMessage<ChatMessage>(new(message));
+    public static void SendChatMessage(string message) =>
+    NetworkUtility.SendMessage<ChatMessage>(new(NetworkUtility.ClientID, message)).Forget();
 
     public void HandlersClient()
     {
@@ -32,7 +32,19 @@ public class MessageNetworkProvider : IProviderHandler
 
         foreach (var clientOnScene in ConnectionInfo.SceneToConnections[sceneTypes])
         {
+            ValidateMessage(ref message);
+            AddMessageToPlayerName(ref message);
             NetworkUtility.SendMessage(message, clientOnScene).Forget();
         }
+    }
+
+    private void AddMessageToPlayerName(ref ChatMessage message)
+    {
+        message.sender = $"Guest{message.ownerId}";
+    }
+
+    private void ValidateMessage(ref ChatMessage message)
+    {
+        //TODO: VALIDATE MESSAGE
     }
 }

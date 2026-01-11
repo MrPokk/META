@@ -11,6 +11,8 @@ public static class NetworkUtility
     public static NetworkType Type { get; private set; }
     private static readonly Stack<Type> s_messages = new();
 
+    public static uint ClientID => NetworkClient.connection.identity.netId;
+
     public static NetworkType Initialize(NetworkConfig networkConfig)
     {
         s_messages.Clear();
@@ -23,6 +25,17 @@ public static class NetworkUtility
         }
 #endif
         return Type = networkConfig.NetworkType;
+    }
+
+    public static bool IsSenderToOwned(uint toIdCheck)
+    {
+        if (Type == NetworkType.Client
+            && IsClientActive()
+            && toIdCheck == ClientID)
+        {
+            return true;
+        }
+        return false;
     }
 
     public static async UniTask SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage

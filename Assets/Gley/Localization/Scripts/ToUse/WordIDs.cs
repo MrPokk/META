@@ -3,6 +3,7 @@ namespace Gley.Localization
 	public enum WordIDs
 	{
 		BackID = 7,
+		ChatID = 26,
 		ContinueID = 19,
 		ControllableID = 14,
 		Description_Floor3_ID = 30,
@@ -31,6 +32,6 @@ namespace Gley.Localization
 		ViewPlayerID = 25,
 		WantQuitID = 18,
 		WorkInProgressID = 24,
-		ChatID = 26,
+		NameOwnerID = 27,
 	}
 }
