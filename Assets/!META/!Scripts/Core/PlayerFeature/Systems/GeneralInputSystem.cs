@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
+public class GeneralInputSystem : IEcsInitSystem, IEcsDestroySystem
 {
     public Priority PrioritySystem => Priority.FIRST_TASK;
     private static ControlsConfig s_inputs;

@@ -34,12 +34,12 @@ public class UIChatPopup : UIPopup
 
     private void OnEndSelected()
     {
-        ControllableSystem.EnablePlayable();
+        GeneralInputSystem.EnablePlayable();
     }
 
     private void OnStartSelected()
     {
-        ControllableSystem.DisablePlayable();
+        GeneralInputSystem.DisablePlayable();
     }
 
     private void OnButtonSubmit() => _inputFieldProvider.OnSubmit();
