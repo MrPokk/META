@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using BitterECS.Core;
 
 public class UIUpdateSystem : IClientSceneTransitionStart, IClientSceneTransitionComplete
@@ -15,6 +16,8 @@ public class UIUpdateSystem : IClientSceneTransitionStart, IClientSceneTransitio
         VFXService.OnClientSceneTransitionComplete(() =>
         {
             UIRootManager.OpenPopup<UICornerPopup>();
+            if (MobileInputSystem.IsMobile)
+                UIRootManager.OpenScreen<UIMobileJoystickScreen>();
             CursorService.LockCursor();
         });
     }

@@ -14,21 +14,64 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
     {
         s_inputs = new ControlsConfig();
         s_inputs.Enable();
-        s_inputs.Playable.Move.performed += MovePressingSystem;
-        s_inputs.Playable.Move.canceled += MoveUnPressingSystem;
-        s_inputs.UI.Cancel.performed += CancelPressingSystem;
-        //_inputs.UI.Navigate.performed += NavigatePressingSystem; TODO: Make optimized navigation and fix bug with UI
+        s_inputs.Playable.Move.performed += NavigationPlayable.MovePressingSystem;
+        s_inputs.Playable.Move.canceled += NavigationPlayable.MoveUnPressingSystem;
+        s_inputs.UI.Cancel.performed += NavigationUI.CancelPressingSystem;
+        //s_inputs.UI.Navigate.performed += NavigationUI.NavigatePressingSystem; TODO: Make optimized navigation and fix bug with UI
     }
 
     public static void DisablePlayable() => s_inputs.Playable.Disable();
     public static void EnablePlayable() => s_inputs.Playable.Enable();
 
-    private void CancelPressingSystem(InputAction.CallbackContext context)
+    public void Destroy()
+    {
+        if (s_inputs == null)
+        {
+            return;
+        }
+
+        s_inputs.Playable.Move.performed -= NavigationPlayable.MovePressingSystem;
+        s_inputs.Playable.Move.canceled -= NavigationPlayable.MoveUnPressingSystem;
+        s_inputs.UI.Cancel.performed -= NavigationUI.CancelPressingSystem;
+        //s_inputs.UI.Navigate.performed -= NavigationUI.NavigatePressingSystem;
+    }
+}
+
+public static class NavigationPlayable
+{
+    private static EcsFilter.Enumerator EcsEntities =>
+     Build.For<PlayerPresenter>()
+          .Filter()
+          .Include<ControllableComponent>()
+          .Collect();
+
+    public static void MoveUnPressingSystem(InputAction.CallbackContext _)
+    {
+        foreach (var entity in EcsEntities)
+        {
+            entity.Get<ControllableComponent>().input = Vector2.zero;
+        }
+    }
+
+    public static void MovePressingSystem(InputAction.CallbackContext context)
+    {
+        var direction = context.ReadValue<Vector2>();
+
+        foreach (var entity in EcsEntities)
+        {
+            entity.Get<ControllableComponent>().input = direction;
+        }
+    }
+}
+
+public static class NavigationUI
+{
+    public static void CancelPressingSystem(InputAction.CallbackContext _)
     {
         CursorService.SwitchCursor();
     }
 
-    private void NavigatePressingSystem(InputAction.CallbackContext context)
+    public static void NavigatePressingSystem(InputAction.CallbackContext _)
     {
         if (EventSystem.current.currentSelectedGameObject != null)
         {
@@ -47,7 +90,7 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
         }
     }
 
-    private bool ApplyPopup()
+    private static bool ApplyPopup()
     {
         if (!UIRootManager.GetCurrentPopups.Any())
         {
@@ -82,8 +125,7 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
         return true;
     }
 
-    private bool ApplyScreen()
-
+    private static bool ApplyScreen()
     {
         var currentScreen = UIRootManager.GetCurrentScreen;
 
@@ -111,46 +153,5 @@ public class ControllableSystem : IEcsInitSystem, IEcsDestroySystem
 
         navigationComponent.SetFirstSelectedButton();
         return true;
-    }
-    private void MoveUnPressingSystem(InputAction.CallbackContext context)
-    {
-        var controllableEntity = Build.For<PlayerPresenter>()
-        .Filter()
-        .Include<ControllableComponent>()
-        .Collect();
-
-        foreach (var entity in controllableEntity)
-        {
-            ref var controllableComponent = ref entity.Get<ControllableComponent>();
-            controllableComponent.input = Vector2.zero;
-        }
-    }
-
-    private void MovePressingSystem(InputAction.CallbackContext context)
-    {
-        var direction = context.ReadValue<Vector2>();
-        var controllableEntity = Build.For<PlayerPresenter>()
-        .Filter()
-        .Include<ControllableComponent>()
-        .Collect();
-
-        foreach (var entity in controllableEntity)
-        {
-            ref var controllableComponent = ref entity.Get<ControllableComponent>();
-            controllableComponent.input = direction;
-        }
-    }
-
-    public void Destroy()
-    {
-        if (s_inputs == null)
-        {
-            return;
-        }
-
-        s_inputs.Playable.Move.performed -= MovePressingSystem;
-        s_inputs.Playable.Move.canceled -= MoveUnPressingSystem;
-        s_inputs.UI.Navigate.performed -= NavigatePressingSystem;
-        s_inputs.Disable();
     }
 }

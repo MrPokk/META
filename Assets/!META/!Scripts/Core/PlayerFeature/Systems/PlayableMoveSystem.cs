@@ -14,12 +14,12 @@ public partial class PlayableMoveSystem : IClientConnectedFixedRun
 
     public void FixedRun()
     {
-        MovePlayer(ref _ecsFilter);
+        MovePlayer();
     }
 
-    private void MovePlayer(ref EcsFilter query)
+    private void MovePlayer()
     {
-        foreach (var entity in query)
+        foreach (var entity in _ecsFilter)
         {
             if (!IsPlayerValid(entity, out var monoProvider))
             {
@@ -53,7 +53,7 @@ public partial class PlayableMoveSystem : IClientConnectedFixedRun
         }
 
         var diff = current - moving.lastPosition;
-        diff.y = 0; 
+        diff.y = 0;
 
         SetState(ref state, diff.magnitude, m => m > 0.01f);
         moving.lastPosition = current;
