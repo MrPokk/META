@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Authentication;
 using kcp2k;
 using Mirror;
 using Mirror.SimpleWeb;
@@ -10,10 +11,12 @@ using UnityEngine;
 public class NetworkConfig : ScriptableObject
 {
     [Header("<size=18>Network Settings </size>")]
-    [Header("<size=16> Common Settings </size>")]
+    [SerializeField] private NetworkManager _networkManager;
+    public NetworkManager NetworkPrefab => _networkManager;
+
+    [Header("<size=16>Common Settings </size>")]
     [SerializeField] private string _networkAddress = "localhost";
     [SerializeField] private NetworkType _networkType;
-    [SerializeField] private NetworkMode _networkMode;
 
     [Header("<size=16>Transport Settings </size>")]
     [Header("KCP Server Settings")]
@@ -21,8 +24,19 @@ public class NetworkConfig : ScriptableObject
     private KcpSettings _kcpSettings = new()
     {
         port = 7777,
+        dualMode = true,
         noDelay = true,
-        interval = 10
+        interval = 10,
+        timeout = 10000,
+        recvBufferSize = 7361536,
+        sendBufferSize = 7361536,
+        fastResend = 2,
+        receiveWindowSize = 4096,
+        sendWindowSize = 4096,
+        maxRetransmit = 40,
+        maximizeSocketBuffers = true,
+        reliableMaxMessageSize = 297433,
+        unreliableMaxMessageSize = 1194
     };
 
     [Header("WebSocket Server Settings")]
@@ -31,9 +45,17 @@ public class NetworkConfig : ScriptableObject
     {
         port = 8888,
         secure = false,
+        sslProtocols = SslProtocols.Tls12,
+        sslCertJson = "./cert.json",
         maxMessageSize = 16384,
+        maxHandshakeSize = 16384,
+        serverMaxMsgsPerTick = 10000,
+        clientMaxMsgsPerTick = 1000,
         sendTimeout = 5000,
-        receiveTimeout = 20000
+        receiveTimeout = 20000,
+        noDelay = true,
+        batchSend = false,
+        waitBeforeSend = false
     };
 
     [Header("<size=16>About Settings </size>")]
@@ -55,8 +77,22 @@ public class NetworkConfig : ScriptableObject
         }
     }
 
+    private void OnValidate()
+    {
+        if (_networkManager == null)
+        {
+            Debug.LogError("NetworkManager is not assigned in NetworkConfig.");
+            return;
+        }
+    }
+
     public void Configure(NetworkManager manager)
     {
+        if (manager == null)
+        {
+            throw LoggerUtility.Critical("NetworkManager is not assigned in NetworkConfig.");
+        }
+
         manager.networkAddress = _networkAddress;
         manager.authenticator = _authenticator;
 
@@ -67,43 +103,55 @@ public class NetworkConfig : ScriptableObject
 
     private void ConfigureTransport(NetworkManager manager)
     {
-        switch (_networkMode)
+        SetupKcp(manager);
+        SetupWebSocket(manager);
+    }
+
+    private void SetupWebSocket(NetworkManager manager)
+    {
+        if (!manager.TryGetComponent<SimpleWebTransport>(out var websocket))
         {
-            case NetworkMode.KCP:
-                {
-                    LoggerUtility.Info($"Transport using: {_networkMode}");
-                    if (!manager.TryGetComponent<KcpTransport>(out var kcp))
-                    {
-                        throw LoggerUtility.Critical(" KcpTransport component not found");
-                    }
-                    kcp.Port = _kcpSettings.port;
-                    kcp.NoDelay = _kcpSettings.noDelay;
-                    kcp.Interval = _kcpSettings.interval;
-
-                    break;
-                }
-
-            case NetworkMode.WEB:
-                {
-                    LoggerUtility.Info($"Transport using: {_networkMode}");
-                    if (!manager.TryGetComponent<SimpleWebTransport>(out var websocket))
-                    {
-                        throw LoggerUtility.Critical("SimpleWebTransport component not found");
-                    }
-
-                    websocket.port = _webSocketSettings.port;
-                    websocket.sslEnabled = _webSocketSettings.secure;
-                    websocket.sslCertJson = _webSocketSettings.sslCertJson;
-                    websocket.maxMessageSize = _webSocketSettings.maxMessageSize;
-                    websocket.sendTimeout = _webSocketSettings.sendTimeout;
-                    websocket.receiveTimeout = _webSocketSettings.receiveTimeout;
-
-                    break;
-                }
-
-            default:
-                throw LoggerUtility.Critical($"Network mode {_networkMode} is not supported", NetworkType.Server);
+            throw LoggerUtility.Critical("SimpleWebTransport component not found");
         }
+
+        websocket.port = _webSocketSettings.port;
+        websocket.sslEnabled = _webSocketSettings.secure;
+        websocket.sslProtocols = _webSocketSettings.sslProtocols;
+        websocket.sslCertJson = _webSocketSettings.sslCertJson;
+        websocket.maxMessageSize = _webSocketSettings.maxMessageSize;
+        websocket.maxHandshakeSize = _webSocketSettings.maxHandshakeSize;
+        websocket.serverMaxMsgsPerTick = _webSocketSettings.serverMaxMsgsPerTick;
+        websocket.clientMaxMsgsPerTick = _webSocketSettings.clientMaxMsgsPerTick;
+        websocket.sendTimeout = _webSocketSettings.sendTimeout;
+        websocket.receiveTimeout = _webSocketSettings.receiveTimeout;
+        websocket.noDelay = _webSocketSettings.noDelay;
+        websocket.batchSend = _webSocketSettings.batchSend;
+        websocket.waitBeforeSend = _webSocketSettings.waitBeforeSend;
+    }
+
+    private void SetupKcp(NetworkManager manager)
+    {
+        if (!manager.TryGetComponent<KcpTransport>(out var kcp))
+        {
+            throw LoggerUtility.Critical("KcpTransport component not found");
+        }
+
+        kcp.Port = _kcpSettings.port;
+        kcp.DualMode = _kcpSettings.dualMode;
+        kcp.NoDelay = _kcpSettings.noDelay;
+        kcp.Interval = _kcpSettings.interval;
+        kcp.Timeout = _kcpSettings.timeout;
+        kcp.RecvBufferSize = _kcpSettings.recvBufferSize;
+        kcp.SendBufferSize = _kcpSettings.sendBufferSize;
+        kcp.FastResend = _kcpSettings.fastResend;
+        kcp.ReceiveWindowSize = _kcpSettings.receiveWindowSize;
+        kcp.SendWindowSize = _kcpSettings.sendWindowSize;
+        kcp.MaxRetransmit = _kcpSettings.maxRetransmit;
+        kcp.MaximizeSocketBuffers = _kcpSettings.maximizeSocketBuffers;
+
+        // Эти параметры могут быть вычислены на основе других настроек
+        kcp.ReliableMaxMessageSize = _kcpSettings.reliableMaxMessageSize;
+        kcp.UnreliableMaxMessageSize = _kcpSettings.unreliableMaxMessageSize;
     }
 
     public void SaveToFile(string filePath)
@@ -182,7 +230,6 @@ public class NetworkConfig : ScriptableObject
             _exceptionsDisconnect = configData.exceptionsDisconnect.Value;
     }
 
-
     [Serializable]
     private class NetworkConfigData
     {
@@ -196,8 +243,19 @@ public class NetworkConfig : ScriptableObject
     private struct KcpSettings
     {
         public ushort port;
+        public bool dualMode;
         public bool noDelay;
         public uint interval;
+        public int timeout;
+        public int recvBufferSize;
+        public int sendBufferSize;
+        public int fastResend;
+        public uint receiveWindowSize;
+        public uint sendWindowSize;
+        public uint maxRetransmit;
+        public bool maximizeSocketBuffers;
+        public int reliableMaxMessageSize;
+        public int unreliableMaxMessageSize;
     }
 
     [Serializable]
@@ -205,9 +263,16 @@ public class NetworkConfig : ScriptableObject
     {
         public ushort port;
         public bool secure;
+        public SslProtocols sslProtocols;
         public string sslCertJson;
         public int maxMessageSize;
+        public int maxHandshakeSize;
+        public int serverMaxMsgsPerTick;
+        public int clientMaxMsgsPerTick;
         public int sendTimeout;
         public int receiveTimeout;
+        public bool noDelay;
+        public bool batchSend;
+        public bool waitBeforeSend;
     }
 }

@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using BitterECS.Extra;
 using UnityEngine.InputSystem.UI;
+using System.Collections.Generic;
 
 public class EntryPointProject : LifetimeScope
 {
@@ -137,9 +138,7 @@ public class EntryPointProject : LifetimeScope
     private void RegisterNetworkInfrastructure(IContainerBuilder builder)
     {
         var networkManager = CreateNetworkManager();
-        builder.RegisterComponent(networkManager)
-               .As<NetworkManager>()
-               .AsImplementedInterfaces();
+        builder.RegisterComponent(networkManager).AsSelf().AsImplementedInterfaces();
 
         RegisterNetworkProviders(builder);
         RegisterPlatformSpecificEntryPoints(builder);
@@ -147,15 +146,9 @@ public class EntryPointProject : LifetimeScope
 
     private NetworkManager CreateNetworkManager()
     {
-        var manager = new GameObject("[NetworkManager]",
-                typeof(KcpTransport),
-                typeof(SimpleWebTransport),
-                typeof(SceneInterestManagement),
-                typeof(NetworkManager))
-            .GetComponent<NetworkManager>();
+        var manager = Instantiate(_networkConfig.NetworkPrefab);
 
         SetupSpawnPrefabs(manager);
-        SetupPlatformSpecificTransport(manager);
         DontDestroyOnLoad(manager.gameObject);
         return manager;
     }
@@ -171,13 +164,6 @@ public class EntryPointProject : LifetimeScope
             if (hasNetworkIdentity && hasMonoProvider)
                 networkManager.spawnPrefabs.Add(prefab);
         }
-    }
-
-    private void SetupPlatformSpecificTransport(NetworkManager manager)
-    {
-        manager.transport = Application.platform == RuntimePlatform.WebGLPlayer
-            ? manager.GetComponent<SimpleWebTransport>()
-            : manager.GetComponent<KcpTransport>();
     }
 
     private void RegisterNetworkProviders(IContainerBuilder builder)

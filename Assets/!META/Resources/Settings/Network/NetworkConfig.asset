@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 793ddad4101d497d1947d9270d90d2a3, type: 3}
   m_Name: NetworkConfig
   m_EditorClassIdentifier: 
+  _networkManager: {fileID: 8334911766149427541, guid: 24ab707f3bdde3fc9b415750e0ba0517, type: 3}
   _networkAddress: localhost
   _networkType: 1
-  _networkMode: 0
   _kcpSettings:
     port: 5555
     noDelay: 1
@@ -27,7 +27,4 @@ MonoBehaviour:
     sendTimeout: 5000
     receiveTimeout: 20000
   _authenticator: {fileID: 0}
-  _playerPrefab: {fileID: 0}
-  _autoCreatePlayer: 0
-  _playerSpawnMethod: 1
   _exceptionsDisconnect: 1
