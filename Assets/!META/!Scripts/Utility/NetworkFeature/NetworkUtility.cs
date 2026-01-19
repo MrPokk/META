@@ -43,6 +43,7 @@ public class NetworkUtility
     public static bool IsClientReady()
     {
         return NetworkClient.connection != null &&
+               NetworkClient.ready &&
                NetworkClient.active;
     }
 

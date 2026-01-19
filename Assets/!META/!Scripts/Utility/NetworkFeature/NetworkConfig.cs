@@ -40,12 +40,7 @@ public class NetworkConfig : ScriptableObject
     [Header("Authentication")]
     [SerializeField] private NetworkAuthenticator _authenticator;
 
-    [Header("Player Settings")]
-    [SerializeField] private GameObject _playerPrefab;
-    [SerializeField] private bool _autoCreatePlayer = true;
-    [SerializeField] private PlayerSpawnMethod _playerSpawnMethod = PlayerSpawnMethod.RoundRobin;
-
-    [Header("Security")]
+    [Header("Logging Settings")]
     [SerializeField] private bool _exceptionsDisconnect = true;
 
     public NetworkType NetworkType
@@ -64,9 +59,6 @@ public class NetworkConfig : ScriptableObject
     {
         manager.networkAddress = _networkAddress;
         manager.authenticator = _authenticator;
-        manager.playerPrefab = _playerPrefab;
-        manager.autoCreatePlayer = _autoCreatePlayer;
-        manager.playerSpawnMethod = _playerSpawnMethod;
 
         NetworkServer.exceptionsDisconnect = _exceptionsDisconnect;
 

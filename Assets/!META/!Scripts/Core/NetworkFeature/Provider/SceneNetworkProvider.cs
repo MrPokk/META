@@ -41,6 +41,8 @@ public partial class SceneNetworkProvider : IProviderHandler
 
         ConnectionInfo.ClientToScene[client] = message.sceneType;
         ConnectionInfo.SceneToConnections.GetOrAdd(message.sceneType, _ => new() { client }).Add(client);
+        LoggerUtility.Info($"Server requested scene change to {message.sceneType} for client {client.connectionId}", NetworkType.Server);
+
         await NetworkUtility.MessagingService.SendMessage(new SceneChangeRequestMessage(message.sceneType), client);
     }
 
