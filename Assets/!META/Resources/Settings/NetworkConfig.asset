@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _networkAddress: localhost
   _networkType: 1
+  _networkMode: 0
   _kcpSettings:
     port: 5555
     noDelay: 1
     interval: 30
   _webSocketSettings:
     port: 8888
-    secure: 0
+    secure: 1
     sslCertJson: 
     maxMessageSize: 16384
     sendTimeout: 5000

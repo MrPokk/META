@@ -28,6 +28,7 @@ public class EntryPointProject : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         ValidateField();
+        RegisterAllConfigs(builder);
         RegisterLogger(builder);
         RegisterSceneManagement(builder);
         RegisterNetworkInfrastructure(builder);
@@ -72,16 +73,22 @@ public class EntryPointProject : LifetimeScope
 
     #region Dependency Registration
 
+    private void RegisterAllConfigs(IContainerBuilder builder)
+    {
+        builder.RegisterInstance(_loggerConfig).AsSelf();
+        builder.RegisterInstance(_networkConfig).AsSelf();
+        builder.RegisterInstance(_sceneConfig).AsSelf();
+    }
+
     private void RegisterLogger(IContainerBuilder builder)
     {
-        LoggerUtility.Initialize(_loggerConfig, _networkConfig);
-        builder.RegisterInstance(_loggerConfig);
+        builder.RegisterInstance<LoggerUtility>(new(_loggerConfig, _networkConfig)).AsSelf();
     }
 
     private void RegisterSceneManagement(IContainerBuilder builder)
     {
-        var sceneLoader = CreateSceneLoader(builder);
-        builder.RegisterInstance(sceneLoader);
+        builder.RegisterInstance<SceneLoader>(new(_sceneConfig)).AsSelf();
+        SceneLoader.LoadScene(SceneTypes.EntryPoint);
     }
 
     private void RegisterEcsSystem(IContainerBuilder builder)
@@ -91,7 +98,6 @@ public class EntryPointProject : LifetimeScope
                .As<EcsNetworkUnity>()
                .AsImplementedInterfaces();
     }
-
 
     private void RegisterServiceInject(IContainerBuilder builder)
     {
@@ -114,15 +120,6 @@ public class EntryPointProject : LifetimeScope
         var vfxService = Instantiate(prefabVfx);
         DontDestroyOnLoad(vfxService.gameObject);
         return vfxService;
-    }
-
-    private SceneLoader CreateSceneLoader(IContainerBuilder builder)
-    {
-        var loader = new SceneLoader();
-        loader.Initialize(_sceneConfig);
-        SceneLoader.LoadScene(SceneTypes.EntryPoint);
-        builder.RegisterInstance(_sceneConfig);
-        return loader;
     }
 
     private EcsNetworkUnity CreateEcsManager()
@@ -196,6 +193,8 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterPlatformSpecificEntryPoints(IContainerBuilder builder)
     {
+        builder.RegisterInstance<NetworkUtility>(new(_networkConfig)).AsSelf();
+
 #if UNITY_EDITOR
         ConfigureEditorMode(builder);
 #else
@@ -205,8 +204,6 @@ public class EntryPointProject : LifetimeScope
 
     private void RegisterAppropriateEntryPoint(IContainerBuilder builder, NetworkType networkType)
     {
-        builder.RegisterInstance(_networkConfig);
-
         if (networkType == NetworkType.Client)
         {
             builder.RegisterEntryPoint<EntryPointClient>().AsSelf();
@@ -240,11 +237,9 @@ public class EntryPointProject : LifetimeScope
 
     private void ConfigureBuildMode(IContainerBuilder builder)
     {
-        var networkType = NetworkUtility.Initialize(_networkConfig);
+        LoggerUtility.Info($"<color=yellow>[Network] Build mode: <color=white>{NetworkUtility.Type}</color></color>");
 
-        LoggerUtility.Info($"<color=yellow>[Network] Build mode: <color=white>{networkType}</color></color>");
-
-        RegisterAppropriateEntryPoint(builder, networkType);
+        RegisterAppropriateEntryPoint(builder, NetworkUtility.Type);
     }
 
     #endregion

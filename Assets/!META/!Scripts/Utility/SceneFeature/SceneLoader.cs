@@ -1,12 +1,13 @@
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 public class SceneLoader
 {
     private static SceneConfig s_sceneConfig;
 
-    public void Initialize(SceneConfig sceneConfig)
+    public SceneLoader(SceneConfig sceneConfig)
     {
         s_sceneConfig = sceneConfig;
     }

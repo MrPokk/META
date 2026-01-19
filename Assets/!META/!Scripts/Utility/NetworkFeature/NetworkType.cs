@@ -4,3 +4,9 @@ public enum NetworkType
     Client,
     Server
 }
+
+public enum NetworkMode
+{
+    KCP,
+    WEB,
+}

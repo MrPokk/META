@@ -51,7 +51,7 @@ public class UIChatPopup : UIPopup
 
     public void AddContent(ChatMessage message)
     {
-        if (NetworkUtility.IsSenderToOwned(message.ownerId))
+        if (NetworkUtility.IsLocalPlayer(message.ownerId))
         {
             AddOwnerMessage(message);
         }

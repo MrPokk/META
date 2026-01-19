@@ -10,10 +10,10 @@ using Object = UnityEngine.Object;
 
 public class EntryPointServer : IStartable, IDisposable
 {
-    private readonly NetworkConfig _networkConfig;
-    private readonly NetworkManager _networkManager;
-    private readonly IEnumerable<IProviderHandler> _providers;
-    private readonly SceneConfig _sceneConfig;
+    private static NetworkConfig s_networkConfig;
+    private static NetworkManager s_networkManager;
+    private static IEnumerable<IProviderHandler> s_providers;
+    private static SceneConfig s_sceneConfig;
 
     [Inject]
     public EntryPointServer(
@@ -22,23 +22,22 @@ public class EntryPointServer : IStartable, IDisposable
         IEnumerable<IProviderHandler> providers,
         SceneConfig sceneConfig)
     {
-        _networkConfig = networkConfig;
-        _networkManager = networkManager;
-        _providers = providers;
-        _sceneConfig = sceneConfig;
+        s_networkConfig = networkConfig;
+        s_networkManager = networkManager;
+        s_providers = providers;
+        s_sceneConfig = sceneConfig;
     }
 
     public void Start()
     {
-        LoggerUtility.Info("Injecting server...", NetworkType.Server);
-        _networkConfig.Configure(_networkManager);
-        _networkManager.StartServer();
+        LoggerUtility.Info("Starting server...", NetworkType.Server);
+        s_networkConfig.Configure(s_networkManager);
+        s_networkManager.StartServer();
         SetupServerScenes();
         SetupNotGraphicServer();
         SetupProvider();
         SubscribeServerEvents();
         OnServerStart();
-        LoggerUtility.Info("Server started successfully!", NetworkType.Server);
     }
 
     private static void SetupNotGraphicServer()
@@ -60,9 +59,9 @@ public class EntryPointServer : IStartable, IDisposable
         DynamicGI.UpdateEnvironment();
     }
 
-    private void SetupServerScenes()
+    private static void SetupServerScenes()
     {
-        var serverScenes = _sceneConfig.GetServerLoadScenes();
+        var serverScenes = s_sceneConfig.GetServerLoadScenes();
         foreach (var scene in serverScenes)
         {
             SceneLoader.LoadScene(scene, new LoadSceneParameters
@@ -72,42 +71,42 @@ public class EntryPointServer : IStartable, IDisposable
         }
     }
 
-    private void SetupProvider()
+    private static void SetupProvider()
     {
-        foreach (var provider in _providers)
+        foreach (var provider in s_providers)
         {
             provider.HandlersServer();
         }
     }
 
-    private void OnServerStart()
+    private static void OnServerStart()
     {
         EcsSystems.Run<IServerStart>(system => system.Start());
     }
 
-    private void OnServerConnected(NetworkConnectionToClient client)
+    private static void OnServerConnected(NetworkConnectionToClient client)
     {
         EcsSystems.Run<IServerConnected>(system => system.Connect(client));
     }
 
-    private void OnServerError(NetworkConnectionToClient client, TransportError error, string arg3)
+    private static void OnServerError(NetworkConnectionToClient client, TransportError error, string arg3)
     {
         EcsSystems.Run<IServerError>(system => system.OnError(client, error, arg3));
     }
 
-    private void OnServerDisconnected(NetworkConnectionToClient client)
+    private static void OnServerDisconnected(NetworkConnectionToClient client)
     {
         EcsSystems.Run<IServerDisconnected>(system => system.Disconnect(client));
     }
 
-    private void SubscribeServerEvents()
+    private static void SubscribeServerEvents()
     {
         NetworkServer.OnConnectedEvent += OnServerConnected;
         NetworkServer.OnDisconnectedEvent += OnServerDisconnected;
         NetworkServer.OnErrorEvent += OnServerError;
     }
 
-    private void UnsubscribeServerEvents()
+    private static void UnsubscribeServerEvents()
     {
         NetworkServer.OnConnectedEvent -= OnServerConnected;
         NetworkServer.OnDisconnectedEvent -= OnServerDisconnected;

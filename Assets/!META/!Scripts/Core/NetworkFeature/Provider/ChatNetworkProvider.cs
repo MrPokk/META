@@ -5,7 +5,7 @@ using Mirror;
 public class ChatNetworkProvider : IProviderHandler
 {
     public static void SendChatMessage(string message) =>
-    NetworkUtility.SendMessage<ChatMessage>(new(NetworkUtility.ClientID, message)).Forget();
+    NetworkUtility.SendMessage<ChatMessage>(new(EntryPointClient.ClientID, message)).Forget();
 
     public void HandlersClient()
     {

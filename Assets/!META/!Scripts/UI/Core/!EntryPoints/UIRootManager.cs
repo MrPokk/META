@@ -77,6 +77,9 @@ public class UIRootManager : MonoBehaviour
 
     private void OpenScreenInstance<T>() where T : UIScreen
     {
+        if (_uiContainer.OpenedScreenBinder != null && _uiContainer.OpenedScreenBinder.GetType() == typeof(T))
+            return;
+
         CloseScreenInstance();
 
         var binder = CreateAndBindWindow<T>(isScreen: true);

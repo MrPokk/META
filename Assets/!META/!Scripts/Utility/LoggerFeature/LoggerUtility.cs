@@ -4,8 +4,9 @@ using System.IO.Compression;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VContainer;
 
-public static class LoggerUtility
+public class LoggerUtility
 {
     private static LoggerConfig s_config;
     private static string s_logPathToFile;
@@ -14,7 +15,7 @@ public static class LoggerUtility
 
     public enum LogLevel { Info, Warning, Error, Critical }
 
-    public static void Initialize(LoggerConfig config, NetworkConfig networkConfig)
+    public LoggerUtility(LoggerConfig config, NetworkConfig networkConfig)
     {
         s_config = config;
         s_maxLogSizeBytes = (long)(config.MaxLogSizeMB * 1024 * 1024);
@@ -83,7 +84,7 @@ public static class LoggerUtility
 
             var logDir = Path.GetDirectoryName(logPath);
             var logName = Path.GetFileNameWithoutExtension(logPath);
-            
+
             var fileInfo = new FileInfo(logPath);
             if (fileInfo.Length == 0)
             {
@@ -93,7 +94,7 @@ public static class LoggerUtility
 
             var dateString = DateTime.Now.ToString(LoggerConfig.TIME_FORMAT_FILE_NAME);
             var archiveNumber = 1;
-            
+
             while (File.Exists(Path.Combine(logDir, $"{dateString}-{archiveNumber}.log")) ||
                    File.Exists(Path.Combine(logDir, $"{dateString}-{archiveNumber}.log.gz")))
             {
@@ -102,10 +103,10 @@ public static class LoggerUtility
 
             var archivedLogName = $"{dateString}-{archiveNumber}.log";
             var archivedLogPath = Path.Combine(logDir, archivedLogName);
-            
+
             File.Move(logPath, archivedLogPath);
             Debug.Log($"[Logger] Archived existing log to: {archivedLogName} (Size: {fileInfo.Length} bytes)");
-            
+
             if (s_config.CompressArchivedLogs)
             {
                 CompressLogFile(archivedLogPath);
@@ -135,7 +136,7 @@ public static class LoggerUtility
             var logDir = Path.GetDirectoryName(logPath);
             var dateString = DateTime.Now.ToString(LoggerConfig.TIME_FORMAT_FILE_NAME);
             var archiveNumber = 1;
-            
+
             while (File.Exists(Path.Combine(logDir, $"{dateString}-{archiveNumber}.log")) ||
                    File.Exists(Path.Combine(logDir, $"{dateString}-{archiveNumber}.log.gz")))
             {
@@ -144,16 +145,16 @@ public static class LoggerUtility
 
             var archivedLogName = $"{dateString}-{archiveNumber}.log";
             var archivedLogPath = Path.Combine(logDir, archivedLogName);
-            
+
             File.Move(logPath, archivedLogPath);
-            
+
             if (s_config.CompressArchivedLogs)
             {
                 CompressLogFile(archivedLogPath);
             }
-            
+
             File.WriteAllText(logPath, $"## Log rotated (size exceeded {s_config.MaxLogSizeMB}MB) at {DateTime.Now}\n");
-            
+
             Debug.Log($"[Logger] Rotated log due to size limit to: {archivedLogName}");
         }
         catch (Exception e)
@@ -196,7 +197,7 @@ public static class LoggerUtility
             allArchives.AddRange(logFiles);
             allArchives.AddRange(compressedFiles);
 
-            allArchives.Sort((a, b) => 
+            allArchives.Sort((a, b) =>
                 File.GetCreationTime(a).CompareTo(File.GetCreationTime(b)));
 
             while (allArchives.Count >= config.MaxArchivedLogs)
@@ -264,8 +265,10 @@ public static class LoggerUtility
         Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Error);
     }
 
-    public static void Critical(string message, NetworkType network = NetworkType.None)
+    public static Exception Critical(string message, NetworkType network = NetworkType.None)
     {
-        Log(network == NetworkType.None ? message : $"[{network}] {message}", LogLevel.Critical);
+        var messageLog = network == NetworkType.None ? message : $"[{network}] {message}";
+        Log(messageLog, LogLevel.Critical);
+        return new Exception(messageLog);
     }
 }

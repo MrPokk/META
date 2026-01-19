@@ -4,16 +4,15 @@ using UnityEngine.SceneManagement;
 using BitterECS.Integration;
 using System;
 using Object = UnityEngine.Object;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 
 public class ObjectNetworkProvider : IProviderHandler
 {
-    public static UniTask Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider =>
-        NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
+    public static async UniTask Spawn<T>(Vector3 position, Quaternion rotation) where T : MonoProvider =>
+    await NetworkUtility.SendMessage(new SyncObjectSpawn(typeof(T), position, rotation));
 
-    public static UniTask Destroy(uint netId) =>
-      NetworkUtility.SendMessage(new DestroyObjectRequestMessage(netId));
+    public static async UniTask Destroy(uint netId) =>
+    await NetworkUtility.SendMessage(new DestroyObjectRequestMessage(netId));
 
     public void HandlersClient()
     {
@@ -29,15 +28,8 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnClientSync(SyncObjectSpawn spawn)
     {
-        if (!NetworkClient.spawned.TryGetValue(spawn.netId, out var clientGameObject))
-        {
-            return;
-        }
-
-        if (!clientGameObject.TryGetComponent<MonoProvider>(out var provider))
-        {
-            return;
-        }
+        if (!NetworkClient.spawned.TryGetValue(spawn.netId, out var clientGameObject)) return;
+        if (!clientGameObject.TryGetComponent<MonoProvider>(out var provider)) return;
 
         provider.transform.SetPositionAndRotation(spawn.position, spawn.rotation);
 
@@ -47,48 +39,46 @@ public class ObjectNetworkProvider : IProviderHandler
 
     private void OnClientDestroy(DestroyObjectRequestMessage destroyMessage)
     {
-        if (NetworkClient.spawned.TryGetValue(destroyMessage.netId, out var networkObject))
+        if (!NetworkClient.spawned.TryGetValue(destroyMessage.netId, out var networkObject)) return;
+
+        if (networkObject.TryGetComponent<MonoProvider>(out var provider))
         {
-            if (networkObject.TryGetComponent<MonoProvider>(out var provider))
-            {
-                provider.Entity?.Dispose();
-            }
-
-            NetworkClient.spawned.Remove(destroyMessage.netId);
-            Object.Destroy(networkObject.gameObject);
-
-            LoggerUtility.Info($"Client destroyed object with netId: {destroyMessage.netId}", NetworkType.Client);
+            provider.Entity?.Dispose();
         }
+
+        NetworkClient.spawned.Remove(destroyMessage.netId);
+        Object.Destroy(networkObject.gameObject);
+
+        LoggerUtility.Info($"Client destroyed object with netId: {destroyMessage.netId}", NetworkType.Client);
     }
 
-    private void OnServerSync(NetworkConnectionToClient conn, SyncObjectSpawn spawn)
+    private async void OnServerSync(NetworkConnectionToClient connection, SyncObjectSpawn spawn)
     {
-        if (IsHavePlayerIdentity(conn)) return;
+        if (HasPlayerIdentity(connection)) return;
 
         var entityPrefab = FindEntityPrefab(spawn.entity.Type);
         if (entityPrefab == null) return;
 
-        var goInstance = CreateEntityInstance(spawn, entityPrefab, conn);
-        MoveEntityToClientScene(goInstance, conn);
+        var instance = CreateEntityInstance(spawn, entityPrefab, connection);
 
-        var identity = goInstance.GetComponent<NetworkIdentity>();
-
-        if (identity.TryGetComponent<PlayerProvider>(out var _))
+        if (instance.TryGetComponent<PlayerProvider>(out var _))
         {
-            LoggerUtility.Info($"Registering player for connection {conn}", NetworkType.Server);
-            RegisterPlayerForConnection(conn, goInstance);
+            LoggerUtility.Info($"Registering player for connection {connection}", NetworkType.Server);
+            MovePlayerToClientScene(instance, connection, ref spawn);
+            RegisterPlayerForConnection(connection, instance);
         }
         else
         {
             LoggerUtility.Info("Registering object for connection", NetworkType.Server);
-            RegisterObjectForConnection(conn, goInstance);
+            MoveEntityToClientScene(instance, connection);
+            RegisterObjectForConnection(connection, instance);
         }
 
-        SendSpawnConfirmation(conn, spawn, identity);
-        TrackClientEntity(conn, identity);
+        await SendSpawnConfirmation(connection, spawn, instance);
+        TrackClientEntity(connection, instance);
     }
 
-    private async void OnServerDestroy(NetworkConnectionToClient conn, DestroyObjectRequestMessage destroyMessage)
+    private async void OnServerDestroy(NetworkConnectionToClient connection, DestroyObjectRequestMessage destroyMessage)
     {
         if (!NetworkServer.spawned.TryGetValue(destroyMessage.netId, out var networkIdentity))
         {
@@ -96,17 +86,15 @@ public class ObjectNetworkProvider : IProviderHandler
             return;
         }
 
-        if (!ConnectionInfo.ClientEntities.TryGetValue(conn, out var clientObjects) ||
-            !clientObjects.Contains(networkIdentity))
+        if (!ConnectionInfo.ClientEntities.TryGetValue(connection, out var clientObjects) || !clientObjects.Contains(networkIdentity))
         {
-            LoggerUtility.Warning($"Connection {conn.connectionId} does not own object with netId {destroyMessage.netId}", NetworkType.Server);
+            LoggerUtility.Warning($"Connection {connection.connectionId} does not own object with netId {destroyMessage.netId}", NetworkType.Server);
             return;
         }
 
-        if (ConnectionInfo.PlayerEntityId.TryGetValue(conn, out var playerIdentity) &&
-            playerIdentity.netId == destroyMessage.netId)
+        if (ConnectionInfo.PlayerEntityId.TryGetValue(connection, out var playerIdentity) && playerIdentity.netId == destroyMessage.netId)
         {
-            ConnectionInfo.PlayerEntityId.Remove(conn);
+            ConnectionInfo.PlayerEntityId.Remove(connection);
         }
 
         clientObjects.Remove(networkIdentity);
@@ -114,18 +102,15 @@ public class ObjectNetworkProvider : IProviderHandler
         await NetworkUtility.SendMessage(new DestroyObjectRequestMessage(destroyMessage.netId));
         NetworkServer.Destroy(networkIdentity.gameObject);
 
-        LoggerUtility.Info($"Server destroyed object with netId: {destroyMessage.netId} for connection {conn.connectionId}", NetworkType.Server);
+        LoggerUtility.Info($"Server destroyed object with netId: {destroyMessage.netId} for connection {connection.connectionId}", NetworkType.Server);
     }
 
-    private bool IsHavePlayerIdentity(NetworkConnectionToClient conn)
-    {
-        return ConnectionInfo.PlayerEntityId.TryGetValue(conn, out _);
-    }
+    private bool HasPlayerIdentity(NetworkConnectionToClient connection) => ConnectionInfo.PlayerEntityId.ContainsKey(connection);
 
     private GameObject FindEntityPrefab(Type entityType)
     {
-        var spawnToPrefab = NetworkManager.singleton.spawnPrefabs;
-        var entityPrefab = spawnToPrefab.Find(e => e.TryGetComponent(entityType, out var entity));
+        var spawnPrefabs = NetworkManager.singleton.spawnPrefabs;
+        var entityPrefab = spawnPrefabs.Find(prefab => prefab.TryGetComponent(entityType, out _));
 
         if (entityPrefab == null)
         {
@@ -136,36 +121,57 @@ public class ObjectNetworkProvider : IProviderHandler
         return entityPrefab;
     }
 
-    private GameObject CreateEntityInstance(in SyncObjectSpawn spawn, GameObject prefab, NetworkConnectionToClient conn)
+    private NetworkIdentity CreateEntityInstance(SyncObjectSpawn spawn, GameObject prefab, NetworkConnectionToClient connection)
     {
         var instance = Object.Instantiate(prefab, spawn.position, spawn.rotation);
-        instance.name = $"{prefab.name} [{conn.connectionId}]";
-        return instance;
+        instance.name = $"{prefab.name} [{connection.connectionId}]";
+        return instance.GetComponent<NetworkIdentity>();
     }
 
-    private void MoveEntityToClientScene(GameObject entity, NetworkConnectionToClient conn)
+    private void MoveEntityToClientScene(NetworkIdentity entity, NetworkConnectionToClient connection)
     {
-        if (!ConnectionInfo.ClientToScene.TryGetValue(conn, out var sceneType))
+        GetSceneToMoveObject(entity, connection, out _);
+    }
+
+    private void MovePlayerToClientScene(NetworkIdentity entity, NetworkConnectionToClient connection, ref SyncObjectSpawn spawn)
+    {
+        var isValidScene = GetSceneToMoveObject(entity, connection, out var scene);
+        if (!isValidScene)
         {
             return;
         }
 
-        SceneManager.MoveGameObjectToScene(entity, SceneConfig.GetSceneToType(sceneType));
+        IsPlayerSpawnPoint.SetPositionPlayerToSpawnPoint(entity, scene, out var position, out var rotation);
+        spawn.position = position;
+        spawn.rotation = rotation;
     }
 
-    private void RegisterPlayerForConnection(NetworkConnectionToClient conn, GameObject playerObject)
+    private static bool GetSceneToMoveObject(NetworkIdentity entity, NetworkConnectionToClient connection, out Scene scene)
     {
-        LoggerUtility.Info($"Register player for connection {conn.connectionId}", NetworkType.Server);
-        NetworkServer.AddPlayerForConnection(conn, playerObject);
-        ConnectionInfo.PlayerEntityId[conn] = playerObject.GetComponent<NetworkIdentity>();
+        if (!ConnectionInfo.ClientToScene.TryGetValue(connection, out var sceneType))
+        {
+            scene = default;
+            return false;
+        }
+
+        scene = SceneConfig.GetSceneToType(sceneType);
+        SceneManager.MoveGameObjectToScene(entity.gameObject, scene);
+        return true;
     }
 
-    private void RegisterObjectForConnection(NetworkConnectionToClient conn, GameObject networkObject) =>
-        NetworkServer.Spawn(networkObject, conn);
+    private void RegisterPlayerForConnection(NetworkConnectionToClient connection, NetworkIdentity playerObject)
+    {
+        NetworkServer.AddPlayerForConnection(connection, playerObject.gameObject);
+        ConnectionInfo.PlayerEntityId[connection] = playerObject;
+    }
 
-    private UniTask SendSpawnConfirmation(NetworkConnectionToClient conn, in SyncObjectSpawn originalSpawn, NetworkIdentity identity) =>
-        NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), conn);
+    private void RegisterObjectForConnection(NetworkConnectionToClient connection, NetworkIdentity networkObject)
+    {
+        NetworkServer.Spawn(networkObject.gameObject, connection);
+        ConnectionInfo.ClientEntities.GetOrAdd(connection, _ => new()).Add(networkObject);
+    }
 
-    private void TrackClientEntity(NetworkConnectionToClient conn, NetworkIdentity netId) =>
-        ConnectionInfo.ClientEntities.GetOrAdd(conn, _ => new() { netId }).Add(netId);
+    private async UniTask SendSpawnConfirmation(NetworkConnectionToClient connection, SyncObjectSpawn originalSpawn, NetworkIdentity identity) => await NetworkUtility.SendMessage(new SyncObjectSpawn(originalSpawn, identity.netId), connection);
+
+    private void TrackClientEntity(NetworkConnectionToClient connection, NetworkIdentity netId) => ConnectionInfo.ClientEntities.GetOrAdd(connection, _ => new()).Add(netId);
 }

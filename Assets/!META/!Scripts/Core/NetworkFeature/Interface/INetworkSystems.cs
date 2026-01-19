@@ -3,10 +3,6 @@ using BitterECS.Core;
 using Mirror;
 
 #region Client
-public interface IClientStart : IEcsAutoImplement
-{
-    public void Start();
-}
 
 public interface IClientConnected : IEcsAutoImplement
 {

@@ -1,138 +1,51 @@
-using System;
-using Mirror;
 using Cysharp.Threading.Tasks;
-using System.IO;
-using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
+using Mirror;
+using VContainer;
 
-public static class NetworkUtility
+public class NetworkUtility
 {
     public static NetworkType Type { get; private set; }
-    private static readonly Stack<Type> s_messages = new();
+    public static NetworkReconnectService ReconnectService { get; private set; }
+    public static NetworkMessagingService MessagingService { get; private set; }
 
-    public static uint ClientID => NetworkClient.connection.identity.netId;
-
-    public static NetworkType Initialize(NetworkConfig networkConfig)
+    public NetworkUtility(NetworkConfig networkConfig)
     {
-        s_messages.Clear();
+        ReconnectService = new NetworkReconnectService();
+        MessagingService = new NetworkMessagingService();
+        Type = networkConfig.NetworkType;
 
 #if !UNITY_EDITOR
-        if (networkConfig.NetworkType == NetworkType.Server)
-        {
-            var configPath = GetServerConfigPath();
-            LoadOrSaveServerConfig(networkConfig, configPath);
-        }
+        InitializeServerConfig(networkConfig);
 #endif
-        return Type = networkConfig.NetworkType;
     }
 
-    public static bool IsSenderToOwned(uint toIdCheck)
+#if !UNITY_EDITOR
+    private void InitializeServerConfig(NetworkConfig config)
     {
-        if (Type == NetworkType.Client
-            && IsClientActive()
-            && toIdCheck == ClientID)
+        if (config.NetworkType == NetworkType.Server)
         {
-            return true;
+            config.LoadOrSaveServerConfig();
         }
-        return false;
     }
+#endif
 
-    public static async UniTask SendMessage<T>(T value, NetworkConnection target = null) where T : struct, NetworkMessage
+    public static bool IsLocalPlayer(uint netId)
     {
-        if (NetworkServer.active && target != null)
-        {
-            target.Send(value);
-        }
-        else if (NetworkServer.active)
-        {
-            NetworkServer.SendToAll(value);
-        }
-        else if (NetworkClient.active)
-        {
-            await WaitingToSend(value);
-        }
-        else
-        {
-            LoggerUtility.Warning("Waiting for connection...");
-        }
+        return Type == NetworkType.Client && IsClientReady() && netId == EntryPointClient.ClientID;
     }
 
-    private static async UniTask WaitingToSend<T>(T message) where T : struct, NetworkMessage
+    public static async UniTask SendMessage<T>(T message, NetworkConnection targetConnection = null) where T : struct, NetworkMessage
     {
-        try
-        {
-            if (s_messages.Any() && s_messages.Peek() == typeof(T))
-            {
-                return;
-            }
-
-            s_messages.Push(typeof(T));
-
-            await UniTask.WaitUntil(() =>
-                NetworkClient.connection != null &&
-                NetworkClient.connection.isReady
-            );
-
-            NetworkClient.Send(message);
-
-            s_messages.Pop();
-        }
-        catch (OperationCanceledException)
-        {
-            LoggerUtility.Warning("NetworkClient is not ready");
-        }
-        catch (Exception ex)
-        {
-            LoggerUtility.Critical($"Failed to send network message: {ex.Message}");
-        }
+        var service = MessagingService ?? new NetworkMessagingService();
+        await service.SendMessage(message, targetConnection);
     }
 
-    public static bool IsClientActive()
+    public static bool IsClientReady()
     {
-        if (NetworkClient.connection == null || !NetworkClient.active)
-        {
-            LoggerUtility.Info("NetworkClient is not active", NetworkType.Client);
-            return false;
-        }
-        return true;
+        return NetworkClient.connection != null &&
+               NetworkClient.active;
     }
 
-    public static bool IsServerActive()
-    {
-        if (!NetworkServer.active)
-        {
-            LoggerUtility.Info("NetworkServer is not active", NetworkType.Server);
-            return false;
-        }
-        return true;
-    }
+    public static bool IsServerActive() => NetworkServer.active;
 
-    private static void LoadOrSaveServerConfig(NetworkConfig config, string configPath)
-    {
-        var configDir = Path.GetDirectoryName(configPath);
-
-        if (!Directory.Exists(configDir))
-        {
-            Directory.CreateDirectory(configDir);
-        }
-
-        if (File.Exists(configPath))
-        {
-            config.LoadFromFile(configPath);
-            LoggerUtility.Info($"Loaded server config from: {configPath}", NetworkType.Server);
-        }
-        else
-        {
-            config.SaveToFile(configPath);
-            LoggerUtility.Info($"Created new server config at: {configPath}", NetworkType.Server);
-        }
-    }
-
-    private static string GetServerConfigPath()
-    {
-        var dataPath = Application.dataPath;
-        var executableDir = Path.GetDirectoryName(dataPath);
-        return Path.Combine(executableDir, "config", "server_config.json");
-    }
 }

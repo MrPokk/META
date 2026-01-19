@@ -2,7 +2,7 @@ using BitterECS.Core;
 using Unity.Cinemachine;
 using UnityEngine;
 
-public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
+public class PlayableRotationSystem : IClientConnectedFixedRun, IClientConnected
 {
     public Priority PrioritySystem => Priority.High;
     public Camera mainCamera;
@@ -17,8 +17,8 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
     private EcsEvent _ecsEvent =
     Build.For<PlayerPresenter>()
          .Event()
-         .SubscribeWhere<CameraEventComponent,ControllableComponent>(
-            EcsConditions.HasAll<CameraEventComponent,ControllableComponent>,
+         .SubscribeWhere<CameraEventComponent, ControllableComponent>(
+            EcsConditions.HasAll<CameraEventComponent, ControllableComponent>,
             OnAddRotationCamera);
 
     private static void OnAddRotationCamera(EcsEntity entity)
@@ -35,7 +35,7 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
         entity.Remove<CameraEventComponent>();
     }
 
-    public void Start()
+    public void Connect()
     {
         mainCamera = Camera.main;
     }
@@ -64,4 +64,5 @@ public class PlayableRotationSystem : IClientConnectedFixedRun, IClientStart
             monoProvider.transform.rotation = Quaternion.LookRotation(cameraForward).normalized;
         }
     }
+
 }

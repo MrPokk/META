@@ -7,9 +7,10 @@ using VContainer.Unity;
 
 public class EntryPointClient : IStartable, IDisposable
 {
-    private readonly NetworkConfig _networkConfig;
-    private readonly NetworkManager _networkManager;
-    private IEnumerable<IProviderHandler> _providers;
+    private static NetworkManager s_networkManager;
+    private static NetworkConfig s_networkConfig;
+    private static IEnumerable<IProviderHandler> s_providers;
+    public static uint ClientID => NetworkClient.connection?.identity?.netId ?? 0;
 
     [Inject]
     public EntryPointClient(
@@ -17,63 +18,63 @@ public class EntryPointClient : IStartable, IDisposable
         NetworkManager networkManager,
         IEnumerable<IProviderHandler> providers)
     {
-        _networkConfig = clientConfig;
-        _networkManager = networkManager;
-        _providers = providers;
+        s_networkConfig = clientConfig;
+        s_networkManager = networkManager;
+        s_providers = providers;
     }
 
     public void Start()
     {
-        _networkConfig.Configure(_networkManager);
+        s_networkConfig.Configure(s_networkManager);
         SceneLoader.LoadScene(SceneTypes.Menu);
     }
 
-    public void SetupConnection()
+    public static void SetupConnection()
     {
-        LoggerUtility.Info("Injecting client...", NetworkType.Client);
-        _networkManager.StartClient();
+        if (NetworkUtility.IsClientReady())
+        {
+            LoggerUtility.Info("Client already started", NetworkType.Client);
+            return;
+        }
+
+        LoggerUtility.Info("Starting client...", NetworkType.Client);
+
+        s_networkManager.StartClient();
         SetupProvider();
         OnSubscribeClient();
-        OnClientStart();
-        LoggerUtility.Info("Client injected successfully!", NetworkType.Client);
     }
 
-    private void SetupProvider()
+    private static void SetupProvider()
     {
-        foreach (var provider in _providers)
+        foreach (var provider in s_providers)
         {
             provider.HandlersClient();
         }
     }
 
-    private void OnClientStart()
-    {
-        EcsSystems.Run<IClientStart>(system => system.Start());
-    }
-
-    private void OnClientConnected()
+    private static void OnClientConnected()
     {
         EcsSystems.Run<IClientConnected>(system => system.Connect());
     }
 
-    private void OnClientDisconnected()
+    private static void OnClientDisconnected()
     {
         EcsSystems.Run<IClientDisconnected>(system => system.Disconnect());
     }
 
-    private void OnClientError(TransportError error, string arg2)
+    private static void OnClientError(TransportError error, string arg2)
     {
         EcsSystems.Run<IClientError>(system => system.OnError());
     }
 
-    private void OnSubscribeClient()
+    private static void OnSubscribeClient()
     {
         NetworkClient.OnConnectedEvent += OnClientConnected;
         NetworkClient.OnErrorEvent += OnClientError;
         NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
     }
 
-    private void OnUnsubscribeClient()
+    private static void OnUnsubscribeClient()
     {
         NetworkClient.OnConnectedEvent -= OnClientConnected;
         NetworkClient.OnErrorEvent -= OnClientError;

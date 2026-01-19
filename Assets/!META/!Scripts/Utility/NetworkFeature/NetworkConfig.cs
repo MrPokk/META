@@ -13,6 +13,7 @@ public class NetworkConfig : ScriptableObject
     [Header("<size=16> Common Settings </size>")]
     [SerializeField] private string _networkAddress = "localhost";
     [SerializeField] private NetworkType _networkType;
+    [SerializeField] private NetworkMode _networkMode;
 
     [Header("<size=16>Transport Settings </size>")]
     [Header("KCP Server Settings")]
@@ -74,21 +75,42 @@ public class NetworkConfig : ScriptableObject
 
     private void ConfigureTransport(NetworkManager manager)
     {
-        if (manager.TryGetComponent<KcpTransport>(out var kcp))
+        switch (_networkMode)
         {
-            kcp.Port = _kcpSettings.port;
-            kcp.NoDelay = _kcpSettings.noDelay;
-            kcp.Interval = _kcpSettings.interval;
-        }
+            case NetworkMode.KCP:
+                {
+                    LoggerUtility.Info($"Transport using: {_networkMode}");
+                    if (!manager.TryGetComponent<KcpTransport>(out var kcp))
+                    {
+                        throw LoggerUtility.Critical(" KcpTransport component not found");
+                    }
+                    kcp.Port = _kcpSettings.port;
+                    kcp.NoDelay = _kcpSettings.noDelay;
+                    kcp.Interval = _kcpSettings.interval;
 
-        if (manager.TryGetComponent<SimpleWebTransport>(out var websocket))
-        {
-            websocket.port = _webSocketSettings.port;
-            websocket.sslEnabled = _webSocketSettings.secure;
-            websocket.sslCertJson = _webSocketSettings.sslCertJson;
-            websocket.maxMessageSize = _webSocketSettings.maxMessageSize;
-            websocket.sendTimeout = _webSocketSettings.sendTimeout;
-            websocket.receiveTimeout = _webSocketSettings.receiveTimeout;
+                    break;
+                }
+
+            case NetworkMode.WEB:
+                {
+                    LoggerUtility.Info($"Transport using: {_networkMode}");
+                    if (!manager.TryGetComponent<SimpleWebTransport>(out var websocket))
+                    {
+                        throw LoggerUtility.Critical("SimpleWebTransport component not found");
+                    }
+
+                    websocket.port = _webSocketSettings.port;
+                    websocket.sslEnabled = _webSocketSettings.secure;
+                    websocket.sslCertJson = _webSocketSettings.sslCertJson;
+                    websocket.maxMessageSize = _webSocketSettings.maxMessageSize;
+                    websocket.sendTimeout = _webSocketSettings.sendTimeout;
+                    websocket.receiveTimeout = _webSocketSettings.receiveTimeout;
+
+                    break;
+                }
+
+            default:
+                throw LoggerUtility.Critical($"Network mode {_networkMode} is not supported", NetworkType.Server);
         }
     }
 
@@ -105,13 +127,42 @@ public class NetworkConfig : ScriptableObject
         if (!File.Exists(filePath))
         {
             LoggerUtility.Warning($"Network config file not found at {filePath}", NetworkType.Server);
-            return;    
+            return;
         }
 
         var json = File.ReadAllText(filePath);
         var configData = JsonConvert.DeserializeObject<NetworkConfigData>(json);
 
         ApplyConfigData(configData);
+    }
+
+    public void LoadOrSaveServerConfig()
+    {
+        var configPath = GetServerConfigPath();
+        var configDir = Path.GetDirectoryName(configPath);
+
+        if (!Directory.Exists(configDir))
+        {
+            Directory.CreateDirectory(configDir);
+        }
+
+        if (File.Exists(configPath))
+        {
+            LoadFromFile(configPath);
+            LoggerUtility.Info($"Loaded server config from: {configPath}", NetworkType.Server);
+        }
+        else
+        {
+            SaveToFile(configPath);
+            LoggerUtility.Info($"Created new server config at: {configPath}", NetworkType.Server);
+        }
+    }
+
+    private string GetServerConfigPath()
+    {
+        var dataPath = Application.dataPath;
+        var executableDir = Path.GetDirectoryName(dataPath);
+        return Path.Combine(executableDir, "config", "server_config.json");
     }
 
     private NetworkConfigData CreateConfigData() => new()
@@ -138,6 +189,7 @@ public class NetworkConfig : ScriptableObject
         if (configData.exceptionsDisconnect.HasValue)
             _exceptionsDisconnect = configData.exceptionsDisconnect.Value;
     }
+
 
     [Serializable]
     private class NetworkConfigData

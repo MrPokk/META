@@ -1,9 +1,10 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class StartRoomEntryPoint : EntryPointFloors
 {
-    private void Start()
+    private async void Start()
     {
-        ObjectNetworkProvider.Spawn<PlayerProvider>(_playerSpawnPoint.Position, Quaternion.identity);
+        await ObjectNetworkProvider.Spawn<PlayerProvider>(_playerSpawnPoint.Position, Quaternion.identity);
     }
 }

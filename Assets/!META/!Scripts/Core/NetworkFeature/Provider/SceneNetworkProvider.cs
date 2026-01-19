@@ -2,12 +2,13 @@ using System.Threading.Tasks;
 using BitterECS.Core;
 using Cysharp.Threading.Tasks;
 using Mirror;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public partial class SceneNetworkProvider : IProviderHandler
 {
-    public static async UniTask ChangeScene(SceneTypes sceneType)
-    => await NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
+    public static async UniTask ChangeScene(SceneTypes sceneType) =>
+    await NetworkUtility.SendMessage<SceneChangeRequestMessage>(new(sceneType));
 
     public void HandlersClient() =>
     NetworkClient.RegisterHandler<SceneChangeRequestMessage>(OnClientRequest);
@@ -30,7 +31,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         NetworkServer.RegisterHandler<SceneTransitionCompleteMessage>(OnServerTransitionComplete);
     }
 
-    private void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
+    private async void OnServerRequest(NetworkConnectionToClient client, SceneChangeRequestMessage message)
     {
         if (!SceneConfig.IsServerScene(message.sceneType))
         {
@@ -40,8 +41,7 @@ public partial class SceneNetworkProvider : IProviderHandler
 
         ConnectionInfo.ClientToScene[client] = message.sceneType;
         ConnectionInfo.SceneToConnections.GetOrAdd(message.sceneType, _ => new() { client }).Add(client);
-
-        client.Send(new SceneChangeRequestMessage(message.sceneType));
+        await NetworkUtility.MessagingService.SendMessage(new SceneChangeRequestMessage(message.sceneType), client);
     }
 
     private async void OnServerTransitionComplete(NetworkConnectionToClient client, SceneTransitionCompleteMessage message)
@@ -79,7 +79,7 @@ public partial class SceneNetworkProvider : IProviderHandler
         await SyncObjectSpawn(client, new SyncObjectSpawn(playerEntity.netId, position, rotation));
     }
 
-    private async UniTask SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn)
-    => await NetworkUtility.SendMessage(spawn, client);
+    private async UniTask SyncObjectSpawn(NetworkConnectionToClient client, SyncObjectSpawn spawn) =>
+    await NetworkUtility.SendMessage(spawn, client);
 }
 

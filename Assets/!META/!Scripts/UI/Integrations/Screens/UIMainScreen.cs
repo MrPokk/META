@@ -60,8 +60,7 @@ public class UIMainScreen : UIScreen
 
     private async void OnGoToGameplayButted()
     {
-        Container.Resolve<EntryPointClient>().SetupConnection();
-        VFXService.OnClientSceneTransitionSet(1);
+        EntryPointClient.SetupConnection();
         await SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
         Close();
     }

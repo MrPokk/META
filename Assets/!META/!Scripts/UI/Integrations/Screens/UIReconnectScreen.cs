@@ -1,36 +1,22 @@
 using UnityEngine;
 using VContainer;
 using Cysharp.Threading.Tasks;
-using System.Threading;
 
 public class UIReconnectScreen : UIScreen
 {
     [SerializeField] private UIButtonProvider _btnGoToReconnect;
     [SerializeField] private UIButtonProvider _btnGoToExit;
 
-    private CancellationTokenSource _connectionCts;
-    private EntryPointClient _entryPointClient;
-    private bool _isConnecting;
-
-    [Inject]
-    private void Construct(EntryPointClient entryPointClient)
-    {
-        _entryPointClient = entryPointClient;
-    }
-
     public override void Open()
     {
         base.Open();
-
         AddListeners();
         SetupNavigation();
     }
 
     public override void Close()
     {
-        CancelConnectionAttempt();
         RemoveListeners();
-
         base.Close();
     }
 
@@ -59,76 +45,21 @@ public class UIReconnectScreen : UIScreen
         UIRootManager.OpenScreen<UIMainScreen>();
     }
 
-    private void OnReconnectButtonClicked()
+    private async void OnReconnectButtonClicked()
     {
-        if (_isConnecting)
+        if (NetworkUtility.ReconnectService.IsConnecting)
             return;
 
-        StartReconnection().Forget();
-    }
-
-    private async UniTaskVoid StartReconnection()
-    {
-        _isConnecting = true;
-
-        try
-        {
-            await AttemptReconnection();
-        }
-        finally
-        {
-            _isConnecting = false;
-        }
-    }
-
-    private async UniTask AttemptReconnection()
-    {
-        CancelConnectionAttempt();
-
-        _connectionCts = new CancellationTokenSource();
-        var token = _connectionCts.Token;
-
-        _entryPointClient.SetupConnection();
-
-        const int MaxAttempts = 5;
-        const int DelayMs = 2000;
-
-        var isConnected = await TryConnectWithRetries(MaxAttempts, DelayMs, token);
+        var isConnected = await NetworkUtility.ReconnectService.ReconnectAsync();
 
         if (isConnected)
-        {
-            await HandleSuccessfulConnection(token);
-        }
+            await HandleSuccessfulConnection();
         else
-        {
             HandleFailedConnection();
-        }
     }
 
-    private async UniTask<bool> TryConnectWithRetries(int maxAttempts, int delayMs, CancellationToken token)
+    private async UniTask HandleSuccessfulConnection()
     {
-        for (var attempt = 0; attempt < maxAttempts; attempt++)
-        {
-            if (token.IsCancellationRequested)
-                return false;
-
-            if (NetworkUtility.IsClientActive())
-                return true;
-
-            if (attempt < maxAttempts - 1)
-            {
-                await UniTask.Delay(delayMs, cancellationToken: token);
-            }
-        }
-
-        return false;
-    }
-
-    private async UniTask HandleSuccessfulConnection(CancellationToken token)
-    {
-        if (token.IsCancellationRequested)
-            return;
-
         await SceneNetworkProvider.ChangeScene(SceneTypes.StartFloor);
         Close();
     }
@@ -138,15 +69,8 @@ public class UIReconnectScreen : UIScreen
         Debug.LogWarning("Failed to connect after multiple attempts");
     }
 
-    private void CancelConnectionAttempt()
-    {
-        _connectionCts?.Cancel();
-        _connectionCts?.Dispose();
-        _connectionCts = null;
-    }
-
     private void OnDestroy()
     {
-        CancelConnectionAttempt();
+        NetworkUtility.ReconnectService?.Dispose();
     }
 }
