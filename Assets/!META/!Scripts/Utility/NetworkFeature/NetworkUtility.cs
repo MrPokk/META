@@ -13,21 +13,7 @@ public class NetworkUtility
         ReconnectService = new NetworkReconnectService();
         MessagingService = new NetworkMessagingService();
         Type = networkConfig.NetworkType;
-
-#if !UNITY_EDITOR
-        InitializeServerConfig(networkConfig);
-#endif
     }
-
-#if !UNITY_EDITOR
-    private void InitializeServerConfig(NetworkConfig config)
-    {
-        if (config.NetworkType == NetworkType.Server)
-        {
-            config.LoadOrSaveServerConfig();
-        }
-    }
-#endif
 
     public static bool IsLocalPlayer(uint netId)
     {

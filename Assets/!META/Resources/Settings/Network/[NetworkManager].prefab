@@ -95,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Mirror.Transports::Mirror.MultiplexTransport
   transports:
   - {fileID: 1707319288805804150}
-  - {fileID: 1707319288805804150}
+  - {fileID: 9039182702749705188}
 --- !u!114 &9039182702749705188
 MonoBehaviour:
   m_ObjectHideFlags: 0

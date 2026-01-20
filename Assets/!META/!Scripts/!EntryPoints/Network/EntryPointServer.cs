@@ -31,7 +31,7 @@ public class EntryPointServer : IStartable, IDisposable
     public void Start()
     {
         LoggerUtility.Info("Starting server...", NetworkType.Server);
-        s_networkConfig.Configure(s_networkManager);
+        s_networkConfig.LoadToApply(s_networkManager);
         s_networkManager.StartServer();
         SetupServerScenes();
         SetupNotGraphicServer();

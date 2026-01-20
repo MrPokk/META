@@ -25,7 +25,7 @@ public class EntryPointClient : IStartable, IDisposable
 
     public void Start()
     {
-        s_networkConfig.Configure(s_networkManager);
+        s_networkConfig.Apply(s_networkManager);
         SceneLoader.LoadScene(SceneTypes.Menu);
     }
 
