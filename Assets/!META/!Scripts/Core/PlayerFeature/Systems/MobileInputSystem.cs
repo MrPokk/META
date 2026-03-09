@@ -23,16 +23,9 @@ public class MobileInputSystem : IClientConnected, IClientConnectedRun
         return Joystick != null && IsMobile ? Joystick.Direction : Vector2.zero;
     }
 
-#if !UNITY_EDITOR && UNITY_WEBGL
-    [DllImport("__Internal")]
-    private static extern bool IsMobile();
-#endif
-
     public void Connect()
     {
-#if !UNITY_EDITOR && UNITY_WEBGL
-      _isMobile = IsMobile();
-#endif
+        _isMobile = Application.isMobilePlatform;
     }
 
     public void Run()

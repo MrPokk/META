@@ -1,4 +1,4 @@
-using BitterECS.Core;
+﻿using BitterECS.Core;
 using Cysharp.Threading.Tasks;
 using Mirror;
 
@@ -43,8 +43,8 @@ public class ChatNetworkProvider : IProviderHandler
         message.sender = $"Guest{message.ownerId}";
     }
 
-    private void ValidateMessage(ref ChatMessage message)
+    private void ValidateMessage(ref ChatMessage _)
     {
-        //TODO: VALIDATE MESSAGE
+        //TODO: VALIDATE MESSAGEd
     }
 }

@@ -38,9 +38,9 @@ Material:
     m_Ints: []
     m_Floats:
     - ColorLevels: 8
-    - Saturation: 1.5
+    - Saturation: 2
     - _Boolean: 0
-    - _RimPower: 1
+    - _RimPower: 2.32
     - _RimThreshold: 0.9
     m_Colors:
     - _RimColor: {r: 0.99215686, g: 0.82920414, b: 0.6117647, a: 0}
