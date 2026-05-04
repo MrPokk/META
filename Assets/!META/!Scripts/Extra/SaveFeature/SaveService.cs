@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
@@ -163,29 +163,21 @@ public partial class SaveService
         try
         {
             var json = JsonConvert.SerializeObject(s_saveData, s_jsonSettings);
-            var fileIsExist = File.Exists(s_saveFilePath);
-
-            if (!fileIsExist)
-            {
-                Debug.LogError($"Save error: file save not found");
-            }
 
             File.WriteAllText(s_saveFilePath, json, Encoding.UTF8);
         }
         catch (Exception e)
         {
-            Debug.LogError($"Save error: {e.Message}");
+            Debug.LogError($"[Save] Save error: {e.Message}");
         }
     }
 
     private static void LoadData()
     {
-        Debug.Log($"[Save] Loading Data in file: [{s_saveFilePath}]");
-
         if (!File.Exists(s_saveFilePath))
         {
             s_saveData = new SaveData();
-            Debug.LogError($"File save not found but Check path: {s_saveFilePath}");
+            Debug.Log($"[Save] No save file found, starting fresh. Expected path: {s_saveFilePath}");
             return;
         }
 
@@ -193,10 +185,11 @@ public partial class SaveService
         {
             var json = File.ReadAllText(s_saveFilePath, Encoding.UTF8);
             s_saveData = JsonConvert.DeserializeObject<SaveData>(json, s_jsonSettings) ?? new SaveData();
+            Debug.Log($"[Save] Data loaded from: {s_saveFilePath}");
         }
         catch (Exception e)
         {
-            Debug.LogError($"Load error: {e.Message}");
+            Debug.LogError($"[Save] Load error: {e.Message}");
             s_saveData = new SaveData();
         }
     }
